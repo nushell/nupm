@@ -51,7 +51,7 @@ Requires these actions from the user (this should be kept as minimal as possible
 * Add `~/.nupm/overlays` to NU_LIB_DIRS
 * Make the `nupm` command available somehow (e.g., `use` inside `config.nu`)
 
-WIP: I have another idea in mind, need to think about it
+WIP: I have another idea in mind, need to think about it. The disadvantage of this is that the default install location is not an overlay. We could make `nupm` itself an overlay that adds itself as a command.
 
 There are several approaches:
 * bootstrap using shell script sourced from web (like rustup)
@@ -90,4 +90,4 @@ WIP
 * doc generation
 * test running
 * benchmark running
-* configuration (do not add until we really need something to be configurable, keep it minimal)
+* configuration (do not add until we really need something to be configurable, keep it minimal, case study of a project with minimal configuration: https://github.com/psf/black)
