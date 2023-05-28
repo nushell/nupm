@@ -9,7 +9,7 @@ This file collects design ideas and directions. The intention is iterate on this
 
 ## Project Structure
 
-A `nupm` project is defined by `METADATA_FILE` (name inspired by Julia's Project.toml). This is where you define name of the project, version, dependencies, etc., and the type of the project. There are two types of Nushell projects (named `spam` for the example):
+A `nupm` project is defined by `METADATA_FILE` (name inspired by Julia's `Project.toml` or Rust's `Cargo.toml`). This is where you define name of the project, version, dependencies, etc., and the type of the project. There are two types of Nushell projects (named `spam` for the example):
 1. Simple script
 ```
 spam
