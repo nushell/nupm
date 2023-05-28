@@ -2,13 +2,18 @@
 
 This file collects design ideas and directions. The intention is iterate on this document by PRs with discussion.
 
+> **Note**  
+> in the following, until we settle down on precise names, we use the following placeholders:
+> - `METADATA_FILE`: the file containing the metadata of a package, e.g. `project.nuon`, `metadata.json` or `package.nuon`
+> - `NUPM_HOME`: the location of all the `nupm` files, overlays, scripts, libraries, ..., e.g. `~/.nupm/`, `$env.XDG_DATA_HOME/nupm/` or `~/.local/share/nupm/`
+
 ## Project Structure
 
-A `nupm` project is defined by `project.nuon` (name inspired by Julia's Project.toml). This is where you define name of the project, version, dependencies, etc., and the type of the project. There are two types of Nushell projects (named `spam` for the example):
+A `nupm` project is defined by `METADATA_FILE` (name inspired by Julia's Project.toml). This is where you define name of the project, version, dependencies, etc., and the type of the project. There are two types of Nushell projects (named `spam` for the example):
 1. Simple script
 ```
 spam
-├── project.nuon
+├── METADATA_FILE
 └── test.nu
 ```
 * meant as a runnable script, equivalent of Rust's binary project (could use the `.nush` extension if we agree to support it)
@@ -16,7 +21,7 @@ spam
 2. Module
 ```
 spam
-├── project.nuon
+├── METADATA_FILE
 └── spam
     └── mod.nu
 ```
@@ -36,7 +41,7 @@ There are two different concepts in how to handle virtual environments:
 * Per-project virtual environment, cargo-style
   * A project has its own universe (like Rust projects, for example)
 
-The global environments are installed as overlays in a location added by user to `NU_LIB_DIRS` (`~/.nupm/overlays`). For example project `spam` would create `~/.nupm/overlays/spam.nu`). The features of the file:
+The global environments are installed as overlays in a location added by user to `NU_LIB_DIRS` (`NUPM_HOME/overlays`). For example project `spam` would create `NUPM_HOME/overlays/spam.nu`). The features of the file:
 * automatically generated, managed by `nupm`
 * `overlay use spam.nu` brings in all the definitions in the virtual environment, no other action needed
 * `overlay hide` will restore the environment to the previous one
@@ -46,9 +51,9 @@ Per-project environments use _identical_ framework with one difference: Instead 
 ## Installation, bootstraping
 
 Requires these actions from the user (this should be kept as minimal as possible):
-* Add `~/.nupm/bin` to PATH (install location for binary projects)
-* Add `~/.nupm/lib` to NU_LIB_DIRS
-* Add `~/.nupm/overlays` to NU_LIB_DIRS
+* Add `NUPM_HOME/bin` to PATH (install location for binary projects)
+* Add `NUPM_HOME/lib` to NU_LIB_DIRS
+* Add `NUPM_HOME/overlays` to NU_LIB_DIRS
 * Make the `nupm` command available somehow (e.g., `use` inside `config.nu`)
 
 WIP: I have another idea in mind, need to think about it. The disadvantage of this is that the default install location is not an overlay. We could make `nupm` itself an overlay that adds itself as a command.
@@ -76,7 +81,7 @@ We might want `nupm`support both types of dependencies.
 
 Packages need to be stored somewhere. There should be one central "official" location (see https://github.com/NixOS/nixpkgs for inspiration).
 
-Additionally, user should be able to add 3rd party repositories as well as install local and other packages (e.g., from the web, just pointing at URL), as long as it has `project.nuon` telling `nupm` what to do.
+Additionally, user should be able to add 3rd party repositories as well as install local and other packages (e.g., from the web, just pointing at URL), as long as it has `METADATA_FILE` telling `nupm` what to do.
 
 ## API / CLI Interface
 
