@@ -4,12 +4,17 @@ This file collects design ideas and directions. The intention is iterate on this
 
 > **Note**  
 > in the following, until we settle down on precise names, we use the following placeholders:
-> - `METADATA_FILE`: the file containing the metadata of a package, e.g. `project.nuon`, `metadata.json` or `package.nuon`
-> - `NUPM_HOME`: the location of all the `nupm` files, overlays, scripts, libraries, ..., e.g. `~/.nupm/`, `$env.XDG_DATA_HOME/nupm/` or `~/.local/share/nupm/`
+> - `METADATA_FILE`: the file containing the metadata of a package,
+> e.g. `project.nuon`, `metadata.json` or `package.nuon`
+> (name inspired by Julia's `Project.toml` or Rust's `Cargo.toml`)
+> - `NUPM_HOME`: the location of all the `nupm` files, overlays, scripts, libraries, ...,
+> e.g. `~/.nupm/`, `$env.XDG_DATA_HOME/nupm/` or `~/.local/share/nupm/`
 
 ## Project Structure
 
-A `nupm` project is defined by `METADATA_FILE` (name inspired by Julia's `Project.toml` or Rust's `Cargo.toml`). This is where you define name of the project, version, dependencies, etc., and the type of the project. There are two types of Nushell projects (named `spam` for the example):
+A `nupm` project is defined by `METADATA_FILE`.
+This is where you define name of the project, version, dependencies, etc., and the type of the project.
+There are two types of Nushell projects (named `spam` for the example):
 1. Simple script
 ```
 spam
@@ -18,6 +23,7 @@ spam
 ```
 * meant as a runnable script, equivalent of Rust's binary project (could use the `.nush` extension if we agree to support it)
 * installed under `NUPM_CURRENT_OVERLAY/bin/`
+
 2. Module
 ```
 spam
@@ -28,7 +34,9 @@ spam
 * meant as a library to be `use`d or `overlay use`d, equivalent of Rust's library project
 * installed under `NUPM_CURRENT_OVERLAY/lib/`
 
-You can also install non-Nushell packages as well using a "custom" project type where you specify a `build.nu` installation script (e.g., you can install Nushell itself with it). Plugins should also be supported, preferably not requiring fully custom `build.nu`.
+You can also install non-Nushell packages as well using a "custom" project type where you specify a `build.nu` installation script
+(e.g., you can install Nushell itself with it).
+Plugins should also be supported, preferably not requiring fully custom `build.nu`.
 
 ## Separate virtual environments
 
@@ -41,12 +49,14 @@ There are two different concepts in how to handle virtual environments:
 * Per-project virtual environment, cargo-style
   * A project has its own universe (like Rust projects, for example)
 
-The global environments are installed as overlays in a location added by user to `NU_LIB_DIRS` (`NUPM_HOME/overlays`). For example project `spam` would create `NUPM_HOME/overlays/spam.nu`). The features of the file:
+The global environments are installed as overlays in a location added by user to `NU_LIB_DIRS` (`NUPM_HOME/overlays`).
+For example project `spam` would create `NUPM_HOME/overlays/spam.nu`). The features of the file:
 * automatically generated, managed by `nupm`
 * `overlay use spam.nu` brings in all the definitions in the virtual environment, no other action needed
 * `overlay hide` will restore the environment to the previous one
 
-Per-project environments use _identical_ framework with one difference: Instead of installing the overlay file to a global location, it is somewhere within the project. This also makes it opt-in. While `cargo` forces you to have all dependencies installed
+Per-project environments use _identical_ framework with one difference: Instead of installing the overlay file to a global location,
+it is somewhere within the project. This also makes it opt-in. While `cargo` forces you to have all dependencies installed
 
 ## Installation, bootstraping
 
@@ -56,7 +66,8 @@ Requires these actions from the user (this should be kept as minimal as possible
 * Add `NUPM_HOME/overlays` to NU_LIB_DIRS
 * Make the `nupm` command available somehow (e.g., `use` inside `config.nu`)
 
-WIP: I have another idea in mind, need to think about it. The disadvantage of this is that the default install location is not an overlay. We could make `nupm` itself an overlay that adds itself as a command.
+WIP: I have another idea in mind, need to think about it. The disadvantage of this is that the default install location is not an overlay.
+We could make `nupm` itself an overlay that adds itself as a command.
 
 There are several approaches:
 * bootstrap using shell script sourced from web (like rustup)
@@ -67,7 +78,9 @@ There are several approaches:
 
 ## Dependency handling
 
-In compiled programming languages, there are two kinds of dependencies: static and dynamic. Static are included statically and compiled when compiling the project, dynamic are pre-compiled libraries linked to the project. Note that Nushell is [similar to compiled languages](https://www.nushell.sh/book/thinking_in_nu.html#think-of-nushell-as-a-compiled-language) rather than typical dynamic languages like Python, so these concepts are relevan for Nushell.
+In compiled programming languages, there are two kinds of dependencies: static and dynamic. Static are included statically and compiled when compiling the project,
+dynamic are pre-compiled libraries linked to the project.
+Note that Nushell is [similar to compiled languages][Nushell compiled] rather than typical dynamic languages like Python, so these concepts are relevan for Nushell.
 
 Static dependencies:
 * Advantages: reproducible, does not rely on system files (no more missing random.so.2), higher performance (allows joint optimization of dependencies and project itself)
@@ -81,7 +94,8 @@ We might want `nupm`support both types of dependencies.
 
 Packages need to be stored somewhere. There should be one central "official" location (see https://github.com/NixOS/nixpkgs for inspiration).
 
-Additionally, user should be able to add 3rd party repositories as well as install local and other packages (e.g., from the web, just pointing at URL), as long as it has `METADATA_FILE` telling `nupm` what to do.
+Additionally, user should be able to add 3rd party repositories as well as install local and other packages (e.g., from the web, just pointing at URL),
+as long as it has `METADATA_FILE` telling `nupm` what to do.
 
 ## API / CLI Interface
 
@@ -96,3 +110,5 @@ WIP
 * test running
 * benchmark running
 * configuration (do not add until we really need something to be configurable, keep it minimal, case study of a project with minimal configuration: https://github.com/psf/black)
+
+[Nushell compiled]: https://www.nushell.sh/book/thinking_in_nu.html#think-of-nushell-as-a-compiled-language
