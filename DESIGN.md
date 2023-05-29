@@ -101,7 +101,49 @@ as long as it has `METADATA_FILE` telling `nupm` what to do.
 
 Nushell's module design conflates CLI interface with API -- they are the same.
 
-WIP
+- `nupm new [--script] [--module]`
+    - create a new local package with template files ([`kubouch/nuun`])
+- `nupm list`
+    - list currently installed packages and if they're out of date
+- `nupm install`
+    - install package into the currently active overlay (can override which overlay to install to)
+- `nupm add`
+    - add a dependency to the current project
+    - it is different from `nupm install`: this one adds the dependency to the MANIFEST_FILE, `nupm install` does not
+- `nupm uninstall`
+    - uninstall a package from a currently active overlay (can override which overlay to install to)
+- `nupm update`
+    - update all packages in a currently active overlay overlay (can specify package and/or overlay name)
+    - can be used to self-update (let's avoid having both "update" and "upgrade")
+- `nupm search`
+    - search package repository
+
+- `nupm check`
+    - parse the project to search for errors but do not run it
+- `nupm test`
+    - run unit and integration tests of local package
+- `nupm bench`
+    - run benchmarks
+- `nupm doc`
+    - generate documentation
+- `nupm publish`
+    - publish package to a repository
+    - (not sure about this one, for now, repository can be a github repo with packages submitted by PRs)
+
+- `nupm overlay new`
+    - create a new global overlay (Python's virtual environment style)
+    - `--local` flag could generate an overlay locally from the currently opened project
+- `nupm overlay remove`
+    - deletes the overlay
+- `nupm overlay list`
+    - list all overlays
+    - `nupm overlay list <overlay-name>` lists all packages installed within the overlay
+- `nupm overlay export`
+    - dump all the installed package names, versions, etc. to a file
+- `nupm overlay import`
+    - create overlay from exported file
+
+We could later think about being able to extend nupm, like cargo has plugins.
 
 ## Other
 
