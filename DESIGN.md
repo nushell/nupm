@@ -49,14 +49,14 @@ There are two different concepts in how to handle virtual environments:
 * Per-project virtual environment, cargo-style
   * A project has its own universe (like Rust projects, for example)
 
-The global environments are installed as overlays in a location added by user to `NU_LIB_DIRS` (`NUPM_HOME/overlays`).
-For example project `spam` would create `NUPM_HOME/overlays/spam.nu`). The features of the file:
-* automatically generated, managed by `nupm`
-* `overlay use spam.nu` brings in all the definitions in the virtual environment, no other action needed
-* `overlay hide` will restore the environment to the previous one
+Related to that is a lock file: It is intended to describe exactly the dependencies for a package so that it can be reproduced somewhere else.
 
-Per-project environments use _identical_ framework with one difference: Instead of installing the overlay file to a global location,
-it is somewhere within the project. This also makes it opt-in. While `cargo` forces you to have all dependencies installed
+The overlays could be used to achieve all three goals at the same time. When installing a dependency for a package
+* `nupm` adds entry to a **lock file** (this should be the only file you need to 100% replicate the environment)
+* A .nu file (module) is auto-generated from the lock file and contains export statements like `export module NUPM_HOME/cache/packages/spam-v16.4.0-124ptnpbf/spam`. Calling `overlay use` on the file will activate your virtual environment, now you have a per-project environment
+* This file can be installed into a global location that's in your `NU_LIB_DIRS` (e.g., `NUPM_HOME/overlays`) -- now you have a global Python-like virtual environment
+
+Each package would basically have its own overlay. This overlay file (it's just a module) could be used to also handle dependencies. If your project depends on `foo` and `bar` which both depend on `spam` but different versions, they could both import the different verions privately in their own overlay files and in your project's overlay file would be just `export use path/to/foo` and `export use path/to/bar`. This should prevent name clashing of `spam`. The only problem that needs to be figured out is how to tell `foo` to be aware of its overlay.
 
 ## Installation, bootstraping
 
@@ -99,7 +99,7 @@ as long as it has `METADATA_FILE` telling `nupm` what to do.
 
 ## API / CLI Interface
 
-Nushell's module design conflates CLI interface with API -- they are the same.
+Nushell's module design conflates CLI interface with API -- they are the same. Not all of the below are of the same priority.
 
 - `nupm new [--script] [--module]`
     - create a new local package with template files ([`kubouch/nuun`])
@@ -143,7 +143,15 @@ Nushell's module design conflates CLI interface with API -- they are the same.
 - `nupm overlay import`
     - create overlay from exported file
 
-We could later think about being able to extend nupm, like cargo has plugins.
+### Other CLI-related points
+
+* We could later think about being able to extend nupm, like cargo has plugins.
+* Mutable actions (like install) have by default Y/n prompt, but can be overriden with `--yes`
+* By default, new projects are cross-platform:
+    * Windows
+    * MacOS
+    * Linux
+    * Android (if someone is willing to maintain it, we're not testing Nushell on Android, at least for now)
 
 ## Other
 
