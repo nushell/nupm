@@ -119,7 +119,9 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
     - update all packages in a currently active overlay (can specify package and/or overlay name)
     - can be used to self-update: `nupm update nupm`, `nupm update --self` or `nupm update --all` (would update everything)
 - `nupm search`
-    - search package repository
+    - search package repository (only supported ones by default)
+    - `--unsupported (-u)`: would also list packages that are not supported in the user's system, e.g. due to OS incompatibilities
+    - `--all (-a)`: would list all packages
 
 - `nupm check`
     - parse the project to search for errors but do not run it
