@@ -107,6 +107,9 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
     - list currently installed packages and if they're out of date
 - `nupm install`
     - install package into the currently active overlay (can override which overlay to install to)
+    - `--reinstall (-r)`: reinstall package if installed
+    - `--update (-u)`: update local packages if outdated
+    - `-u` > `-r`
 - `nupm add`
     - add a dependency to the current project
     - it is different from `nupm install`: this one adds the dependency to the MANIFEST_FILE, `nupm install` does not
