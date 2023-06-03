@@ -110,14 +110,17 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
     - `--reinstall (-r)`: reinstall package if installed
     - `--update (-u)`: update local packages if outdated
     - `-u` > `-r`
+    - `--yes (-y)`: do not ask for user confirmation to use `nupm install` in scripts
 - `nupm add`
     - add a dependency to the current project
     - it is different from `nupm install`: this one adds the dependency to the MANIFEST_FILE, `nupm install` does not
 - `nupm uninstall`
     - uninstall a package from a currently active overlay (can override which overlay to install to)
+    - `--yes (-y)`: do not ask for user confirmation to use `nupm uninstall` in scripts
 - `nupm update`
     - update all packages in a currently active overlay (can specify package and/or overlay name)
     - can be used to self-update: `nupm update nupm`, `nupm update --self` or `nupm update --all` (would update everything)
+    - `--yes (-y)`: do not ask for user confirmation to use `nupm update` in scripts
 - `nupm search`
     - search package repository (only supported ones by default)
     - `--unsupported (-u)`: would also list packages that are not supported in the user's system, e.g. due to OS incompatibilities
