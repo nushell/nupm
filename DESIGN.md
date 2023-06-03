@@ -131,7 +131,7 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
     - generate documentation
 - `nupm publish`
     - publish package to a repository
-    - (not sure about this one, for now, repository can be a github repo with packages submitted by PRs)
+    - NOT SUPPORTED FOR NOW: the repository will be a *GitHub* repo with packages submitted by PRs to start with
 
 - `nupm overlay new`
     - create a new global overlay (Python's virtual environment style)
