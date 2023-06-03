@@ -116,8 +116,8 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
 - `nupm uninstall`
     - uninstall a package from a currently active overlay (can override which overlay to install to)
 - `nupm update`
-    - update all packages in a currently active overlay overlay (can specify package and/or overlay name)
-    - can be used to self-update (let's avoid having both "update" and "upgrade")
+    - update all packages in a currently active overlay (can specify package and/or overlay name)
+    - can be used to self-update: `nupm update nupm`, `nupm update --self` or `nupm update --all` (would update everything)
 - `nupm search`
     - search package repository
 
