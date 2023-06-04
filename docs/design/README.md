@@ -10,7 +10,17 @@ This file collects design ideas and directions. The intention is iterate on this
 > - `NUPM_HOME`: the location of all the `nupm` files, overlays, scripts, libraries, ...,
 > e.g. `~/.nupm/`, `$env.XDG_DATA_HOME/nupm/` or `~/.local/share/nupm/`
 
-## Project Structure
+# Table of content
+- [Project Structure](#project-structure-toc)
+- [Separate virtual environments](#separate-virtual-environments-toc)
+- [Installation, bootstraping](#installation-bootstraping-toc)
+- [Dependency handling](#dependency-handling-toc)
+- [Package repository](#package-repository-toc)
+- [API / CLI Interface](#api--cli-interface-toc)
+  - [Other CLI-related points](#other-cli-related-points-toc)
+- [Other](#other-toc)
+
+## Project Structure [[toc](#table-of-content)]
 
 A `nupm` project is defined by `METADATA_FILE`.
 This is where you define name of the project, version, dependencies, etc., and the type of the project.
@@ -43,7 +53,7 @@ You can also install non-Nushell packages as well using a "custom" project type 
 (e.g., you can install Nushell itself with it).
 Plugins should also be supported, preferably not requiring fully custom `build.nu`.
 
-## Separate virtual environments
+## Separate virtual environments [[toc](#table-of-content)]
 
 > Inspiration: Python, [conda](https://docs.conda.io/en/latest), `cargo`
 
@@ -63,7 +73,7 @@ The overlays could be used to achieve all three goals at the same time. When ins
 
 Each package would basically have its own overlay. This overlay file (it's just a module) could be used to also handle dependencies. If your project depends on `foo` and `bar` which both depend on `spam` but different versions, they could both import the different verions privately in their own overlay files and in your project's overlay file would be just `export use path/to/foo` and `export use path/to/bar`. This should prevent name clashing of `spam`. The only problem that needs to be figured out is how to tell `foo` to be aware of its overlay.
 
-## Installation, bootstraping
+## Installation, bootstraping [[toc](#table-of-content)]
 
 Requires these actions from the user (this should be kept as minimal as possible):
 * Add `NUPM_HOME/bin` to PATH (install location for binary projects)
@@ -82,7 +92,7 @@ There are several approaches:
 * (in the future maybe) as a compiled binary (using something like [`jntrnr/nu_app`])
   * This would allow us to reverse the installation steps: Instead of Nushell installing `nupm`, we could let user only install `nupm` which would in turn install Nushell
 
-## Dependency handling
+## Dependency handling [[toc](#table-of-content)]
 
 In compiled programming languages, there are two kinds of dependencies: static and dynamic. Static are included statically and compiled when compiling the project,
 dynamic are pre-compiled libraries linked to the project.
@@ -101,14 +111,14 @@ Dynamic dependencies are the opposite basically.
 
 We might want `nupm` support both types of dependencies.
 
-## Package repository 
+## Package repository [[toc](#table-of-content)]
 
 Packages need to be stored somewhere. There should be one central "official" location (see https://github.com/NixOS/nixpkgs for inspiration).
 
 Additionally, user should be able to add 3rd party repositories as well as install local and other packages (e.g., from the web, just pointing at URL),
 as long as it has `METADATA_FILE` telling `nupm` what to do.
 
-## API / CLI Interface
+## API / CLI Interface [[toc](#table-of-content)]
 
 Nushell's module design conflates CLI interface with API -- they are the same. Not all of the below are of the same priority.
 
@@ -166,7 +176,7 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
 - `nupm overlay import`
     - create overlay from exported file
 
-### Other CLI-related points
+### Other CLI-related points [[toc](#table-of-content)]
 
 * We could later think about being able to extend `nupm`, like `cargo` has plugins.
 * Mutable actions (like install) have by default Y/n prompt, but can be overriden with `--yes`
@@ -176,7 +186,7 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
     * Linux
     * Android (if someone is willing to maintain it, we're not testing Nushell on Android, at least for now)
 
-## Other
+## Other [[toc](#table-of-content)]
 
 * activations
 * doc generation
