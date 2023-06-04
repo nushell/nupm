@@ -1,4 +1,4 @@
-# Design of nupm :warning: Work In Progress :warning: 
+# Design of `nupm` :warning: Work In Progress :warning: 
 
 This file collects design ideas and directions. The intention is iterate on this document by PRs with discussion.
 
@@ -14,6 +14,10 @@ This file collects design ideas and directions. The intention is iterate on this
 
 A `nupm` project is defined by `METADATA_FILE`.
 This is where you define name of the project, version, dependencies, etc., and the type of the project.
+> **Note**  
+> see [`METADATA.md`](references/METADATA.md) for a more in-depth description of
+> the `METADATA_FILE`
+
 There are two types of Nushell projects (named `spam` for the example):
 1. Simple script
 ```
@@ -21,7 +25,8 @@ spam
 ├── METADATA_FILE
 └── test.nu
 ```
-* meant as a runnable script, equivalent of Rust's binary project (could use the `.nush` extension if we agree to support it)
+* meant as a runnable script, equivalent of Rust's binary project
+* could use the `.nush` extension if we agree to support it
 * installed under `NUPM_CURRENT_OVERLAY/bin/`
 
 2. Module
@@ -40,13 +45,13 @@ Plugins should also be supported, preferably not requiring fully custom `build.n
 
 ## Separate virtual environments
 
-Inspiration: Python, [conda](https://docs.conda.io/en/latest), `cargo`
+> Inspiration: Python, [conda](https://docs.conda.io/en/latest), `cargo`
 
 There are two different concepts in how to handle virtual environments:
-* Having global virtual environments, Python-style. We have a working prototype at https://github.com/kubouch/nuun using overlays.
+* Having global virtual environments, Python-style. We have a working prototype at [`kubouch/nuun`] using overlays.
   * Installing a package will install it to the environment
   * Possible to switch between them, they are completely isolated from each other
-* Per-project virtual environment, cargo-style
+* Per-project virtual environment, `cargo`-style
   * A project has its own universe (like Rust projects, for example)
 
 Related to that is a lock file: It is intended to describe exactly the dependencies for a package so that it can be reproduced somewhere else.
@@ -66,29 +71,35 @@ Requires these actions from the user (this should be kept as minimal as possible
 * Add `NUPM_HOME/overlays` to NU_LIB_DIRS
 * Make the `nupm` command available somehow (e.g., `use` inside `config.nu`)
 
-WIP: I have another idea in mind, need to think about it. The disadvantage of this is that the default install location is not an overlay.
-We could make `nupm` itself an overlay that adds itself as a command.
+> :warning: **WIP**  
+> I have another idea in mind, need to think about it. The disadvantage of this is that the default install location is not an overlay.
+> We could make `nupm` itself an overlay that adds itself as a command.
 
 There are several approaches:
-* bootstrap using shell script sourced from web (like rustup)
+* bootstrap using shell script sourced from web (like `rustup`)
 * embedded inside Nushell's binary
-  * The advantage of this is that it does not require user's config. The PATH and NU_LIB_DIRS could be pre-configured in Nushel
-* (in the future maybe) as a compiled binary (using something like https://github.com/jntrnr/nu_app)
-  * This would allow us to reverse the installation steps: Instead of Nushell installing nupm, we could let user only install nupm which would in turn install Nushell
+  * The advantage of this is that it does not require user's config. The `PATH` and `NU_LIB_DIRS` could be pre-configured in Nushell
+* (in the future maybe) as a compiled binary (using something like [`jntrnr/nu_app`])
+  * This would allow us to reverse the installation steps: Instead of Nushell installing `nupm`, we could let user only install `nupm` which would in turn install Nushell
 
 ## Dependency handling
 
 In compiled programming languages, there are two kinds of dependencies: static and dynamic. Static are included statically and compiled when compiling the project,
 dynamic are pre-compiled libraries linked to the project.
-Note that Nushell is [similar to compiled languages][Nushell compiled] rather than typical dynamic languages like Python, so these concepts are relevan for Nushell.
+
+> **Note**  
+> Nushell is [similar to compiled languages][Nushell compiled] rather than typical dynamic languages like Python, so these concepts are relevant for Nushell.
 
 Static dependencies:
-* Advantages: reproducible, does not rely on system files (no more missing random.so.2), higher performance (allows joint optimization of dependencies and project itself)
-* Disadvatage: increased compile time, binary size, can easily end up with multiple versions of the same library (hello Nushell dependencies)
+* :thumbsup:: reproducible, does not rely on system files (no more missing `random.so.2`), higher performance (allows joint optimization of dependencies and project itself)
+* :thumbsdown:: increased compile time, binary size, can easily end up with multiple versions of the same library (hello Nushell dependencies)
 
-Dynamic dependencies are the opposite basically. Note that Nushell currently supports only static dependencies, but we might be able to add the "linking" feature at some point.
+Dynamic dependencies are the opposite basically.
 
-We might want `nupm`support both types of dependencies.
+> **Note**  
+> Nushell currently supports only static dependencies, but we might be able to add the "linking" feature at some point.
+
+We might want `nupm` support both types of dependencies.
 
 ## Package repository 
 
@@ -118,18 +129,17 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
     - `--yes (-y)`: do not ask for user confirmation, e.g. to use `nupm install` in scripts
 - `nupm add`
     - add a dependency to the current project
-    - it is different from `nupm install`: this one adds the dependency to the MANIFEST_FILE, `nupm install` does not
+    - it is different from `nupm install`: this one adds the dependency to the `METADATA_FILE`, `nupm install` does not
 - `nupm uninstall`
     - uninstall a package from a currently active overlay (can override which overlay to install to)
     - `--yes (-y)`: do not ask for user confirmation, e.g. to use `nupm uninstall` in scripts
 - `nupm update`
     - update all packages in a currently active overlay (can specify package and/or overlay name)
-    - can be used to self-update: `nupm update nupm`, `nupm update --self` or `nupm update --all` (would update everything)
+    - can be used to self-update: `nupm update nupm`, `nupm update --self` or `nupm update --all` (the last one would update every package installed by `nupm`, including `nupm` itself)
     - `--yes (-y)`: do not ask for user confirmation, e.g. to use `nupm update` in scripts
 - `nupm search`
     - search package repository (only supported ones by default)
     - `--unsupported (-u)`: would also list packages that are not supported in the user's system, e.g. due to OS incompatibilities
-    - `--all (-a)`: would list all packages
 
 - `nupm check`
     - parse the project to search for errors but do not run it
@@ -141,7 +151,7 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
     - generate documentation
 - `nupm publish`
     - publish package to a repository
-    - NOT SUPPORTED FOR NOW: the repository will be a *GitHub* repo with packages submitted by PRs to start with
+    - **NOT SUPPORTED FOR NOW**: the repository will be a *GitHub* repo with packages submitted by PRs to start with
 
 - `nupm overlay new`
     - create a new global overlay (Python's virtual environment style)
@@ -158,7 +168,7 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
 
 ### Other CLI-related points
 
-* We could later think about being able to extend nupm, like cargo has plugins.
+* We could later think about being able to extend `nupm`, like `cargo` has plugins.
 * Mutable actions (like install) have by default Y/n prompt, but can be overriden with `--yes`
 * By default, new projects are cross-platform:
     * Windows
@@ -172,6 +182,10 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
 * doc generation
 * test running
 * benchmark running
-* configuration (do not add until we really need something to be configurable, keep it minimal, case study of a project with minimal configuration: https://github.com/psf/black)
+* configuration (do not add until we really need something to be configurable, keep it minimal, case study of a project with minimal configuration: [`psf/black`])
 
 [Nushell compiled]: https://www.nushell.sh/book/thinking_in_nu.html#think-of-nushell-as-a-compiled-language
+
+[`kubouch/nuun`]: https://github.com/kubouch/nuun
+[`jntrnr/nu_app`]: https://github.com/jntrnr/nu_app
+[`psf/black`]: https://github.com/psf/black
