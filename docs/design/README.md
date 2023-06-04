@@ -37,7 +37,7 @@ spam
 ```
 * meant as a runnable script, equivalent of Rust's binary project
 * could use the `.nush` extension if we agree to support it
-* installed under `NUPM_CURRENT_OVERLAY/bin/`
+* installed under `NUPM_HOME/bin/`
 
 2. Module
 ```
@@ -47,18 +47,19 @@ spam
     └── mod.nu
 ```
 * meant as a library to be `use`d or `overlay use`d, equivalent of Rust's library project
-* installed under `NUPM_CURRENT_OVERLAY/lib/`
+* installed under `NUPM_HOME/modules/`
 
 You can also install non-Nushell packages as well using a "custom" project type where you specify a `build.nu` installation script
 (e.g., you can install Nushell itself with it).
 Plugins should also be supported, preferably not requiring fully custom `build.nu`.
+More "helper" types of projects could be made, e.g., installing from GitHub, etc. We could allow users to add new project types via "templates".
 
 ## Separate virtual environments [[toc](#table-of-content)]
 
 > Inspiration: Python, [conda](https://docs.conda.io/en/latest), `cargo`
 
-There are two different concepts in how to handle virtual environments:
-* Having global virtual environments, Python-style. We have a working prototype at [`kubouch/nuun`] using overlays.
+There are two different concepts how to handle virtual environments:
+* Global virtual environments, Python-style. We have a working prototype at [`kubouch/nuun`] using overlays.
   * Installing a package will install it to the environment
   * Possible to switch between them, they are completely isolated from each other
 * Per-project virtual environment, `cargo`-style
@@ -70,6 +71,7 @@ The overlays could be used to achieve all three goals at the same time. When ins
 * `nupm` adds entry to a **lock file** (this should be the only file you need to 100% replicate the environment)
 * A .nu file (module) is auto-generated from the lock file and contains export statements like `export module NUPM_HOME/cache/packages/spam-v16.4.0-124ptnpbf/spam`. Calling `overlay use` on the file will activate your virtual environment, now you have a per-project environment
 * This file can be installed into a global location that's in your `NU_LIB_DIRS` (e.g., `NUPM_HOME/overlays`) -- now you have a global Python-like virtual environment
+  * Each overlay under `NUPM_HOME/overlays` will mimic the main NUPM_HOME structure, e.g., for an overlay `spam` there will be `NUPM_HOME/overlays/spam/bin`, `NUPM_HOME/overlays/spam/modules` (`NUPM_HOME/overlays/spam/overlays`? It might not be the best idea to have it recursive)
 
 Each package would basically have its own overlay. This overlay file (it's just a module) could be used to also handle dependencies. If your project depends on `foo` and `bar` which both depend on `spam` but different versions, they could both import the different verions privately in their own overlay files and in your project's overlay file would be just `export use path/to/foo` and `export use path/to/bar`. This should prevent name clashing of `spam`. The only problem that needs to be figured out is how to tell `foo` to be aware of its overlay.
 
@@ -77,13 +79,12 @@ Each package would basically have its own overlay. This overlay file (it's just 
 
 Requires these actions from the user (this should be kept as minimal as possible):
 * Add `NUPM_HOME/bin` to PATH (install location for binary projects)
-* Add `NUPM_HOME/lib` to NU_LIB_DIRS
+* Add `NUPM_HOME/modules` to NU_LIB_DIRS
 * Add `NUPM_HOME/overlays` to NU_LIB_DIRS
 * Make the `nupm` command available somehow (e.g., `use` inside `config.nu`)
 
 > :warning: **WIP**  
-> I have another idea in mind, need to think about it. The disadvantage of this is that the default install location is not an overlay.
-> We could make `nupm` itself an overlay that adds itself as a command.
+> The disadvantage of this is that the default install location is not an overlay. We could make `nupm` itself an overlay that adds itself as a command, so that you can activate/deactivate it. We might need a few attempts to get to the right solution.
 
 There are several approaches:
 * bootstrap using shell script sourced from web (like `rustup`)
@@ -101,19 +102,16 @@ dynamic are pre-compiled libraries linked to the project.
 > Nushell is [similar to compiled languages][Nushell compiled] rather than typical dynamic languages like Python, so these concepts are relevant for Nushell.
 
 Static dependencies:
-* :thumbsup:: reproducible, does not rely on system files (no more missing `random.so.2`), higher performance (allows joint optimization of dependencies and project itself)
+* :thumbsup:: reproducible, does not rely on system files at runtime (no more missing `random.so.2`), higher performance (allows joint optimization of dependencies and project itself)
 * :thumbsdown:: increased compile time, binary size, can easily end up with multiple versions of the same library (hello Nushell dependencies)
 
 Dynamic dependencies are the opposite basically.
 
-> **Note**  
-> Nushell currently supports only static dependencies, but we might be able to add the "linking" feature at some point.
-
-We might want `nupm` support both types of dependencies.
+Nushell currently supports only static dependencies, but we might be able to add the "linking" feature at some point which could unlock new interesting patterns regarding package management, like testing.
 
 ## Package repository [[toc](#table-of-content)]
 
-Packages need to be stored somewhere. There should be one central "official" location (see https://github.com/NixOS/nixpkgs for inspiration).
+Packages need to be stored somewhere. There should be one central "official" location (see https://github.com/NixOS/nixpkgs for inspiration). GitHub repository seems like a good starting point.
 
 Additionally, user should be able to add 3rd party repositories as well as install local and other packages (e.g., from the web, just pointing at URL),
 as long as it has `METADATA_FILE` telling `nupm` what to do.
@@ -163,6 +161,7 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
     - publish package to a repository
     - **NOT SUPPORTED FOR NOW**: the repository will be a *GitHub* repo with packages submitted by PRs to start with
 
+The following are for Python-style global overlays, we might need to re-think this for local package overlays: 
 - `nupm overlay new`
     - create a new global overlay (Python's virtual environment style)
     - `--local` flag could generate an overlay locally from the currently opened project
@@ -176,7 +175,7 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
 - `nupm overlay import`
     - create overlay from exported file
 
-### Other CLI-related points [[toc](#table-of-content)]
+### Other CLI-related notes [[toc](#table-of-content)]
 
 * We could later think about being able to extend `nupm`, like `cargo` has plugins.
 * Mutable actions (like install) have by default Y/n prompt, but can be overriden with `--yes`
@@ -188,7 +187,7 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
 
 ## Other [[toc](#table-of-content)]
 
-* activations
+* activations (not bringing all package's content but only parts of it)
 * doc generation
 * test running
 * benchmark running
