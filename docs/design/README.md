@@ -120,11 +120,6 @@ as long as it has `METADATA_FILE` telling `nupm` what to do.
 
 Nushell's module design conflates CLI interface with API -- they are the same. Not all of the below are of the same priority.
 
-> **Note**  
-> commands like `list`, `install`, `search`, `uninstall`, `update`, ..., i.e. should
-> - print short descriptions by default
-> - print long descriptions with `--long-description (-l)`
-
 - `nupm new [--script] [--module]`
     - create a new local package with template files ([`kubouch/nuun`])
 - `nupm list`
