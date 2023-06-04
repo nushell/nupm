@@ -18,5 +18,3 @@
 - `dependencies`: Packages needed by the package — versions have to be specified. e.g. `[nupm/0.7.0]`. Semantic versioning is also supported: `[nupm/~0.7]`
 - `installer`: Name of a script (relative to the package scope) that will install the package instead (or in addition to) of default `nupm` logic
 - `keywords`: List of keywords used by `nupm search` in addition to `name`
-- `pre-install-hook`: Name of a script (relative to the package scope) to be executed before installation. Might be simple pre-install message or more complex logic
-- `post-install-hook`: Name of a script (relative to the package scope) to be executed after installation. Might be simple post-install message or more complex logic
