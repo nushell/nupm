@@ -40,7 +40,7 @@ def query-github-api [
         )
     } catch {|e|
         if ($e.msg == "Network failure") and ($e.debug | str contains "Access forbidden (403)") {
-            throw-error "could not reach GitHub (you might have reached the API limit, please try again later)"
+            throw-error "github_api_limit_reached: could not reach GitHub (you might have reached the API limit, please try again later)"
         }
         return $e.raw
     }
