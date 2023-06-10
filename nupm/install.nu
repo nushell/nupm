@@ -136,4 +136,6 @@ export def main [
 
         $files = ($files | where type == file | append $sub_files)
     }
+
+    # TODO: pull down the files into the local `nupm` store
 }
