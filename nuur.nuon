@@ -6,7 +6,6 @@
     [package "https://github.com/amtoine/nu-right-prompt"]
     [package "https://github.com/amtoine/nu-pomodoro"]
     [package "https://github.com/goatfiles/scripts/tree/main/nu_scripts"]
-    [package "https://github.com/goatfiles/scripts/tree/main/nu_scripts/scripts/nu-logout"]
     [package "https://github.com/nushell/nu_scripts"]
 
     [plugin "https://github.com/JosephTLyons/nu_plugin_periodic_table"]
@@ -45,6 +44,7 @@
     [script "https://github.com/nushell/nu_scripts/blob/main/sourced/api_wrappers/wolframalpha.nu"]
     [script "https://github.com/Jan9103/packer.nu"]
     [script "https://github.com/1Kinoti/stdx.nu"]
+    [package "https://github.com/goatfiles/scripts/tree/main/nu_scripts/scripts/nu-logout"]
 
     [completion "https://github.com/nushell/nu_scripts/blob/main/custom-completions/git/git-completions.nu"]
     [completion "https://github.com/nushell/nu_scripts/blob/main/custom-completions/make/make-completions.nu"]
