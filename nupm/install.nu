@@ -49,12 +49,19 @@ export def main [
     }
 
     log info "checking integrity of the remote package"
-    let default_branch = (http get (
-        $url_tokens
-        | update host "api.github.com"
-        | update path { path split | skip 1 | prepend "repos" | str join "/" }
-        | url join
-    ) | get default_branch)
+    let default_branch = (try {
+        http get (
+            $url_tokens
+            | update host "api.github.com"
+            | update path { path split | skip 1 | prepend "repos" | str join "/" }
+            | url join
+        ) | get default_branch
+    } catch {|e|
+        if ($e.msg == "Network failure") and ($e.debug | str contains "Access forbidden (403)") {
+            throw-error "could not reach GitHub (you might have reached the API limit, please try again later)"
+        }
+        return $e.raw
+    })
 
     let package_url = (
         $url_tokens
@@ -126,18 +133,25 @@ export def main [
         log debug $"total files: ($files | where type == file | length), remaining dirs: ($files | where type == dir | length)"
         let sub_files = (
             $files | where type == dir | get path | each {|path|
-                http get (
-                    $url_tokens
-                    | update host "api.github.com"
-                    | update path {
-                        path split
-                        | skip 1
-                        | prepend "repos"
-                        | append ["contents" $path]
-                        | str join "/"
+                try {
+                    http get (
+                        $url_tokens
+                        | update host "api.github.com"
+                        | update path {
+                            path split
+                            | skip 1
+                            | prepend "repos"
+                            | append ["contents" $path]
+                            | str join "/"
+                        }
+                        | url join
+                    )
+                } catch {|e|
+                    if ($e.msg == "Network failure") and ($e.debug | str contains "Access forbidden (403)") {
+                        throw-error "could not reach GitHub (you might have reached the API limit, please try again later)"
                     }
-                    | url join
-                )
+                    return $e.raw
+                }
             }
             | flatten
         )
