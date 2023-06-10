@@ -45,6 +45,7 @@
     [script "https://github.com/Jan9103/packer.nu"]
     [script "https://github.com/1Kinoti/stdx.nu"]
     [package "https://github.com/goatfiles/scripts/tree/main/nu_scripts/scripts/nu-logout"]
+    [package "https://github.com/goatfiles/scripts/tree/main/nu_scripts/scripts/nu-clippy"]
 
     [completion "https://github.com/nushell/nu_scripts/blob/main/custom-completions/git/git-completions.nu"]
     [completion "https://github.com/nushell/nu_scripts/blob/main/custom-completions/make/make-completions.nu"]
