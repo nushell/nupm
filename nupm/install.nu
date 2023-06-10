@@ -37,4 +37,14 @@ export def main [
     url: string  # the URL to the root of the repo holding the package
     --path: string  # if the package is not the repo itself, gives the path to it
 ] {
+    log debug $"parsing URL ($url)"
+    let url_tokens = (try {
+        $url | url parse | select scheme host path
+    } catch {
+        throw-error "invalid_url" "not a valid URL" --span (metadata $url | get span)
+    })
+
+    if $url_tokens.host != "github.com" {
+        throw-error "invalid_host" $"($url_tokens.host) is not a supported host" --span (metadata $url | get span)
+    }
 }
