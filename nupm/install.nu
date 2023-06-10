@@ -102,4 +102,46 @@ export def main [
     if not ($missing_keys | is-empty) {
         throw-error "invalid_package_file" $"package file is missing the following required keys: ($missing_keys | str join ', ')" --span (metadata $url | get span)
     }
+
+    log info $"installing package ($package.name)"
+    let files_api_url = (
+        $url_tokens
+        | update host "api.github.com"
+        | update path {
+            path split
+            | skip 1
+            | prepend "repos"
+            | append "contents"
+            | if $path != null { append $path } else {}
+            | str join "/"
+        }
+        | url join
+    )
+
+    log debug "pulling down the list of files"
+    mut files = (
+        http get $files_api_url | select path sha size type download_url
+    )
+    while not ($files | where type == dir | is-empty) {
+        log debug $"total files: ($files | where type == file | length), remaining dirs: ($files | where type == dir | length)"
+        let sub_files = (
+            $files | where type == dir | get path | each {|path|
+                http get (
+                    $url_tokens
+                    | update host "api.github.com"
+                    | update path {
+                        path split
+                        | skip 1
+                        | prepend "repos"
+                        | append ["contents" $path]
+                        | str join "/"
+                    }
+                    | url join
+                )
+            }
+            | flatten
+        )
+
+        $files = ($files | where type == file | append $sub_files)
+    }
 }
