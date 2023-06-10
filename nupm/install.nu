@@ -21,6 +21,31 @@ def throw-error [
     }
 }
 
+def query-github-api [
+    url_tokens: record<scheme: string, host: string, path: string>
+    path?: string
+] {
+    try {
+        http get (
+            $url_tokens
+            | update host "api.github.com"
+            | update path {
+                path split
+                | skip 1
+                | prepend "repos"
+                | append ["contents" $path]
+                | str join "/"
+            }
+            | url join
+        )
+    } catch {|e|
+        if ($e.msg == "Network failure") and ($e.debug | str contains "Access forbidden (403)") {
+            throw-error "could not reach GitHub (you might have reached the API limit, please try again later)"
+        }
+        return $e.raw
+    }
+}
+
 # install a Nuhshell package
 #
 # > **Warning**  
@@ -49,19 +74,7 @@ export def main [
     }
 
     log info "checking integrity of the remote package"
-    let default_branch = (try {
-        http get (
-            $url_tokens
-            | update host "api.github.com"
-            | update path { path split | skip 1 | prepend "repos" | str join "/" }
-            | url join
-        ) | get default_branch
-    } catch {|e|
-        if ($e.msg == "Network failure") and ($e.debug | str contains "Access forbidden (403)") {
-            throw-error "could not reach GitHub (you might have reached the API limit, please try again later)"
-        }
-        return $e.raw
-    })
+    let default_branch = (query-github-api $url_tokens | get default_branch)
 
     let package_url = (
         $url_tokens
@@ -111,47 +124,15 @@ export def main [
     }
 
     log info $"installing package ($package.name)"
-    let files_api_url = (
-        $url_tokens
-        | update host "api.github.com"
-        | update path {
-            path split
-            | skip 1
-            | prepend "repos"
-            | append "contents"
-            | if $path != null { append $path } else {}
-            | str join "/"
-        }
-        | url join
-    )
-
     log debug "pulling down the list of files"
     mut files = (
-        http get $files_api_url | select path sha size type download_url
+        query-github-api $url_tokens $path | select path sha size type download_url
     )
     while not ($files | where type == dir | is-empty) {
         log debug $"total files: ($files | where type == file | length), remaining dirs: ($files | where type == dir | length)"
         let sub_files = (
             $files | where type == dir | get path | each {|path|
-                try {
-                    http get (
-                        $url_tokens
-                        | update host "api.github.com"
-                        | update path {
-                            path split
-                            | skip 1
-                            | prepend "repos"
-                            | append ["contents" $path]
-                            | str join "/"
-                        }
-                        | url join
-                    )
-                } catch {|e|
-                    if ($e.msg == "Network failure") and ($e.debug | str contains "Access forbidden (403)") {
-                        throw-error "could not reach GitHub (you might have reached the API limit, please try again later)"
-                    }
-                    return $e.raw
-                }
+                query-github-api $url_tokens $path
             }
             | flatten
         )
