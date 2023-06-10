@@ -46,7 +46,7 @@ def query-github-api [
     }
 }
 
-# install a Nuhshell package
+# install a Nushell package
 #
 # > **Warning**  
 # > - only supports GitHub packages
