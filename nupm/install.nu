@@ -47,4 +47,59 @@ export def main [
     if $url_tokens.host != "github.com" {
         throw-error "invalid_host" $"($url_tokens.host) is not a supported host" --span (metadata $url | get span)
     }
+
+    log info "checking integrity of the remote package"
+    let default_branch = (http get (
+        $url_tokens
+        | update host "api.github.com"
+        | update path { path split | skip 1 | prepend "repos" | str join "/" }
+        | url join
+    ) | get default_branch)
+
+    let package_url = (
+        $url_tokens
+        | update host "raw.githubusercontent.com"
+        | update path {
+            append $default_branch
+            | if $path != null { append $path } else {}
+            | append "package.nuon"
+            | str join "/"
+        }
+        | url join
+    )
+
+    log debug $"pulling down package file from ($package_url)"
+    let package = (try {
+        http get $package_url
+    } catch {
+        let text = [
+            "could not find package file"
+            ""
+            $"      (ansi cyan)help:(ansi reset) the ('package.nuon' | nu-highlight) file or the repository does not exist"
+        ]
+        throw-error "package_file_not_found" ($text | str join "\n") --span (metadata $url | get span)
+    })
+
+    log debug "checking package file for missing required keys"
+    let missing_keys = (
+        [
+            [key required];
+
+            [$. true]
+            [$.name true]
+            [$.version true]
+            [$.description true]
+            [$.license true]
+        ] | each {|key|
+            if ($package | get --ignore-errors $key.key) == null {
+                $key
+            }
+        }
+        | where required
+        | get key
+    )
+
+    if not ($missing_keys | is-empty) {
+        throw-error "invalid_package_file" $"package file is missing the following required keys: ($missing_keys | str join ', ')" --span (metadata $url | get span)
+    }
 }
