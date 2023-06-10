@@ -80,10 +80,7 @@ export def main [
         $url_tokens
         | update host "raw.githubusercontent.com"
         | update path {
-            append $default_branch
-            | if $path != null { append $path } else {}
-            | append "package.nuon"
-            | str join "/"
+            append [$default_branch $path "package.nuon"] | str join "/"
         }
         | url join
     )
