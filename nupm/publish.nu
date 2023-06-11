@@ -27,6 +27,9 @@ export def main [
     --path: path = ""
 ] {
     if $generate_metadata {
+        let PACKAGE_FILE = "package.nuon"
+        let METADATA_FILE = "package.files.nuon"
+
         log info "generating package file metadata file"
 
         log debug "checking arguments to generate metadata"
@@ -53,10 +56,10 @@ export def main [
         let package_files = (
             ls ($path | path join "**" "*") | where type == "file"
         )
-        log debug "excluding 'package.nuon' and 'package.files.nuon"
+        log debug $"excluding `($PACKAGE_FILE)` and `($METADATA_FILE)`"
         let package_files = (
             $package_files | where {|it|
-                ($it.name != "package.nuon") and ($it.name != "package.files.nuon")
+                ($it.name != $PACKAGE_FILE) and ($it.name != $METADATA_FILE)
             }
         )
 
@@ -70,10 +73,10 @@ export def main [
                 supported-os: ($nu.os-info | reject kernel_version)
             }
         }
-        | save --force package.files.nuon
+        | save --force $METADATA_FILE
 
-        log info "package file metadata saved in 'package.files.nuon'"
-        log warning "do not forget to commit the 'package.files.nuon' metadata file!"
+        log info $"package file metadata saved in `($METADATA_FILE)`"
+        log warning $"do not forget to commit the `($METADATA_FILE)` metadata file!"
 
         return
     }
