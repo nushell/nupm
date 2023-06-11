@@ -1,5 +1,26 @@
 use std log
 
+def throw-error [
+    error: string
+    text?: string
+    --span: record<start: int, end: int>
+] {
+    let error = $"(ansi red_bold)($error)(ansi reset)"
+
+    if $span == null {
+        error make --unspanned { msg: $error }
+    }
+
+    error make {
+        msg: $error
+        label: {
+            text: ($text | default "this caused an internal error")
+            start: $span.start
+            end: $span.end
+        }
+    }
+}
+
 def nupm-home [] {
     $env.NUPM_HOME? | default (
         $env.XDG_DATA_HOME?
@@ -14,7 +35,15 @@ export def main [
 ] {
     let path = ($path | default . | path expand)
 
-    log debug $"path: ($path)"
+    let package = ($path | path join "package.nuon" | open)
 
-    throw-error "installing packages is not supported"
+    let destination = (nupm-home | path join $package.name)
+    if not ($destination | path exists) {
+        log info $"installing package ($package.name)"
+        log debug $"source: ($path)"
+        log debug $"destination: ($destination)"
+        cp --recursive $path $destination
+    } else {
+        throw-error $"package ($package.name) is already installed"
+    }
 }
