@@ -35,6 +35,7 @@ export def main [
 ] {
     let path = ($path | default . | path expand)
 
+    # NOTE: here, we suppose that the package file exists and is valid
     let package = ($path | path join "package.nuon" | open)
 
     let destination = (nupm-home | path join $package.name)
