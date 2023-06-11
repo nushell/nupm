@@ -43,6 +43,11 @@ export def main [
         log debug $"source: ($path)"
         log debug $"destination: ($destination)"
         cp --recursive $path $destination
+
+        if ($destination | path join ".git" | path exists) {
+            log debug $"removing .git directory from ($destination)"
+            rm --recursive ($destination | path join ".git")
+        }
     } else {
         throw-error $"package ($package.name) is already installed"
     }
