@@ -74,7 +74,7 @@ export def main [
             log debug $file.name
             {
                 checksum: ($file.name | open --raw | hash sha256)
-                name: $file.name
+                name: ($file.name | str replace $path "" | str trim --left --char "/")
                 raw-url: ($base_download_url | update path { path join $file.name } | url join)
                 supported-os: ($nu.os-info | reject kernel_version)
             }
