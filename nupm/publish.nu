@@ -39,7 +39,7 @@ export def main [
             "github.com" | "github" | "gh" => {
                 scheme: "https"
                 host: "raw.githubusercontent.com"
-                path: /OWNER/REPO/REVISION
+                path: /OWNER/REPO/REVISION  # FIXME: use the true repo and revision
             },
             _ => (
                 throw-error
