@@ -23,7 +23,7 @@ def throw-error [
 
 def query-github-api [
     url_tokens: record<scheme: string, host: string, path: string>
-    path?: string
+    end_point?: list<string> = []
 ] {
     try {
         http get (
@@ -33,7 +33,7 @@ def query-github-api [
                 path split
                 | skip 1
                 | prepend "repos"
-                | append ["contents" $path]
+                | append $end_point
                 | str join "/"
             }
             | url join
@@ -123,13 +123,13 @@ export def main [
     log info $"installing package ($package.name)"
     log debug "pulling down the list of files"
     mut files = (
-        query-github-api $url_tokens $path | select path sha size type download_url
+        query-github-api $url_tokens ["contents" $path] | select path sha size type download_url
     )
     while not ($files | where type == dir | is-empty) {
         log debug $"total files: ($files | where type == file | length), remaining dirs: ($files | where type == dir | length)"
         let sub_files = (
             $files | where type == dir | get path | each {|path|
-                query-github-api $url_tokens $path
+                query-github-api $url_tokens ["contents" $path]
             }
             | flatten
         )
