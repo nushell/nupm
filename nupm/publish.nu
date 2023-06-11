@@ -31,6 +31,8 @@ export def main [
     --generate-metadata: bool  # only generate the package metadata file
     --host: string  # where the package is hosted (used with `--generate-metadata`)
     --path: path = ""  # the path to the package (used with `--generate-metadata`)
+    --repo: string  # the name of the repo holding the package (used with `--generate-metadata`)
+    --revision: string  # the revision of the repo holding the package (used with `--generate-metadata`)
 ] {
     if $generate_metadata {
         # TODO: add support for a `.nupmignore` file in the root of a package
@@ -42,8 +44,12 @@ export def main [
         log info "generating package file metadata file"
 
         log debug "checking arguments to generate metadata"
-        if $host == null {
-            throw-error $"missing_argument(ansi reset): --host is required with --generate-metadata"
+        for option in [
+            [name value]; [host $host] [repo $repo] [revision $revision]
+        ] {
+            if $option.value == null {
+                throw-error $"missing_argument(ansi reset): --($option.name) is required with --generate-metadata"
+            }
         }
 
         log debug "building the base download URL"
@@ -51,7 +57,7 @@ export def main [
             "github.com" | "github" | "gh" => {
                 scheme: "https"
                 host: "raw.githubusercontent.com"
-                path: /OWNER/REPO/REVISION  # FIXME: use the true repo and revision
+                path: $"/($repo)/($revision)"
             },
             _ => (
                 throw-error
