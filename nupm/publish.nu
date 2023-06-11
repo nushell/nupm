@@ -74,7 +74,8 @@ export def main [
         log debug $"excluding `($PACKAGE_FILE)` and `($METADATA_FILE)`"
         let package_files = (
             $package_files | where {|it|
-                ($it.name != $PACKAGE_FILE) and ($it.name != $METADATA_FILE)
+                let filename = ($it.name | path basename)
+                ($filename != $PACKAGE_FILE) and ($filename != $METADATA_FILE)
             }
         )
 
