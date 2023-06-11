@@ -21,10 +21,16 @@ def throw-error [
     }
 }
 
+# publish a package
+#
+# > **Warning**  
+# > this command is in a very early stage, it is only meant to generate the
+# > metadata of all the files in the package with the `--generate-metadata`
+# > option.
 export def main [
-    --generate-metadata: bool
-    --host: string
-    --path: path = ""
+    --generate-metadata: bool  # only generate the package metadata file
+    --host: string  # where the package is hosted (used with `--generate-metadata`)
+    --path: path = ""  # the path to the package (used with `--generate-metadata`)
 ] {
     if $generate_metadata {
         let PACKAGE_FILE = "package.nuon"
