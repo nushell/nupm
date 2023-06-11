@@ -33,6 +33,9 @@ export def main [
     --path: path = ""  # the path to the package (used with `--generate-metadata`)
 ] {
     if $generate_metadata {
+        # TODO: add support for a `.nupmignore` file in the root of a package
+        # to not add files into the package.
+
         let PACKAGE_FILE = "package.nuon"
         let METADATA_FILE = "package.files.nuon"
 
