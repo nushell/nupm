@@ -24,17 +24,38 @@ def throw-error [
 export def main [
     --generate-metadata: bool
     --host: string
-    --path: path = .
+    --path: path = ""
 ] {
-    let path = ($path | path expand)
-
     if $generate_metadata {
         if $host == null {
             throw-error $"missing_argument(ansi reset): --host is required with --generate-metadata"
         }
 
-        log debug $"host: ($host)"
-        log debug $"path: ($path)"
+        let base_download_url = match ($host | str downcase) {
+            "github.com" | "github" | "gh" => {
+                scheme: "https"
+                host: "raw.githubusercontent.com"
+                path: /OWNER/REPO/REVISION
+            },
+            _ => (
+                throw-error
+                    "host_not_supported"
+                    "not a supported host"
+                    --span (metadata $host | get span)
+            ),
+        }
+
+        ls ($path | path join "**" "*")
+        | where type == "file"
+        | where {|it| ($it.name != "package.nuon") and ($it.name != "package.files.nuon")}
+        | each {|file| {
+            checksum: ($file.name | open --raw | hash sha256)
+            name: $file.name
+            raw-url: ($base_download_url | update path { path join $file.name } | url join)
+            supported-os: ($nu.os-info | reject kernel_version)
+        }}
+        | save --force package.files.nuon
+
         return
     }
 
