@@ -24,6 +24,7 @@ def throw-error [
 def query-github-api [
     url_tokens: record<scheme: string, host: string, path: string>
     end_point?: list<string> = []
+    params?: record
 ] {
     try {
         http get (
@@ -36,6 +37,7 @@ def query-github-api [
                 | append $end_point
                 | str join "/"
             }
+            | if $params != null { insert params $params } else {}
             | url join
         )
     } catch {|e|
@@ -122,20 +124,9 @@ export def main [
 
     log info $"installing package ($package.name)"
     log debug "pulling down the list of files"
-    mut files = (
-        query-github-api $url_tokens ["contents" $path] | select path sha size type download_url
+    let tree = (
+        query-github-api $url_tokens ["git" "trees" $default_branch] {recursive: 1} | get tree
     )
-    while not ($files | where type == dir | is-empty) {
-        log debug $"total files: ($files | where type == file | length), remaining dirs: ($files | where type == dir | length)"
-        let sub_files = (
-            $files | where type == dir | get path | each {|path|
-                query-github-api $url_tokens ["contents" $path]
-            }
-            | flatten
-        )
-
-        $files = ($files | where type == file | append $sub_files)
-    }
 
     # TODO: pull down the files into the local `nupm` store
 }
