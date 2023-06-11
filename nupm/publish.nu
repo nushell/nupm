@@ -30,7 +30,7 @@ def throw-error [
 export def main [
     --generate-metadata: bool  # only generate the package metadata file
     --host: string  # where the package is hosted (used with `--generate-metadata`)
-    --path: path = ""  # the path to the package (used with `--generate-metadata`)
+    --path: string = ""  # the path to the package (used with `--generate-metadata`)
     --repo: string  # the name of the repo holding the package (used with `--generate-metadata`)
     --revision: string  # the revision of the repo holding the package (used with `--generate-metadata`)
 ] {
