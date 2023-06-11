@@ -49,6 +49,7 @@ export def main [
             rm --recursive ($destination | path join ".git")
         }
     } else {
+        # TODO: add support for updating / reinstalling a package in that case
         throw-error $"package ($package.name) is already installed"
     }
 }
