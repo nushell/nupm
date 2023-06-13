@@ -22,11 +22,10 @@ export def main [
         log info $"installing package ($package.name)"
         log debug $"source: ($path)"
         log debug $"destination: ($destination)"
-        cp --recursive $path $destination
-
-        if ($destination | path join ".git" | path exists) {
-            log debug $"removing .git directory from ($destination)"
-            rm --recursive ($destination | path join ".git")
+        mkdir $destination
+        ls ($path | path join "**" "*") | where name !~ '^.git' | each {|it|
+            log debug $"($it.name | str replace $path "" | str trim --left --char "/")"
+            cp --recursive $it.name $destination
         }
     } else {
         # TODO: add support for updating / reinstalling a package in that case
