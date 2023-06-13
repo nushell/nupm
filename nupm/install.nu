@@ -23,8 +23,8 @@ export def main [
         log debug $"source: ($path)"
         log debug $"destination: ($destination)"
         mkdir $destination
-        ls ($path | path join "**" "*") | where name !~ '^.git' | each {|it|
-            log debug $"($it.name | str replace $path "" | str trim --left --char "/")"
+        ls --all $path | where name != ".git" | each {|it|
+            log debug ($it.name | str replace $path "" | str trim --left --char "/")
             cp --recursive $it.name $destination
         }
     } else {
