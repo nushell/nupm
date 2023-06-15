@@ -8,6 +8,19 @@ def nupm-home [] {
     )
 }
 
+def prepare-directory [directory: path] {
+    rm --recursive --force $directory
+    mkdir $directory
+}
+
+def copy-directory-to [destination: path] {
+    let source = $in
+    ls --all $source | where name != ".git" | each {|it|
+        log debug ($it.name | str replace $source "" | str trim --left --char "/")
+        cp --recursive $it.name $destination
+    }
+}
+
 # install a Nushell package
 export def main [
     --path: path  # the path to the local source of the package (defaults to the current directory)
@@ -16,20 +29,12 @@ export def main [
 
     # NOTE: here, we suppose that the package file exists and is valid
     let package = ($path | path join "package.nuon" | open)
+    log info $"installing package ($package.name)"
 
     let destination = (nupm-home | path join $package.name)
-    if not ($destination | path exists) {
-        log info $"installing package ($package.name)"
-        log debug $"source: ($path)"
-        log debug $"destination: ($destination)"
-        mkdir $destination
-        ls --all $path | where name != ".git" | each {|it|
-            log debug ($it.name | str replace $path "" | str trim --left --char "/")
-            cp --recursive $it.name $destination
-        }
-    } else {
-        # TODO: add support for updating / reinstalling a package in that case
-        log warning $"($package.name) is already installed."
-        return
-    }
+    log debug $"source: ($path)"
+    log debug $"destination: ($destination)"
+
+    prepare-directory $destination
+    $path | copy-directory-to $destination
 }
