@@ -15,6 +15,11 @@ def prepare-directory [directory: path] {
 
 def copy-directory-to [destination: path] {
     let source = $in
+
+    log info "copying directory"
+    log debug $"source: ($source)"
+    log debug $"destination: ($destination)"
+
     ls --all $source | where name != ".git" | each {|it|
         log debug ($it.name | str replace $source "" | str trim --left --char "/")
         cp --recursive $it.name $destination
@@ -32,8 +37,6 @@ export def main [
     log info $"installing package ($package.name)"
 
     let destination = (nupm-home | path join $package.name)
-    log debug $"source: ($path)"
-    log debug $"destination: ($destination)"
 
     prepare-directory $destination
     $path | copy-directory-to $destination
