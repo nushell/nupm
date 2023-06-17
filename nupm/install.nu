@@ -21,7 +21,7 @@ def copy-directory-to [destination: path] {
     log debug $"destination: ($destination)"
 
     ls --all $source | where name != ".git" | each {|it|
-        log debug ($it.name | str replace $source "" | str trim --left --char "/")
+        log debug ($it.name | str replace $source "" | str trim --left --char (char path_sep))
         cp --recursive $it.name $destination
     }
 }
