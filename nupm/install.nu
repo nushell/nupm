@@ -67,7 +67,26 @@ def copy-directory-to [destination: path] {
 # install a Nushell package
 export def main [
     --path: path  # the path to the local source of the package (defaults to the current directory)
+    --script: bool  # install the package at --path as an executable script
 ] {
+    if $script {
+        if $path == null {
+            throw-error "--script requires a --path"
+        }
+
+        let script = ($path | path basename)
+        let destination = (nupm-home | path join $script)
+
+        log info $"copying script ($script)"
+        log debug $"source: ($path)"
+        log debug $"destination: ($destination)"
+        cp $path $destination
+        log debug $"making script ($script) executable"
+        chmod +x $destination
+
+        return
+    }
+
     let path = ($path | default $env.PWD)
     let package = (open-package-file $path)
 
