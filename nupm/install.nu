@@ -8,6 +8,62 @@ def nupm-home [] {
     )
 }
 
+def throw-error [
+    error: string
+    text?: string
+    --span: record<start: int, end: int>
+] {
+    let error = $"(ansi red_bold)($error)(ansi reset)"
+
+    if $span == null {
+        error make --unspanned { msg: $error }
+    }
+
+    error make {
+        msg: $error
+        label: {
+            text: ($text | default "this caused an internal error")
+            start: $span.start
+            end: $span.end
+        }
+    }
+}
+
+def open-package-file [path: path] {
+    let package_file = ($path | path join "package.nuon")
+
+    if not ($package_file | path exists) {
+        throw-error $"package_file_not_found(ansi reset):\nno 'package.nuon' found in ($path)"
+    }
+
+    let package = (open $package_file)
+
+    log debug "checking package file for missing required keys"
+    let missing_keys = (
+        [
+            [key required];
+
+            [$. true]
+            [$.name true]
+            [$.version true]
+            [$.description true]
+            [$.license true]
+        ] | each {|key|
+            if ($package | get --ignore-errors $key.key) == null {
+                $key
+            }
+        }
+        | where required
+        | get key
+    )
+
+    if not ($missing_keys | is-empty) {
+        throw-error $"invalid_package_file(ansi reset):\n($package_file) is missing the following required keys: ($missing_keys | str join ', ')"
+    }
+
+    $package
+}
+
 def prepare-directory [directory: path] {
     rm --recursive --force $directory
     mkdir $directory
@@ -31,9 +87,8 @@ export def main [
     --path: path  # the path to the local source of the package (defaults to the current directory)
 ] {
     let path = ($path | default . | path expand)
+    let package = (open-package-file $path)
 
-    # NOTE: here, we suppose that the package file exists and is valid
-    let package = ($path | path join "package.nuon" | open)
     log info $"installing package ($package.name)"
 
     let destination = (nupm-home | path join $package.name)
