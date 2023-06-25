@@ -1,11 +1,7 @@
 use std log
 
 def nupm-home [] {
-    $env.NUPM_HOME? | default (
-        $env.XDG_DATA_HOME?
-        | default ($nu.home-path | path join ".local" "share")
-        | path join "nupm"
-    )
+    $env.NUPM_HOME? | default ($nu.default-config-dir | path join "nupm")
 }
 
 def throw-error [
