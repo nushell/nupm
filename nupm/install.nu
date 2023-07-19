@@ -70,7 +70,10 @@ def copy-directory-to [destination: path] {
 export def main [
     --path: path  # the path to the local source of the package (defaults to the current directory)
 ] {
-    let path = ($path | default $env.PWD)
+    if $path == null {
+        throw-error "`nupm install` requires a `--path`"
+    }
+
     let package = (open-package-file $path)
 
     log info $"installing package ($package.name)"
