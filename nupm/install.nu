@@ -26,19 +26,17 @@ def throw-error [
 }
 
 def open-package-file [path: path] {
-    let package_file = ($path | path join "package.nuon")
+    let package_file = $path | path join "package.nuon"
 
     if not ($package_file | path exists) {
         throw-error $"package_file_not_found(ansi reset):\nno 'package.nuon' found in ($path)"
     }
 
-    let package = (open $package_file)
+    let package = open $package_file
 
     log debug "checking package file for missing required keys"
     let required_keys = [$. $.name $.version $.description $.license]
-    let missing_keys = (
-        $required_keys | where {|key| ($package | get -i $key) == null}
-    )
+    let missing_keys = $required_keys | where {|key| ($package | get -i $key) == null}
     if not ($missing_keys | is-empty) {
         throw-error $"invalid_package_file(ansi reset):\n($package_file) is missing the following required keys: ($missing_keys | str join ', ')"
     }
@@ -74,11 +72,11 @@ export def main [
         throw-error "`nupm install` requires a `--path`"
     }
 
-    let package = (open-package-file $path)
+    let package = open-package-file $path
 
     log info $"installing package ($package.name)"
 
-    let destination = (nupm-home | path join $package.name)
+    let destination = nupm-home | path join $package.name
 
     prepare-directory $destination
     $path | copy-directory-to $destination
