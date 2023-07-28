@@ -41,7 +41,7 @@ export def main [
         let PACKAGE_FILE = "package.nuon"
         let METADATA_FILE = "package.files.nuon"
 
-        log info "generating package file metadata file"
+        log info "generating package metadata"
 
         log debug "checking arguments to generate metadata"
         for option in [
