@@ -81,7 +81,7 @@ export def main [
 
         log debug "building metadata for package files:"
         $package_files | each {|file|
-            log debug $file.name
+            log debug $"processing `($file.name)`"
             {
                 checksum: ($file.name | open --raw | hash sha256)
                 name: ($file.name | if $path != "." { str replace $path "" } else {} | str trim --left --char "/")
