@@ -56,7 +56,9 @@ def copy-directory-to [destination: path] {
     log debug $"source: ($source)"
     log debug $"destination: ($destination)"
 
-    ls --all $source | where name != ".git" | each {|it|
+    ls --all $source
+    | where {|it| not ($it.type == dir and ($it.name | path parse | get stem) == ".git")}
+    | each {|it|
         log debug ($it.name | str replace $source "" | str trim --left --char (char path_sep))
         cp --recursive $it.name $destination
     }
@@ -66,7 +68,10 @@ def copy-directory-to [destination: path] {
 export def main [
     --path: path  # the path to the local source of the package (defaults to the current directory)
 ] {
-    let path = $path | default $env.PWD
+    if $path == null {
+        throw-error "`nupm install` requires a `--path`"
+    }
+
     let package = open-package-file $path
 
     log info $"installing package ($package.name)"
