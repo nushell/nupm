@@ -92,7 +92,7 @@ export def main [
         | save --force $METADATA_FILE
 
         log info $"package file metadata saved in `($METADATA_FILE)`"
-        log warning $"do not forget to commit the `($METADATA_FILE)` metadata file!"
+        log info $"(ansi yellow)do not forget to commit the `($METADATA_FILE)` metadata file!(ansi reset)"
 
         return
     }
