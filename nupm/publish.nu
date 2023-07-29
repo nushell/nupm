@@ -33,6 +33,7 @@ export def main [
     --path: string = ""  # the path to the package (used with `--generate-metadata`)
     --repo: string  # the name of the repo holding the package (used with `--generate-metadata`)
     --revision: string  # the revision of the repo holding the package (used with `--generate-metadata`)
+    --supported-os: list<record<name: string, arch: string, family>>  # the list of all supported OSes
 ] {
     if $generate_metadata {
         # TODO: add support for a `.nupmignore` file in the root of a package
@@ -86,7 +87,7 @@ export def main [
                 checksum: ($file.name | open --raw | hash sha256)
                 name: ($file.name | if $path != "." { str replace $path "" } else {} | str trim --left --char "/")
                 raw-url: ($base_download_url | update path { path join $file.name } | url join)
-                supported-os: ($nu.os-info | reject kernel_version)
+                supported-os: ($supported_os | default [($nu.os-info | select name arch family)])
             }
         }
         | save --force $METADATA_FILE
