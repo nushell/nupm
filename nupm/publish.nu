@@ -33,7 +33,7 @@ export def main [
     --path: string = ""  # the path to the package (used with `--generate-metadata`)
     --repo: string  # the name of the repo holding the package (used with `--generate-metadata`)
     --revision: string  # the revision of the repo holding the package (used with `--generate-metadata`)
-    --supported-os: list<record<name: string, arch: string, family>>  # the list of all supported OSes
+    --supported-os: list<record<name: string, arch: string, family: string>>  # the list of all supported OSes
 ] {
     if $generate_metadata {
         # TODO: add support for a `.nupmignore` file in the root of a package
