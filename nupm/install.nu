@@ -69,12 +69,17 @@ def install-scripts [path: path, package: record<scripts: list<path>>]: nothing 
     mkdir $nupm_bin
 
     for script in $package.scripts {
+        let script_path = $path | path join $script
         let name = $script | path basename
         let destination = $nupm_bin | path join $name
 
-        log debug $"installing script `($name)` to `($destination)`"
-        cp ($path | path join $script) $destination
-        chmod +x $destination
+        if ($script_path | path exists) {
+            log debug $"installing script `($name)` to `($destination)`"
+            cp $script_path $destination
+            chmod +x $destination
+        } else {
+            log warning $"($script_path) could not be found, skipping"
+        }
     }
 }
 
