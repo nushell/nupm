@@ -76,8 +76,18 @@ export def main [
 
     log info $"installing package ($package.name)"
 
-    let destination = nupm-home | path join $package.name
+    match $package.type {
+        "module" => {
+            let destination = nupm-home | path join $package.name
 
-    prepare-directory $destination
-    $path | copy-directory-to $destination
+            prepare-directory $destination
+            $path | copy-directory-to $destination
+        },
+        "script" => { log info "script install coming soon" },
+        "custom" => { log info "custom install coming soon" },
+        _ => {
+            let text = $"expected `$.type` to be one of [module, script, custom], got ($package.type)"
+            throw-error "invalid_package_file" $text --span (metadata $path | get span)
+        },
+    }
 }
