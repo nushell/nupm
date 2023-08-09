@@ -110,7 +110,14 @@ export def main [
 
             install-scripts $path $package
         },
-        "custom" => { log info "custom install coming soon" },
+        "custom" => {
+            if not ($path | path join "build.nu" | path exists) {
+                let text = $"package uses a custom install but no `build.nu` has been found"
+                throw-error "invalid_package_file" $text --span (metadata $path | get span)
+            }
+
+            nu ($path | path join 'build.nu')
+        },
         _ => {
             let text = $"expected `$.type` to be one of [module, script, custom], got ($package.type)"
             throw-error "invalid_package_file" $text --span (metadata $path | get span)
