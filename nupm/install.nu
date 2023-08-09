@@ -64,6 +64,20 @@ def copy-directory-to [destination: path] {
     }
 }
 
+def install-scripts [path: path, package: record<scripts: list<path>>]: nothing -> nothing {
+    let nupm_bin = nupm-home | path join "bin"
+    mkdir $nupm_bin
+
+    for script in $package.scripts {
+        let name = $script | path basename
+        let destination = $nupm_bin | path join $name
+
+        log debug $"installing script `($name)` to `($destination)`"
+        cp ($path | path join $script) $destination
+        chmod +x $destination
+    }
+}
+
 # install a Nushell package
 export def main [
     --path: path  # the path to the local source of the package (defaults to the current directory)
@@ -83,7 +97,14 @@ export def main [
             prepare-directory $destination
             $path | copy-directory-to $destination
         },
-        "script" => { log info "script install coming soon" },
+        "script" => {
+            if "scripts" not-in $package {
+                let text = $"package is a script but does not have a `$.scripts` list"
+                throw-error "invalid_package_file" $text --span (metadata $path | get span)
+            }
+
+            install-scripts $path $package
+        },
         "custom" => { log info "custom install coming soon" },
         _ => {
             let text = $"expected `$.type` to be one of [module, script, custom], got ($package.type)"
