@@ -96,6 +96,11 @@ export def main [
 
             prepare-directory $destination
             $path | copy-directory-to $destination
+
+            if $package.scripts? != null {
+                log debug $"installing scripts for package ($package.name)"
+                install-scripts $path $package
+            }
         },
         "script" => {
             if "scripts" not-in $package {
