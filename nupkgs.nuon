@@ -33,6 +33,8 @@
     [plugin "https://github.com/Yethal/nu_plugin_hcl"]
     [plugin "https://github.com/fdncred/nu_plugin_json_path"]
     [plugin "https://github.com/fdncred/nu_plugin_str_similarity"]
+    [package "https://github.com/amtoine/nu_plugin_kdl"]
+    [package "https://github.com/amtoine/nu_plugin_explore"]
 
     [script "https://github.com/nushell/nu_scripts/blob/main/sourced/cool-oneliners/cargo_search.nu"]
     [script "https://github.com/nushell/nu_scripts/blob/main/sourced/cool-oneliners/git_gone.nu"]
