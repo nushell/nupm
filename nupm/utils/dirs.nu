@@ -1,6 +1,9 @@
-export const TMP_DIR = ($nu.temp-path | path join nupm)
+# Directories and related utilities used in nupm
+
+# Decault installation path for nupm packages
 export const DEFAULT_NUPM_HOME = ($nu.default-config-dir | path join "nupm")
 
+# Prompt to create $env.NUPM_HOME if it does not exist and some sanity checks.
 export def nupm-home-prompt [] {
     if 'NUPM_HOME' not-in $env {
         error make {
