@@ -2,7 +2,7 @@ use utils/dirs.nu [ DEFAULT_NUPM_HOME nupm-home-prompt ]
 
 export-env {
     # Ensure that $env.NUPM_HOME is always set when running nupm. Any missing
-    # $env.NUPM_HOME is found during any nupm execution, it's a bug.
+    # $env.NUPM_HOME during nupm execution is a bug.
     if 'NUPM_HOME' not-in $env {
         $env.'NUPM_HOME' = $DEFAULT_NUPM_HOME
     }
