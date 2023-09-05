@@ -79,7 +79,7 @@ def install-scripts [path: path, package: record<scripts: list<path>>]: nothing 
     }
 }
 
-# install a Nushell package
+# Install a nupm package
 export def main [
     --path: path  # the path to the local source of the package (defaults to the current directory)
 ] {
