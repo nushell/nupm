@@ -36,13 +36,4 @@ export def nupm-home-prompt [] {
     }
 
     mkdir $env.NUPM_HOME
-
-    let bin_dir = ($env.NUPM_HOME | path join bin)
-    let overlays_dir = ($env.NUPM_HOME | path join overlays)
-
-    mkdir $bin_dir
-    mkdir $overlays_dir
-
-    print ($"Don't forget to add ($bin_dir) to PATH/Path"
-        + $" and ($overlays_dir) to NU_LIB_DIRS environment variables!")
 }
