@@ -85,6 +85,8 @@ def install-scripts [path: path, package: record<scripts: list<path>>]: nothing 
 export def main [
     --path: path  # the path to the local source of the package (defaults to the current directory)
 ] {
+    nupm-home-prompt
+
     if $path == null {
         throw-error "`nupm install` requires a `--path`"
     }
