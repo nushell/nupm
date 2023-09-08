@@ -37,3 +37,23 @@ export def nupm-home-prompt [] {
 
     mkdir $env.NUPM_HOME
 }
+
+export def script-dir [--ensure]: nothing -> path {
+    let d = $env.NUPM_HOME | path join scripts
+
+    if $ensure {
+        mkdir $d
+    }
+
+    $d
+}
+
+export def module-dir [--ensure]: nothing -> path {
+    let d = $env.NUPM_HOME | path join modules
+
+    if $ensure {
+        mkdir $d
+    }
+
+    $d
+}

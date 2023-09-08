@@ -1,6 +1,6 @@
 use std log
 
-use utils/dirs.nu nupm-home-prompt
+use utils/dirs.nu [ nupm-home-prompt script-dir module-dir ]
 
 def throw-error [
     error: string
@@ -23,11 +23,11 @@ def throw-error [
     }
 }
 
-def open-package-file [path: path] {
-    let package_file = $path | path join "package.nuon"
+def open-package-file [dir: path] {
+    let package_file = $dir | path join "package.nuon"
 
     if not ($package_file | path exists) {
-        throw-error $"package_file_not_found(ansi reset):\nno 'package.nuon' found in ($path)"
+        throw-error $"package_file_not_found(ansi reset):\nno 'package.nuon' found in ($dir)"
     }
 
     let package = open $package_file
@@ -42,49 +42,105 @@ def open-package-file [path: path] {
     $package
 }
 
-def prepare-directory [directory: path] {
-    rm --recursive --force $directory
-    mkdir $directory
-}
+# Install list of scripts into a directory
+#
+# Input: Scripts taken from 'package.nuon'
+def install-scripts [
+    pkg_dir: path        # Package directory
+    scripts_dir: path    # Target directory where to install
+    --force(-f)          # Overwrite already installed scripts
+] {
+    each {|script|
+        let src_path = $pkg_dir | path join $script
+        let tgt_path = $scripts_dir | path join $script
 
-def copy-directory-to [destination: path] {
-    let source = $in
+        if ($src_path | path type) != file {
+            throw-error $"Script ($src_path) does not exist"
+        }
 
-    log info "copying directory"
-    log debug $"source: ($source)"
-    log debug $"destination: ($destination)"
+        if ($tgt_path | path type) == file and (not $force) {
+            throw-error ($"Script ($src_path) is already installed as"
+                + $" ($tgt_path)")
+        }
 
-    ls --all $source
-    | where {|it| not ($it.type == dir and ($it.name | path parse | get stem) == ".git")}
-    | each {|it|
-        log debug ($it.name | str replace $source "" | str trim --left --char (char path_sep))
-        cp --recursive $it.name $destination
+        log debug $"installing script `($src_path)` to `($scripts_dir)`"
+        cp $src_path $scripts_dir
     }
 }
 
-def install-scripts [path: path, package: record<scripts: list<path>>]: nothing -> nothing {
-    let nupm_bin = $env.NUPM_HOME | path join "bin"
-    mkdir $nupm_bin
+# Install package from a directory containing 'project.nuon'
+def install-path [
+    pkg_dir: path  # Directory (hopefully) containing 'package.nuon'
+    --force(-f)    # Overwrite already installed package
+] {
+    let pkg_dir = $pkg_dir | path expand --strict
 
-    for script in $package.scripts {
-        let script_path = $path | path join $script
-        let name = $script | path basename
-        let destination = $nupm_bin | path join $name
+    let package = open-package-file $pkg_dir
 
-        if ($script_path | path exists) {
-            log debug $"installing script `($name)` to `($destination)`"
-            cp $script_path $destination
-            chmod +x $destination
-        } else {
-            log warning $"($script_path) could not be found, skipping"
-        }
+    log info $"installing package ($package.name)"
+
+    match $package.type {
+        "module" => {
+            let mod_dir = $pkg_dir | path join $package.name
+
+            if ($mod_dir | path type) != dir {
+                throw-error ($"Module package '($package.name)' does not"
+                    + $" contain directory '($package.name)'")
+            }
+
+            let module_dir = module-dir --ensure
+            let destination = $module_dir | path join $package.name
+
+            if $force {
+                rm --recursive --force $destination
+            }
+
+            if ($destination | path type) == dir {
+                throw-error $"Package ($package.name) is already installed"
+            }
+
+            cp --recursive $mod_dir $module_dir
+
+            if $package.scripts? != null {
+                log debug $"installing scripts for package ($package.name)"
+                $package.scripts | if $force {
+                    install-scripts --force $pkg_dir (script-dir --ensure)
+                } else {
+                    install-scripts $pkg_dir (script-dir --ensure)
+                }
+            }
+        },
+        "script" => {
+            log debug $"installing scripts for package ($package.name)"
+
+            $package.scripts?
+            | default [ ($pkg_dir | path join $"($package.name).nu") ]
+            | if $force {
+                install-scripts --force $pkg_dir (script-dir --ensure)
+            } else {
+                install-scripts $pkg_dir (script-dir --ensure)
+            }
+        },
+        "custom" => {
+            if not ($pkg_dir | path join "build.nu" | path exists) {
+                let text = $"package uses a custom install but no `build.nu` has been found"
+                throw-error "invalid_package_file" $text --span (metadata $pkg_dir | get span)
+            }
+
+            nu ($pkg_dir | path join 'build.nu')
+        },
+        _ => {
+            let text = $"expected `$.type` to be one of [module, script, custom], got ($package.type)"
+            throw-error "invalid_package_file" $text --span (metadata $pkg_dir | get span)
+        },
     }
 }
 
 # Install a nupm package
 export def main [
     name    # Name, path, or link to the package
-    --path  # Install package from a path given by 'name'
+    --path  # Install package from a directory with package.nuon given by 'name'
+    --force(-f)  # Overwrite already installed package
 ] {
     nupm-home-prompt
 
@@ -92,41 +148,9 @@ export def main [
         throw-error "`nupm install` currently requires a `--path` flag"
     }
 
-    let package = open-package-file $name
-
-    log info $"installing package ($package.name)"
-
-    match $package.type {
-        "module" => {
-            let destination = $env.NUPM_HOME | path join $package.name
-
-            prepare-directory $destination
-            $name | copy-directory-to $destination
-
-            if $package.scripts? != null {
-                log debug $"installing scripts for package ($package.name)"
-                install-scripts $name $package
-            }
-        },
-        "script" => {
-            if "scripts" not-in $package {
-                let text = $"package is a script but does not have a `$.scripts` list"
-                throw-error "invalid_package_file" $text --span (metadata $name | get span)
-            }
-
-            install-scripts $name $package
-        },
-        "custom" => {
-            if not ($name | path join "build.nu" | path exists) {
-                let text = $"package uses a custom install but no `build.nu` has been found"
-                throw-error "invalid_package_file" $text --span (metadata $name | get span)
-            }
-
-            nu ($name | path join 'build.nu')
-        },
-        _ => {
-            let text = $"expected `$.type` to be one of [module, script, custom], got ($package.type)"
-            throw-error "invalid_package_file" $text --span (metadata $name | get span)
-        },
+    if $force {
+        install-path --force $name
+    } else {
+        install-path $name
     }
 }
