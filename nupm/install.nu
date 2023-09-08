@@ -1,5 +1,7 @@
 use std log
 
+use utils/dirs.nu nupm-home-prompt
+
 def throw-error [
     error: string
     text?: string
@@ -88,6 +90,7 @@ export def main [
     }
 
     let package = open-package-file $path
+    print $package
 
     log info $"installing package ($package.name)"
 
