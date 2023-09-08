@@ -83,15 +83,16 @@ def install-scripts [path: path, package: record<scripts: list<path>>]: nothing 
 
 # Install a nupm package
 export def main [
-    --path: path  # the path to the local source of the package (defaults to the current directory)
+    name    # Name, path, or link to the package
+    --path  # Install package from a path given by 'name'
 ] {
     nupm-home-prompt
 
-    if $path == null {
-        throw-error "`nupm install` requires a `--path`"
+    if not $path {
+        throw-error "`nupm install` currently requires a `--path` flag"
     }
 
-    let package = open-package-file $path
+    let package = open-package-file $name
 
     log info $"installing package ($package.name)"
 
@@ -100,32 +101,32 @@ export def main [
             let destination = $env.NUPM_HOME | path join $package.name
 
             prepare-directory $destination
-            $path | copy-directory-to $destination
+            $name | copy-directory-to $destination
 
             if $package.scripts? != null {
                 log debug $"installing scripts for package ($package.name)"
-                install-scripts $path $package
+                install-scripts $name $package
             }
         },
         "script" => {
             if "scripts" not-in $package {
                 let text = $"package is a script but does not have a `$.scripts` list"
-                throw-error "invalid_package_file" $text --span (metadata $path | get span)
+                throw-error "invalid_package_file" $text --span (metadata $name | get span)
             }
 
-            install-scripts $path $package
+            install-scripts $name $package
         },
         "custom" => {
-            if not ($path | path join "build.nu" | path exists) {
+            if not ($name | path join "build.nu" | path exists) {
                 let text = $"package uses a custom install but no `build.nu` has been found"
-                throw-error "invalid_package_file" $text --span (metadata $path | get span)
+                throw-error "invalid_package_file" $text --span (metadata $name | get span)
             }
 
-            nu ($path | path join 'build.nu')
+            nu ($name | path join 'build.nu')
         },
         _ => {
             let text = $"expected `$.type` to be one of [module, script, custom], got ($package.type)"
-            throw-error "invalid_package_file" $text --span (metadata $path | get span)
+            throw-error "invalid_package_file" $text --span (metadata $name | get span)
         },
     }
 }
