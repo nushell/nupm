@@ -33,7 +33,7 @@ def open-package-file [path: path] {
     let package = open $package_file
 
     log debug "checking package file for missing required keys"
-    let required_keys = [$. $.name $.version $.description $.license $.type]
+    let required_keys = [$. $.name $.version $.type]
     let missing_keys = $required_keys | where {|key| ($package | get -i $key) == null}
     if not ($missing_keys | is-empty) {
         throw-error $"invalid_package_file(ansi reset):\n($package_file) is missing the following required keys: ($missing_keys | str join ', ')"
