@@ -90,7 +90,6 @@ export def main [
     }
 
     let package = open-package-file $path
-    print $package
 
     log info $"installing package ($package.name)"
 
