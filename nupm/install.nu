@@ -1,8 +1,6 @@
 use std log
 
-def nupm-home [] {
-    $env.NUPM_HOME? | default ($nu.default-config-dir | path join "nupm")
-}
+use utils/dirs.nu nupm-home-prompt
 
 def throw-error [
     error: string
@@ -65,7 +63,7 @@ def copy-directory-to [destination: path] {
 }
 
 def install-scripts [path: path, package: record<scripts: list<path>>]: nothing -> nothing {
-    let nupm_bin = nupm-home | path join "bin"
+    let nupm_bin = $env.NUPM_HOME | path join "bin"
     mkdir $nupm_bin
 
     for script in $package.scripts {
@@ -83,7 +81,7 @@ def install-scripts [path: path, package: record<scripts: list<path>>]: nothing 
     }
 }
 
-# install a Nushell package
+# Install a nupm package
 export def main [
     --path: path  # the path to the local source of the package (defaults to the current directory)
 ] {
@@ -97,7 +95,7 @@ export def main [
 
     match $package.type {
         "module" => {
-            let destination = nupm-home | path join $package.name
+            let destination = $env.NUPM_HOME | path join $package.name
 
             prepare-directory $destination
             $path | copy-directory-to $destination
