@@ -1,6 +1,6 @@
 use std log
 
-use utils/dirs.nu [ nupm-home-prompt script-dir module-dir ]
+use utils/dirs.nu [ nupm-home-prompt script-dir module-dir tmp-dir ]
 
 def throw-error [
     error: string
@@ -132,7 +132,13 @@ def install-path [
                     --span (metadata $pkg_dir | get span))
             }
 
+            let tmp_dir = tmp-dir build --ensure
+            cd $tmp_dir
+
             nu $build_file ($pkg_dir | path join 'package.nuon')
+
+            cd -
+            rm -rf $tmp_dir
         },
         _ => {
             let text = $"expected `$.type` to be one of [module, script,"
