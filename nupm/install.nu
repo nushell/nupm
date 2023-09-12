@@ -132,8 +132,6 @@ def install-path [
             } else {
                 install-scripts $pkg_dir (script-dir --ensure)
             }
-
-            install-scripts $path $package
         },
         "custom" => {
             let build_file = $pkg_dir | path join "build.nu"
