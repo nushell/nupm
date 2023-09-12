@@ -122,16 +122,25 @@ def install-path [
             }
         },
         "custom" => {
-            if not ($pkg_dir | path join "build.nu" | path exists) {
-                let text = $"package uses a custom install but no `build.nu` has been found"
-                throw-error "invalid_package_file" $text --span (metadata $pkg_dir | get span)
+            let build_file = $pkg_dir | path join "build.nu"
+            if not ($build_file | path exists) {
+                let text = "package uses a custom install but no `build.nu` has"
+                        + " been found"
+                (throw-error
+                    "invalid_package_file"
+                    $text
+                    --span (metadata $pkg_dir | get span))
             }
 
-            nu ($pkg_dir | path join 'build.nu')
+            nu $build_file ($pkg_dir | path join 'package.nuon')
         },
         _ => {
-            let text = $"expected `$.type` to be one of [module, script, custom], got ($package.type)"
-            throw-error "invalid_package_file" $text --span (metadata $pkg_dir | get span)
+            let text = $"expected `$.type` to be one of [module, script,"
+                + " custom], got ($package.type)"
+            (throw-error
+                "invalid_package_file"
+                $text
+                --span (metadata $pkg_dir | get span))
         },
     }
 }
