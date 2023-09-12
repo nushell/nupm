@@ -27,16 +27,28 @@ def open-package-file [dir: path] {
     let package_file = $dir | path join "package.nuon"
 
     if not ($package_file | path exists) {
-        throw-error $"package_file_not_found(ansi reset):\nno 'package.nuon' found in ($dir)"
+        throw-error (
+            [
+                $"package_file_not_found(ansi reset):"
+                $"no 'package.nuon' found in ($dir)"
+            ]
+            | str join (char nl))
     }
 
     let package = open $package_file
 
     log debug "checking package file for missing required keys"
     let required_keys = [$. $.name $.version $.type]
-    let missing_keys = $required_keys | where {|key| ($package | get -i $key) == null}
+    let missing_keys = $required_keys
+        | where {|key| ($package | get -i $key) == null}
     if not ($missing_keys | is-empty) {
-        throw-error $"invalid_package_file(ansi reset):\n($package_file) is missing the following required keys: ($missing_keys | str join ', ')"
+        throw-error (
+            [
+                $"invalid_package_file(ansi reset):"
+                ($"($package_file) is missing the following required keys:"
+                    + $" ($missing_keys | str join ', ')")
+            ]
+            | str join)
     }
 
     $package
