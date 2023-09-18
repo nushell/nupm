@@ -145,11 +145,12 @@ def install-path [
             }
 
             let tmp_dir = tmp-dir build --ensure
-            cd $tmp_dir
 
-            nu $build_file ($pkg_dir | path join 'package.nuon')
+            do {
+                cd $tmp_dir
+                nu $build_file ($pkg_dir | path join 'package.nuon')
+            }
 
-            cd -
             rm -rf $tmp_dir
         },
         _ => {
