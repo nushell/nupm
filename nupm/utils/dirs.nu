@@ -61,7 +61,7 @@ export def module-dir [--ensure]: nothing -> path {
     $d
 }
 
-export def tmp-dir [subdir: string, --ensure] {
+export def tmp-dir [subdir: string, --ensure]: nothing -> path {
     let d = $env.NUPM_TEMP
         | path join $subdir
         | path join (random chars -l 8)

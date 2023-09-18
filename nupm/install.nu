@@ -168,7 +168,7 @@ export def main [
     name    # Name, path, or link to the package
     --path  # Install package from a directory with package.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
-] {
+]: nothing -> nothing {
     nupm-home-prompt
 
     if not $path {

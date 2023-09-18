@@ -10,7 +10,7 @@ export-env {
 }
 
 # Nushell Package Manager
-export def main [] {
+export def main []: nothing -> nothing {
     nupm-home-prompt
 
     print 'enjoy nupm!'
