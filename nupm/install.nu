@@ -48,7 +48,7 @@ def open-package-file [dir: path] {
                 ($"($package_file) is missing the following required keys:"
                     + $" ($missing_keys | str join ', ')")
             ]
-            | str join)
+            | str join (char nl))
     }
 
     $package
