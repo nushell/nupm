@@ -1,27 +1,7 @@
 use std log
 
 use utils/dirs.nu [ nupm-home-prompt script-dir module-dir tmp-dir ]
-
-def throw-error [
-    error: string
-    text?: string
-    --span: record<start: int, end: int>
-] {
-    let error = $"(ansi red_bold)($error)(ansi reset)"
-
-    if $span == null {
-        error make --unspanned { msg: $error }
-    }
-
-    error make {
-        msg: $error
-        label: {
-            text: ($text | default "this caused an internal error")
-            start: $span.start
-            end: $span.end
-        }
-    }
-}
+use utils/log.nu throw-error
 
 def open-package-file [dir: path] {
     let package_file = $dir | path join "package.nuon"

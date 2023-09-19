@@ -1,27 +1,39 @@
-use utils/dirs.nu tmp-dir
+use utils/dirs.nu [ tmp-dir find-root ]
+use utils/log.nu throw-error
 
 # Experimental test runner
-export def main [] {
-    let tests = ls tests/test*nu
-    | get name
-    | each {|test_file|
-        let tests_nuon = nu [
-            --no-config-file
-            --commands
-            $'use ($test_file)
+export def main [
+    dir?: path  # Directory where to run tests (default: $env.PWD)
+] {
+    let dir = ($dir | default $env.PWD)
+    let pkg_root = find-root $dir
 
-            scope modules
-            | where name == ($test_file | path parse | get stem)
-            | get -i 0.commands.name
-            | to nuon'
-        ]
-
-        {
-            file: $test_file
-            name: ($tests_nuon | from nuon)
-        }
+    if $pkg_root == null {
+        throw-error ($'Could not find "package.nuon" in ($dir)'
+            + ' or any parent directory.')
     }
-    | flatten
+
+    print $'Testing package ($pkg_root)'
+
+    let tests = glob ($pkg_root | path join tests/test*nu)
+        | each {|test_file|
+            let tests_nuon = nu [
+                --no-config-file
+                --commands
+                $'use ($test_file)
+
+                scope modules
+                | where name == ($test_file | path parse | get stem)
+                | get -i 0.commands.name
+                | to nuon'
+            ]
+
+            {
+                file: $test_file
+                name: ($tests_nuon | from nuon)
+            }
+        }
+        | flatten
 
     let out = $tests
         | par-each {|test|
@@ -53,9 +65,14 @@ export def main [] {
     let failures = $out | where exit_code != 0
 
     $failures | each {|fail|
-        print ($'Test ($fail.name) in file ($fail.file) failed with exit code'
+        print ((char nl)
+            + $'Test "($fail.name)" in file ($fail.file) failed with exit code'
             + $' ($fail.exit_code):(char nl)'
-            + $fail.stderr)
+            + ($fail.stderr | str trim))
+    }
+
+    if ($failures | length) != 0 {
+        print ''
     }
 
     print ($'Ran ($out | length) tests.'
