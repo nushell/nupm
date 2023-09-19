@@ -44,15 +44,18 @@ def install-scripts [
 ]: list<path> -> nothing {
     each {|script|
         let src_path = $pkg_dir | path join $script
-        let tgt_path = $scripts_dir | path join $script
 
         if ($src_path | path type) != file {
             throw-error $"Script ($src_path) does not exist"
         }
 
-        if ($tgt_path | path type) == file and (not $force) {
-            throw-error ($"Script ($src_path) is already installed as"
-                + $" ($tgt_path)")
+        if (($scripts_dir
+                | path join ($script | path basename)
+                | path type) == file
+            and (not $force)
+        ) {
+            throw-error ($"Script ($src_path) is already installed in"
+                + $" ($scripts_dir)")
         }
 
         log debug $"installing script `($src_path)` to `($scripts_dir)`"
