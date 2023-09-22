@@ -18,6 +18,9 @@ export def install-script [] {
         assert ([$env.NUPM_HOME scripts spam_script.nu]
             | path join
             | path exists)
+        assert ([$env.NUPM_HOME scripts spam_bar.nu]
+            | path join
+            | path exists)
     }
 }
 

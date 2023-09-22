@@ -108,8 +108,8 @@ def install-path [
         "script" => {
             log debug $"installing scripts for package ($package.name)"
 
-            $package.scripts?
-            | default [ ($pkg_dir | path join $"($package.name).nu") ]
+            [ ($pkg_dir | path join $"($package.name).nu") ]
+            | append ($package.scripts? | default [])
             | install-scripts $pkg_dir (script-dir --ensure) --force  $force
         },
         "custom" => {

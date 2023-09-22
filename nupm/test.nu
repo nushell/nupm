@@ -3,7 +3,8 @@ use utils/log.nu throw-error
 
 # Experimental test runner
 export def main [
-    dir?: path  # Directory where to run tests (default: $env.PWD)
+    dir?: path    # Directory where to run tests (default: $env.PWD)
+    --show-stdout # Show standard output of each test
 ] {
     let dir = ($dir | default $env.PWD)
     let pkg_root = find-root $dir
@@ -51,6 +52,11 @@ export def main [
                 print $'($test.file): ($test.name) ... (ansi gb)SUCCESS(ansi reset)'
             } else {
                 print $'($test.file): ($test.name) ... (ansi rb)FAILURE(ansi reset)'
+            }
+
+            if $show_stdout {
+                print 'stdout:'
+                print $res.stdout
             }
 
             {
