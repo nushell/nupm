@@ -18,42 +18,34 @@ export def main [
     print $'Testing package ($pkg_root)'
     cd $pkg_root
 
-    let tests = glob ($pkg_root | path join tests/test-*.nu)
-        | each {|test_file|
-            let tests_nuon = nu [
-                --no-config-file
-                --commands
-                $'use ($test_file)
+    let tests = nu [
+        --no-config-file
+        --commands
+        'use tests/
 
-                scope modules
-                | where name == ($test_file | path parse | get stem)
-                | get -i 0.commands.name
-                | to nuon'
-            ]
-
-            {
-                file: $test_file
-                name: ($tests_nuon | from nuon)
-            }
-        }
-        | flatten
+        scope commands
+        | where ($it.name | str starts-with tests)
+        | get name
+        | to nuon'
+    ]
+    | from nuon
 
     let out = $tests
-        | where ($filter in $it.name)
+        | where ($filter in $it)
         | par-each {|test|
             let res = do {
                 nu [
                     --no-config-file
                     --commands
-                    $'use ($test.file) ($test.name); ($test.name)'
+                    $'use tests/; ($test)'
                 ]
             }
             | complete
 
             if $res.exit_code == 0 {
-                print $'($test.file): ($test.name) ... (ansi gb)SUCCESS(ansi reset)'
+                print $'($test) ... (ansi gb)SUCCESS(ansi reset)'
             } else {
-                print $'($test.file): ($test.name) ... (ansi rb)FAILURE(ansi reset)'
+                print $'($test) ... (ansi rb)FAILURE(ansi reset)'
             }
 
             if $show_stdout {
@@ -62,8 +54,7 @@ export def main [
             }
 
             {
-                file: $test.file
-                name: $test.name
+                name: $test
                 stdout: $res.stdout
                 stderr: $res.stderr
                 exit_code: $res.exit_code
@@ -74,8 +65,7 @@ export def main [
     let failures = $out | where exit_code != 0
 
     $failures | each {|fail|
-        print ((char nl)
-            + $'Test "($fail.name)" in file ($fail.file) failed with exit code'
+        print ($'(char nl)Test "($fail.name)" failed with exit code'
             + $' ($fail.exit_code):(char nl)'
             + ($fail.stderr | str trim))
     }
