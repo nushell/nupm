@@ -3,10 +3,11 @@ use utils/log.nu throw-error
 
 # Experimental test runner
 export def main [
-    dir?: path    # Directory where to run tests (default: $env.PWD)
-    --show-stdout # Show standard output of each test
+    filter?: string  = ''  # Run only tests containing this substring
+    --dir: path  # Directory where to run tests (default: $env.PWD)
+    --show-stdout  # Show standard output of each test
 ]: nothing -> nothing {
-    let dir = ($dir | default $env.PWD)
+    let dir = ($dir | default $env.PWD | path expand -s)
     let pkg_root = find-root $dir
 
     if $pkg_root == null {
@@ -38,6 +39,7 @@ export def main [
         | flatten
 
     let out = $tests
+        | where ($filter in $it.name)
         | par-each {|test|
             let res = do {
                 nu [
