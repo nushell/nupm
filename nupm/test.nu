@@ -5,7 +5,7 @@ use utils/log.nu throw-error
 export def main [
     dir?: path    # Directory where to run tests (default: $env.PWD)
     --show-stdout # Show standard output of each test
-] {
+]: nothing -> nothing {
     let dir = ($dir | default $env.PWD)
     let pkg_root = find-root $dir
 
