@@ -16,7 +16,7 @@ export def main [
     print $'Testing package ($pkg_root)'
     cd $pkg_root
 
-    let tests = glob ($pkg_root | path join tests/test*nu)
+    let tests = glob ($pkg_root | path join tests/test-*.nu)
         | each {|test_file|
             let tests_nuon = nu [
                 --no-config-file
