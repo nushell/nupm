@@ -61,7 +61,7 @@ def install-scripts [
     pkg_dir: path        # Package directory
     scripts_dir: path    # Target directory where to install
     --force(-f): bool    # Overwrite already installed scripts
-] {
+]: list<path> -> nothing {
     each {|script|
         let src_path = $pkg_dir | path join $script
         let tgt_path = $scripts_dir | path join $script
@@ -78,6 +78,8 @@ def install-scripts [
         log debug $"installing script `($src_path)` to `($scripts_dir)`"
         cp $src_path $scripts_dir
     }
+
+    null
 }
 
 # Install package from a directory containing 'project.nuon'
