@@ -60,7 +60,7 @@ def open-package-file [dir: path] {
 def install-scripts [
     pkg_dir: path        # Package directory
     scripts_dir: path    # Target directory where to install
-    --force(-f)          # Overwrite already installed scripts
+    --force(-f): bool    # Overwrite already installed scripts
 ] {
     each {|script|
         let src_path = $pkg_dir | path join $script
@@ -82,8 +82,8 @@ def install-scripts [
 
 # Install package from a directory containing 'project.nuon'
 def install-path [
-    pkg_dir: path  # Directory (hopefully) containing 'package.nuon'
-    --force(-f)    # Overwrite already installed package
+    pkg_dir: path      # Directory (hopefully) containing 'package.nuon'
+    --force(-f): bool  # Overwrite already installed package
 ] {
     let pkg_dir = $pkg_dir | path expand --strict
 
@@ -115,11 +115,9 @@ def install-path [
 
             if $package.scripts? != null {
                 log debug $"installing scripts for package ($package.name)"
-                $package.scripts | if $force {
-                    install-scripts --force $pkg_dir (script-dir --ensure)
-                } else {
-                    install-scripts $pkg_dir (script-dir --ensure)
-                }
+
+                $package.scripts
+                | install-scripts $pkg_dir (script-dir --ensure) --force  $force
             }
         },
         "script" => {
@@ -127,11 +125,7 @@ def install-path [
 
             $package.scripts?
             | default [ ($pkg_dir | path join $"($package.name).nu") ]
-            | if $force {
-                install-scripts --force $pkg_dir (script-dir --ensure)
-            } else {
-                install-scripts $pkg_dir (script-dir --ensure)
-            }
+            | install-scripts $pkg_dir (script-dir --ensure) --force  $force
         },
         "custom" => {
             let build_file = $pkg_dir | path join "build.nu"
@@ -176,9 +170,5 @@ export def main [
         throw-error "`nupm install` currently requires a `--path` flag"
     }
 
-    if $force {
-        install-path --force $name
-    } else {
-        install-path $name
-    }
+    install-path $name --force $force
 }
