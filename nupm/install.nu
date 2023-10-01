@@ -72,7 +72,7 @@ def install-scripts [
 
         if ($tgt_path | path type) == file and (not $force) {
             throw-error ($"Script ($src_path) is already installed as"
-                + $" ($tgt_path)")
+                + $" ($tgt_path). Use `--force` to override the package.")
         }
 
         log debug $"installing script `($src_path)` to `($scripts_dir)`"
@@ -110,7 +110,8 @@ def install-path [
             }
 
             if ($destination | path type) == dir {
-                throw-error $"Package ($package.name) is already installed"
+                throw-error ($"Package ($package.name) is already installed."
+                    + "Use `--force` to override the package")
             }
 
             cp --recursive $mod_dir $module_dir
