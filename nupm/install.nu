@@ -162,7 +162,7 @@ def install-path [
 
 # Install a nupm package
 export def main [
-    name    # Name, path, or link to the package
+    package # Name, path, or link to the package
     --path  # Install package from a directory with package.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
 ]: nothing -> nothing {
@@ -172,5 +172,5 @@ export def main [
         throw-error "`nupm install` currently requires a `--path` flag"
     }
 
-    install-path $name --force $force
+    install-path $package --force $force
 }
