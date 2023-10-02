@@ -55,7 +55,7 @@ def install-scripts [
             and (not $force)
         ) {
             throw-error ($"Script ($src_path) is already installed in"
-                + $" ($scripts_dir)")
+                + $" ($scripts_dir). Use `--force` to override the package.")
         }
 
         log debug $"installing script `($src_path)` to `($scripts_dir)`"
@@ -93,7 +93,8 @@ def install-path [
             }
 
             if ($destination | path type) == dir {
-                throw-error $"Package ($package.name) is already installed"
+                throw-error ($"Package ($package.name) is already installed."
+                    + "Use `--force` to override the package")
             }
 
             cp --recursive $mod_dir $module_dir
@@ -102,7 +103,7 @@ def install-path [
                 log debug $"installing scripts for package ($package.name)"
 
                 $package.scripts
-                | install-scripts $pkg_dir (script-dir --ensure) --force  $force
+                | install-scripts $pkg_dir (script-dir --ensure) --force $force
             }
         },
         "script" => {
@@ -110,7 +111,7 @@ def install-path [
 
             [ ($pkg_dir | path join $"($package.name).nu") ]
             | append ($package.scripts? | default [])
-            | install-scripts $pkg_dir (script-dir --ensure) --force  $force
+            | install-scripts $pkg_dir (script-dir --ensure) --force $force
         },
         "custom" => {
             let build_file = $pkg_dir | path join "build.nu"
@@ -145,7 +146,7 @@ def install-path [
 
 # Install a nupm package
 export def main [
-    name    # Name, path, or link to the package
+    package # Name, path, or link to the package
     --path  # Install package from a directory with package.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
 ]: nothing -> nothing {
@@ -155,5 +156,5 @@ export def main [
         throw-error "`nupm install` currently requires a `--path` flag"
     }
 
-    install-path $name --force $force
+    install-path $package --force $force
 }
