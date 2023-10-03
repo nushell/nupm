@@ -31,12 +31,7 @@ def open-package-file [dir: path] {
     let package_file = $dir | path join "package.nuon"
 
     if not ($package_file | path exists) {
-        throw-error (
-            [
-                $"package_file_not_found(ansi reset):"
-                $"no 'package.nuon' found in ($dir)"
-            ]
-            | str join (char nl))
+        throw-error "package_file_not_found" $"no 'package.nuon' found in ($dir)"
     }
 
     let package = open $package_file
@@ -46,13 +41,10 @@ def open-package-file [dir: path] {
     let missing_keys = $required_keys
         | where {|key| ($package | get -i $key) == null}
     if not ($missing_keys | is-empty) {
-        throw-error (
-            [
-                $"invalid_package_file(ansi reset):"
-                ($"($package_file) is missing the following required keys:"
-                    + $" ($missing_keys | str join ', ')")
-            ]
-            | str join (char nl))
+        throw-error "invalid_package_file" (
+            $"($package_file) is missing the following required keys:"
+            + $" ($missing_keys | str join ', ')"
+        )
     }
 
     $package
@@ -71,11 +63,11 @@ def install-scripts [
         let tgt_path = $scripts_dir | path join $script
 
         if ($src_path | path type) != file {
-            throw-error $"Script ($src_path) does not exist"
+            throw-error "script_not_found" $"Script ($src_path) does not exist"
         }
 
         if ($tgt_path | path type) == file and (not $force) {
-            throw-error ($"Script ($src_path) is already installed as"
+            throw-error "package_already_installed" ($"Script ($src_path) is already installed as"
                 + $" ($tgt_path). Use `--force` to override the package.")
         }
 
@@ -102,8 +94,10 @@ def install-path [
             let mod_dir = $pkg_dir | path join $package.name
 
             if ($mod_dir | path type) != dir {
-                throw-error ($"Module package '($package.name)' does not"
-                    + $" contain directory '($package.name)'")
+                throw-error "invalid_module_package" (
+                    $"Module package '($package.name)' does not"
+                    + $" contain directory '($package.name)'"
+                )
             }
 
             let module_dir = module-dir --ensure
@@ -114,8 +108,10 @@ def install-path [
             }
 
             if ($destination | path type) == dir {
-                throw-error ($"Package ($package.name) is already installed."
-                    + "Use `--force` to override the package")
+                throw-error "package_already_installed" (
+                    $"Package ($package.name) is already installed."
+                    + "Use `--force` to override the package"
+                )
             }
 
             cp --recursive $mod_dir $module_dir
@@ -174,7 +170,7 @@ export def main [
     nupm-home-prompt
 
     if not $path {
-        throw-error "`nupm install` currently requires a `--path` flag"
+        throw-error "missing_required_option" "`nupm install` currently requires a `--path` flag"
     }
 
     install-path $package --force $force
