@@ -7,7 +7,9 @@ def open-package-file [dir: path] {
     let package_file = $dir | path join "package.nuon"
 
     if not ($package_file | path exists) {
-        throw-error "package_file_not_found" $"no 'package.nuon' found in ($dir)"
+        throw-error "package_file_not_found" (
+            $'Could not find "package.nuon" in ($dir) or any parent directory.'
+        )
     }
 
     let package = open $package_file
@@ -46,8 +48,10 @@ def install-scripts [
                 | path type) == file
             and (not $force)
         ) {
-            throw-error "package_already_installed" ($"Script ($src_path) is already installed in"
-                + $" ($scripts_dir). Use `--force` to override the package.")
+            throw-error "package_already_installed" (
+                $"Script ($src_path) is already installed in"
+                + $" ($scripts_dir). Use `--force` to override the package."
+            )
         }
 
         log debug $"installing script `($src_path)` to `($scripts_dir)`"
