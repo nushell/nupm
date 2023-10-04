@@ -1,31 +1,7 @@
 use std log
 
 use utils/dirs.nu [ nupm-home-prompt script-dir module-dir tmp-dir ]
-
-def throw-error [
-    error: string
-    text?: string
-    --span: record<start: int, end: int>
-] {
-    let error = $"(ansi red_bold)($error)(ansi reset)"
-
-    if $span == null {
-        if $text == null {
-            error make --unspanned { msg: $error }
-        } else {
-            error make --unspanned { msg: ($error + "\n" + $text) }
-        }
-    }
-
-    error make {
-        msg: $error
-        label: {
-            text: ($text | default "this caused an internal error")
-            start: $span.start
-            end: $span.end
-        }
-    }
-}
+use utils/log.nu throw-error
 
 def open-package-file [dir: path] {
     let package_file = $dir | path join "package.nuon"
@@ -60,15 +36,18 @@ def install-scripts [
 ]: list<path> -> nothing {
     each {|script|
         let src_path = $pkg_dir | path join $script
-        let tgt_path = $scripts_dir | path join $script
 
         if ($src_path | path type) != file {
             throw-error "script_not_found" $"Script ($src_path) does not exist"
         }
 
-        if ($tgt_path | path type) == file and (not $force) {
-            throw-error "package_already_installed" ($"Script ($src_path) is already installed as"
-                + $" ($tgt_path). Use `--force` to override the package.")
+        if (($scripts_dir
+                | path join ($script | path basename)
+                | path type) == file
+            and (not $force)
+        ) {
+            throw-error "package_already_installed" ($"Script ($src_path) is already installed in"
+                + $" ($scripts_dir). Use `--force` to override the package.")
         }
 
         log debug $"installing script `($src_path)` to `($scripts_dir)`"
@@ -120,15 +99,15 @@ def install-path [
                 log debug $"installing scripts for package ($package.name)"
 
                 $package.scripts
-                | install-scripts $pkg_dir (script-dir --ensure) --force  $force
+                | install-scripts $pkg_dir (script-dir --ensure) --force $force
             }
         },
         "script" => {
             log debug $"installing scripts for package ($package.name)"
 
-            $package.scripts?
-            | default [ ($pkg_dir | path join $"($package.name).nu") ]
-            | install-scripts $pkg_dir (script-dir --ensure) --force  $force
+            [ ($pkg_dir | path join $"($package.name).nu") ]
+            | append ($package.scripts? | default [])
+            | install-scripts $pkg_dir (script-dir --ensure) --force $force
         },
         "custom" => {
             let build_file = $pkg_dir | path join "build.nu"
