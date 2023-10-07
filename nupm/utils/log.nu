@@ -1,5 +1,4 @@
-
-export def throw-error [
+def throw-error [
     error: string
     text?: string
     --span: record<start: int, end: int>
@@ -7,7 +6,11 @@ export def throw-error [
     let error = $"(ansi red_bold)($error)(ansi reset)"
 
     if $span == null {
-        error make --unspanned { msg: $error }
+        if $text == null {
+            error make --unspanned { msg: $error }
+        } else {
+            error make --unspanned { msg: ($error + "\n" + $text) }
+        }
     }
 
     error make {
