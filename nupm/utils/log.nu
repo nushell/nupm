@@ -1,4 +1,4 @@
-def throw-error [
+export def throw-error [
     error: string
     text?: string
     --span: record<start: int, end: int>
