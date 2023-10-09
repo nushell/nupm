@@ -1,0 +1,10 @@
+<!-- related issues, e.g. "related to #123" -->
+
+## Description
+<!-- describe in a few words the issue -->
+
+## Steps to reproduce
+<!-- give a few clear steps to reproduce the issue -->
+
+## Version
+<!-- from inside Nushell, paste the output of `version | transpose key value | to md --pretty` here -->
