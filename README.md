@@ -56,7 +56,7 @@ $env.PATH = (
 as it is done in Nupm, one can define tests in a project and run them with the `nupm test` command:
 - create a Nushell package with a `package.nuon` file, let's call this example package `package`
 - create a `tests/` directory next to the `package/` directory
-- `tests/` is a regular Nushell directory package, put a `mod.nu` there and any structure you want
+- `tests/` is a regular Nushell directory module, put a `mod.nu` there and any structure you want
 - import definitions from the package with something like
 ```nushell
 use ../package/foo/bar.nu [baz, brr]
