@@ -45,5 +45,31 @@ $env.PATH = (
 )
 ```
 
+## :test_tube: running a test suite
+as it is done in Nupm, one can define tests in a project and run them with the `nupm test` command:
+- create a Nushell package with a `package.nuon` file, let's call this example package `package`
+- create a `tests/` directory next to the `package/` directory
+- `tests/` is a regular Nushell directory package, put a `mod.nu` there and any structure you want
+- import definitions from the package with something like
+```nushell
+use ../package/foo/bar.nu [baz, brr]
+```
+- all the commands defined in the `tests/` module and `export`ed will run as tests
+- from the root of the repo, run `nupm test`
+
+### run the tests of Nupm
+from the root of Nupm, run
+```nushell
+nupm test
+```
+you should see something like
+```
+Testing package /home/amtoine/documents/repos/github.com/amtoine/nupm
+tests install-module ... SUCCESS
+tests install-script ... SUCCESS
+tests install-custom ... SUCCESS
+Ran 3 tests. 3 succeeded, 0 failed.
+```
+
 ## :memo: design of `nupm`
 please have a look at [the design document](docs/design/README.md)
