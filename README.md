@@ -1,11 +1,11 @@
 # nupm - Nushell package manager
 
 ## Table of content
-- [*installation*](recycle-installation-toc)
-- [*configuration*](gear-configuration-toc)
-- [*running-a-test-suite*](test-tube-running-a-test-suite-toc)
-    - [*run the tests*](run-the-tests-of-Nupm-toc)
-- [*design*](memo-design-of-nupm-toc)
+- [*installation*](#recycle-installation-toc)
+- [*configuration*](#gear-configuration-toc)
+- [*running a test suite*](#test_tube-running-a-test-suite-toc)
+    - [*run the tests*](#run-the-tests-of-Nupm-toc)
+- [*design*](#memo-design-of-nupm-toc)
 
 :warning: **This project is in an experimentation stage and not intended for serious use!** :warning:
 
