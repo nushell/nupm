@@ -77,4 +77,8 @@ export def main [
     print ($'Ran ($out | length) tests.'
         + $' ($successes | length) succeeded,'
         + $' ($failures | length) failed.')
+
+    if ($failures | length) != 0 {
+        error make --unspanned {msg: "some tests failed"}
+    }
 }
