@@ -19,9 +19,8 @@ def check-install [path_tokens: list<string>] {
 
 export def install-script [] {
     with-nupm-home {
-        cd tests/packages/spam_script
+        nupm install --path tests/packages/spam_script
 
-        nupm install --path .
         assert (check-install [scripts spam_script.nu])
         assert (check-install [scripts spam_bar.nu])
     }
@@ -29,9 +28,8 @@ export def install-script [] {
 
 export def install-module [] {
     with-nupm-home {
-        cd tests/packages/spam_module
+        nupm install --path tests/packages/spam_module
 
-        nupm install --path .
         assert (check-install [scripts script.nu])
         assert (check-install [modules spam_module])
         assert (check-install [modules spam_module mod.nu])
@@ -40,9 +38,8 @@ export def install-module [] {
 
 export def install-custom [] {
     with-nupm-home {
-        cd tests/packages/spam_custom
+        nupm install --path tests/packages/spam_custom
 
-        nupm install --path .
         assert (check-install [plugins nu_plugin_test])
     }
 }
