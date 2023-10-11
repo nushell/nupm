@@ -74,7 +74,7 @@ def install-path [
 
     match $package.type {
         "module" => {
-            let mod_dir = $pkg_dir | path join $package.name
+            let mod_dir = $pkg_dir | path join ($package.root? | default $package.name) | path expand
 
             if ($mod_dir | path type) != dir {
                 throw-error "invalid_module_package" (
@@ -97,7 +97,7 @@ def install-path [
                 )
             }
 
-            cp --recursive $mod_dir $module_dir
+            cp --recursive $mod_dir $destination
 
             if $package.scripts? != null {
                 log debug $"installing scripts for package ($package.name)"
