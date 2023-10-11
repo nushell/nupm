@@ -1,0 +1,6 @@
+{
+    name: spam_module_repo_root,
+    type: module,
+    version: "0.1.0"
+    root: "./"
+}

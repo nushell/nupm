@@ -36,6 +36,24 @@ export def install-module [] {
     }
 }
 
+export def install-module-with-repo-root [] {
+    with-nupm-home {
+        nupm install --path tests/packages/spam_module_repo_root
+
+        assert (check-install [modules spam_module_repo_root])
+        assert (check-install [modules spam_module_repo_root mod.nu])
+    }
+}
+
+export def install-module-with-src-root [] {
+    with-nupm-home {
+        nupm install --path tests/packages/spam_module_src_root
+
+        assert (check-install [modules spam_module_src_root])
+        assert (check-install [modules spam_module_src_root mod.nu])
+    }
+}
+
 export def install-custom [] {
     with-nupm-home {
         nupm install --path tests/packages/spam_custom
