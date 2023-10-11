@@ -10,17 +10,20 @@ def with-nupm-home [closure: closure]: nothing -> nothing {
     rm -r $dir
 }
 
+# Examples:
+#     make sure `$env.NUPM_HOME/scripts/script.nu` exists
+#     > assert (check-install [scripts script.nu])
+def check-install [path_tokens: list<string>] {
+    $path_tokens | prepend $env.NUPM_HOME | path join | path exists
+}
+
 export def install-script [] {
     with-nupm-home {
         cd tests/packages/spam_script
 
         nupm install --path .
-        assert ([$env.NUPM_HOME scripts spam_script.nu]
-            | path join
-            | path exists)
-        assert ([$env.NUPM_HOME scripts spam_bar.nu]
-            | path join
-            | path exists)
+        assert (check-install [scripts spam_script.nu])
+        assert (check-install [scripts spam_bar.nu])
     }
 }
 
@@ -29,11 +32,9 @@ export def install-module [] {
         cd tests/packages/spam_module
 
         nupm install --path .
-        assert ([$env.NUPM_HOME scripts script.nu] | path join | path exists)
-        assert ([$env.NUPM_HOME modules spam_module] | path join | path exists)
-        assert ([$env.NUPM_HOME modules spam_module mod.nu]
-            | path join
-            | path exists)
+        assert (check-install [scripts script.nu])
+        assert (check-install [modules spam_module])
+        assert (check-install [modules spam_module mod.nu])
     }
 }
 
@@ -42,10 +43,8 @@ export def install-module-nodefault [] {
         cd tests/packages/spam_module_nodefault
 
         nupm install --path .
-        assert ([$env.NUPM_HOME modules nodefault ] | path join | path exists)
-        assert ([$env.NUPM_HOME modules nodefault mod.nu]
-            | path join
-            | path exists)
+        assert (check-install [modules nodefault ])
+        assert (check-install [modules nodefault mod.nu])
     }
 }
 
@@ -54,8 +53,6 @@ export def install-custom [] {
         cd tests/packages/spam_custom
 
         nupm install --path .
-        assert ([$env.NUPM_HOME plugins nu_plugin_test]
-            | path join
-            | path exists)
+        assert (check-install [plugins nu_plugin_test])
     }
 }
