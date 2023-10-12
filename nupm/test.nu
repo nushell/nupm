@@ -11,8 +11,9 @@ export def main [
     let pkg_root = find-root $dir
 
     if $pkg_root == null {
-        throw-error ($'Could not find "package.nuon" in ($dir)'
-            + ' or any parent directory.')
+        throw-error "package_file_not_found" (
+            $'Could not find "package.nuon" in ($dir) or any parent directory.'
+        )
     }
 
     if ($pkg_root | path join "tests" | path type) != "dir" {
