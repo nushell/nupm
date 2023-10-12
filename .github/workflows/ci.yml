@@ -64,4 +64,11 @@ jobs:
 
       - name: Run the tests
         run: |
+          # NOTE: for some reason, `$PWD` gives an incorrect path on Windows
+          # it looks like `/d/a/nupm/nupm` where it should really be `d:\a\nupm\nupm`
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            # NOTE: this commands changes the `/` into `\` and replaces the first one with a ":"
+            "$HOME/${{ env.NU_BIN }}" --commands "use $(echo $PWD | tr '/' '\\' | sed 's/^\\\(.\)\\/\1:\\/')/nupm/; nupm test"
+          else
             "$HOME/${{ env.NU_BIN }}" --commands "use $PWD/nupm/; nupm test"
+          fi
