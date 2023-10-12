@@ -6,6 +6,10 @@ on:
 
 name: continuous-integration
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   tests:
     strategy:
@@ -18,19 +22,40 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Set platform-specific variables
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            echo "ARCH=x86_64-linux-gnu-full" >> $GITHUB_ENV
+            echo "EXT=tar.gz" >> $GITHUB_ENV
+            echo "NU_BIN=nu" >> $GITHUB_ENV
+          elif [ "${{ runner.os }}" = "Windows" ]; then
+            echo "ARCH=x86_64-pc-windows-msvc" >> $GITHUB_ENV
+            echo "EXT=zip" >> $GITHUB_ENV
+            echo "NU_BIN=nu.exe" >> $GITHUB_ENV
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            echo "ARCH=x86_64-apple-darwin" >> $GITHUB_ENV
+            echo "EXT=tar.gz" >> $GITHUB_ENV
+            echo "NU_BIN=nu" >> $GITHUB_ENV
+          fi
+
       - name: Install Nushell from Nightly
         run: |
           tarball=$(\
             curl -L https://api.github.com/repos/nushell/nightly/releases \
                 | jq 'sort_by(.published_at) | reverse | .[0].assets'\
-                | jq '.[] | select(.name | test("x86_64-linux-gnu-full.tar.gz")) | {name, browser_download_url}'\
+                | jq '.[] | select(.name | test("${{ env.ARCH }}.${{ env.EXT }}")) | {name, browser_download_url}'\
             )
-          name=$(echo $tarball | jq '.name' | tr -d '"' | sed 's/.tar.gz$//')
+          name=$(echo $tarball | jq '.name' | tr -d '"' | sed 's/.${{ env.EXT }}$//')
           url=$(echo $tarball | jq '.browser_download_url' | tr -d '"')
 
           curl -fLo $name $url
-          tar xvf $name --directory /tmp
-          cp /tmp/$name/nu $HOME/nu
+
+          if [ "${{ env.EXT }}" = "tar.gz" ]; then
+            tar xvf $name --directory /tmp
+          elif [ "${{ env.EXT }}" = "zip" ]; then
+            unzip $name -d "/tmp/$name"
+          fi
+          cp "/tmp/$name/${{ env.NU_BIN }}" "$HOME/${{ env.NU_BIN }}"
 
       - name: Run the tests
-        run: $HOME/nu --commands "use $PWD/nupm/; nupm test"
+        run: "$HOME/${{ env.NU_BIN }}" --commands "use $PWD/nupm/; nupm test"
