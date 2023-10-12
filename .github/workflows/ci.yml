@@ -59,7 +59,9 @@ jobs:
           cp "/tmp/$name/${{ env.NU_BIN }}" "$HOME/${{ env.NU_BIN }}"
 
       - name: Show Nushell Version
-        run: "$HOME/${{ env.NU_BIN }}" --commands "version"
+        run: |
+            "$HOME/${{ env.NU_BIN }}" --commands "version"
 
       - name: Run the tests
-        run: "$HOME/${{ env.NU_BIN }}" --commands "use $PWD/nupm/; nupm test"
+        run: |
+            "$HOME/${{ env.NU_BIN }}" --commands "use $PWD/nupm/; nupm test"
