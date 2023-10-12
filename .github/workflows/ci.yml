@@ -29,14 +29,20 @@ jobs:
             echo "ARCH=x86_64-linux-gnu-full" >> $GITHUB_ENV
             echo "EXT=tar.gz" >> $GITHUB_ENV
             echo "NU_BIN=nu" >> $GITHUB_ENV
+            echo "CWD=$PWD" >> $GITHUB_ENV
           elif [ "${{ runner.os }}" = "Windows" ]; then
             echo "ARCH=x86_64-pc-windows-msvc" >> $GITHUB_ENV
             echo "EXT=zip" >> $GITHUB_ENV
             echo "NU_BIN=nu.exe" >> $GITHUB_ENV
+            # NOTE: for some reason, `$PWD` gives an incorrect path on Windows, e.g. it looks like
+            # `/d/a/nupm/nupm` where it should really be `d:\a\nupm\nupm`: this commands changes the
+            # `/` into `\` and replaces the first part of the path with "x:\"
+            echo "CWD=$(echo $PWD | tr '/' '\\' | sed 's/^\\\(.\)\\/\1:\\/')" >> $GITHUB_ENV
           elif [ "${{ runner.os }}" = "macOS" ]; then
             echo "ARCH=x86_64-apple-darwin" >> $GITHUB_ENV
             echo "EXT=tar.gz" >> $GITHUB_ENV
             echo "NU_BIN=nu" >> $GITHUB_ENV
+            echo "CWD=$PWD" >> $GITHUB_ENV
           fi
 
       - name: Install Nushell from Nightly
@@ -60,15 +66,8 @@ jobs:
 
       - name: Show Nushell Version
         run: |
-            "$HOME/${{ env.NU_BIN }}" --commands "version"
+          "$HOME/${{ env.NU_BIN }}" --commands "version"
 
       - name: Run the tests
         run: |
-          # NOTE: for some reason, `$PWD` gives an incorrect path on Windows
-          # it looks like `/d/a/nupm/nupm` where it should really be `d:\a\nupm\nupm`
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            # NOTE: this commands changes the `/` into `\` and replaces the first one with a ":"
-            "$HOME/${{ env.NU_BIN }}" --commands "use $(echo $PWD | tr '/' '\\' | sed 's/^\\\(.\)\\/\1:\\/')/nupm/; nupm test"
-          else
-            "$HOME/${{ env.NU_BIN }}" --commands "use $PWD/nupm/; nupm test"
-          fi
+          "$HOME/${{ env.NU_BIN }}" --commands "use ${{ env.CWD }}/nupm/; nupm test"
