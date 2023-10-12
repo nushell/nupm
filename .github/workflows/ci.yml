@@ -20,7 +20,11 @@ jobs:
 
       - name: Install Nushell from Nightly
         run: |
-          tarball=$(curl -L https://api.github.com/repos/nushell/nightly/releases | jq 'sort_by(.published_at) | reverse | .[0].assets' | jq '.[] | select(.name | test("x86_64-linux-gnu-full.tar.gz")) | {name, browser_download_url}')
+          tarball=$(\
+            curl -L https://api.github.com/repos/nushell/nightly/releases \
+                | jq 'sort_by(.published_at) | reverse | .[0].assets'\
+                | jq '.[] | select(.name | test("x86_64-linux-gnu-full.tar.gz")) | {name, browser_download_url}'\
+            )
           name=$(echo $tarball | jq '.name' | tr -d '"' | sed 's/.tar.gz$//')
           url=$(echo $tarball | jq '.browser_download_url' | tr -d '"')
 
