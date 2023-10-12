@@ -15,6 +15,18 @@ export def main [
             + ' or any parent directory.')
     }
 
+    if ($pkg_root | path join "tests" | path type) != "dir" {
+        throw-error "test_directory_not_found" (
+            $"tests/ directory module not found for in ($pkg_root)"
+        )
+    }
+
+    if ($pkg_root | path join "tests" "mod.nu" | path type) != "file" {
+        throw-error "invalid_test_directory" (
+            $"tests/ directory module in ($pkg_root) is missing a `mod.nu`"
+        )
+    }
+
     print $'Testing package ($pkg_root)'
     cd $pkg_root
 
