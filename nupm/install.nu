@@ -128,7 +128,7 @@ def install-path [
 
             do {
                 cd $tmp_dir
-                nu $build_file ($pkg_dir | path join 'package.nuon')
+                ^$nu.current-exe $build_file ($pkg_dir | path join 'package.nuon')
             }
 
             rm -rf $tmp_dir
