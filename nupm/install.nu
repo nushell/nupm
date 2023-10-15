@@ -110,7 +110,13 @@ def install-path [
 
     match $package.type {
         "module" => {
-            [ $package.name ]
+            let default_name = $package.name
+
+            if ($pkg_dir | path join $default_name | path exists) {
+                [ $default_name ]
+            } else {
+                []
+            }
             | append ($package.modules? | default [])
             | install-modules $pkg_dir (module-dir --ensure) --force $force
 
@@ -119,7 +125,13 @@ def install-path [
             | install-scripts $pkg_dir (script-dir --ensure) --force $force
         },
         "script" => {
-            [ $"($package.name).nu" ]
+            let default_name = $"($package.name).nu"
+
+            if ($pkg_dir | path join $default_name | path exists) {
+                [ $default_name ]
+            } else {
+                []
+            }
             | append ($package.scripts? | default [])
             | install-scripts $pkg_dir (script-dir --ensure) --force $force
 
