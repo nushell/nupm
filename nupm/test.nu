@@ -11,8 +11,21 @@ export def main [
     let pkg_root = find-root $dir
 
     if $pkg_root == null {
-        throw-error ($'Could not find "package.nuon" in ($dir)'
-            + ' or any parent directory.')
+        throw-error "package_file_not_found" (
+            $'Could not find "package.nuon" in ($dir) or any parent directory.'
+        )
+    }
+
+    if ($pkg_root | path join "tests" | path type) != "dir" {
+        throw-error "test_directory_not_found" (
+            $"tests/ directory module not found for in ($pkg_root)"
+        )
+    }
+
+    if ($pkg_root | path join "tests" "mod.nu" | path type) != "file" {
+        throw-error "invalid_test_directory" (
+            $"tests/ directory module in ($pkg_root) is missing a `mod.nu`"
+        )
     }
 
     print $'Testing package ($pkg_root)'
