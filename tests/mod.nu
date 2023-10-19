@@ -7,7 +7,7 @@ use ../nupm
 def with-nupm-home [closure: closure]: nothing -> nothing {
     let dir = tmp-dir test --ensure
     with-env { NUPM_HOME: $dir } $closure
-    rm -r $dir
+    rm --recursive $dir
 }
 
 # Examples:
