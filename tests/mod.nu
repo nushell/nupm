@@ -12,17 +12,17 @@ def with-nupm-home [closure: closure]: nothing -> nothing {
 
 # Examples:
 #     make sure `$env.NUPM_HOME/scripts/script.nu` exists
-#     > assert (check-install [scripts script.nu])
-def check-install [path_tokens: list<string>] {
-    $path_tokens | prepend $env.NUPM_HOME | path join | path exists
+#     > assert installed [scripts script.nu]
+def "assert installed" [path_tokens: list<string>] {
+    assert ($path_tokens | prepend $env.NUPM_HOME | path join | path exists)
 }
 
 export def install-script [] {
     with-nupm-home {
         nupm install --path tests/packages/spam_script
 
-        assert (check-install [scripts spam_script.nu])
-        assert (check-install [scripts spam_bar.nu])
+        assert installed [scripts spam_script.nu]
+        assert installed [scripts spam_bar.nu]
     }
 }
 
@@ -30,9 +30,9 @@ export def install-module [] {
     with-nupm-home {
         nupm install --path tests/packages/spam_module
 
-        assert (check-install [scripts script.nu])
-        assert (check-install [modules spam_module])
-        assert (check-install [modules spam_module mod.nu])
+        assert installed [scripts script.nu]
+        assert installed [modules spam_module]
+        assert installed [modules spam_module mod.nu]
     }
 }
 
@@ -40,8 +40,8 @@ export def install-module-nodefault [] {
     with-nupm-home {
         nupm install --path tests/packages/spam_module_nodefault
 
-        assert (check-install [modules nodefault ])
-        assert (check-install [modules nodefault mod.nu])
+        assert installed [modules nodefault ]
+        assert installed [modules nodefault mod.nu]
     }
 }
 
@@ -49,6 +49,6 @@ export def install-custom [] {
     with-nupm-home {
         nupm install --path tests/packages/spam_custom
 
-        assert (check-install [plugins nu_plugin_test])
+        assert installed [plugins nu_plugin_test]
     }
 }
