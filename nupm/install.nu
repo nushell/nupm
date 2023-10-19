@@ -38,19 +38,20 @@ def install-scripts [
 ]: list<path> -> nothing {
     each {|script|
         let src_path = $pkg_dir | path join $script
+        let dst_path = $scripts_dir | path join $script
 
         if ($src_path | path type) != file {
             throw-error "script_not_found" $"Script ($src_path) does not exist"
         }
 
-        if (($scripts_dir
-                | path join ($script | path basename)
-                | path type) == file
-            and (not $force)
-        ) {
-            throw-error "package_already_installed" (
+        if $force {
+            rm --recursive --force $dst_path
+        }
+
+        if ($dst_path | path type) == file and (not $force) {
+            throw-error "script_already_installed" (
                 $"Script ($src_path) is already installed in"
-                + $" ($scripts_dir). Use `--force` to override the package."
+                + $" ($scripts_dir). Use `--force` to override it."
             )
         }
 
@@ -60,6 +61,41 @@ def install-scripts [
 
     null
 }
+
+# Install list of modules into a directory
+#
+# Input: Modules taken from 'package.nuon'
+def install-modules [
+    pkg_dir: path        # Package directory
+    modules_dir: path    # Target directory where to install
+    --force(-f): bool    # Overwrite already installed modules
+]: list<path> -> nothing {
+    each {|module|
+        let src_path = $pkg_dir | path join $module
+        let dst_path = $modules_dir | path join $module
+
+        if not ($src_path | path exists) {
+            throw-error "module_not_found" $"Module ($src_path) does not exist"
+        }
+
+        if $force {
+            rm --recursive --force $dst_path
+        }
+
+        if ($dst_path | path exists) == file and (not $force) {
+            throw-error "module_already_installed" (
+                $"Module  ($src_path) is already installed in"
+                + $" ($modules_dir). Use `--force` to override it."
+            )
+        }
+
+        log debug $"installing module `($src_path)` to `($modules_dir)`"
+        cp -r $src_path $modules_dir
+    }
+
+    null
+}
+
 
 # Install package from a directory containing 'project.nuon'
 def install-path [
@@ -74,44 +110,34 @@ def install-path [
 
     match $package.type {
         "module" => {
-            let mod_dir = $pkg_dir | path join $package.name
+            let default_name = $package.name
 
-            if ($mod_dir | path type) != dir {
-                throw-error "invalid_module_package" (
-                    $"Module package '($package.name)' does not"
-                    + $" contain directory '($package.name)'"
-                )
+            if ($pkg_dir | path join $default_name | path exists) {
+                [ $default_name ]
+            } else {
+                []
             }
+            | append ($package.modules? | default [])
+            | install-modules $pkg_dir (module-dir --ensure) --force $force
 
-            let module_dir = module-dir --ensure
-            let destination = $module_dir | path join $package.name
-
-            if $force {
-                rm --recursive --force $destination
-            }
-
-            if ($destination | path type) == dir {
-                throw-error "package_already_installed" (
-                    $"Package ($package.name) is already installed."
-                    + "Use `--force` to override the package"
-                )
-            }
-
-            cp --recursive $mod_dir $module_dir
-
-            if $package.scripts? != null {
-                log debug $"installing scripts for package ($package.name)"
-
-                $package.scripts
-                | install-scripts $pkg_dir (script-dir --ensure) --force $force
-            }
+            $package.scripts?
+            | default []
+            | install-scripts $pkg_dir (script-dir --ensure) --force $force
         },
         "script" => {
-            log debug $"installing scripts for package ($package.name)"
+            let default_name = $"($package.name).nu"
 
-            [ ($pkg_dir | path join $"($package.name).nu") ]
+            if ($pkg_dir | path join $default_name | path exists) {
+                [ $default_name ]
+            } else {
+                []
+            }
             | append ($package.scripts? | default [])
             | install-scripts $pkg_dir (script-dir --ensure) --force $force
+
+            $package.modules? 
+            | default []
+            | install-modules $pkg_dir (module-dir --ensure) --force $force
         },
         "custom" => {
             let build_file = $pkg_dir | path join "build.nu"
