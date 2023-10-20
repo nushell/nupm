@@ -7,55 +7,48 @@ use ../nupm
 def with-nupm-home [closure: closure]: nothing -> nothing {
     let dir = tmp-dir test --ensure
     with-env { NUPM_HOME: $dir } $closure
-    rm -r $dir
+    rm --recursive $dir
+}
+
+# Examples:
+#     make sure `$env.NUPM_HOME/scripts/script.nu` exists
+#     > assert installed [scripts script.nu]
+def "assert installed" [path_tokens: list<string>] {
+    assert ($path_tokens | prepend $env.NUPM_HOME | path join | path exists)
 }
 
 export def install-script [] {
     with-nupm-home {
-        cd tests/packages/spam_script
+        nupm install --path tests/packages/spam_script
 
-        nupm install --path .
-        assert ([$env.NUPM_HOME scripts spam_script.nu]
-            | path join
-            | path exists)
-        assert ([$env.NUPM_HOME scripts spam_bar.nu]
-            | path join
-            | path exists)
+        assert installed [scripts spam_script.nu]
+        assert installed [scripts spam_bar.nu]
     }
 }
 
 export def install-module [] {
     with-nupm-home {
-        cd tests/packages/spam_module
+        nupm install --path tests/packages/spam_module
 
-        nupm install --path .
-        assert ([$env.NUPM_HOME scripts script.nu] | path join | path exists)
-        assert ([$env.NUPM_HOME modules spam_module] | path join | path exists)
-        assert ([$env.NUPM_HOME modules spam_module mod.nu]
-            | path join
-            | path exists)
+        assert installed [scripts script.nu]
+        assert installed [modules spam_module]
+        assert installed [modules spam_module mod.nu]
     }
 }
 
 export def install-module-nodefault [] {
     with-nupm-home {
-        cd tests/packages/spam_module_nodefault
+        nupm install --path tests/packages/spam_module_nodefault
 
-        nupm install --path .
-        assert ([$env.NUPM_HOME modules nodefault ] | path join | path exists)
-        assert ([$env.NUPM_HOME modules nodefault mod.nu]
-            | path join
-            | path exists)
+        assert installed [modules nodefault ]
+        assert installed [modules nodefault mod.nu]
     }
 }
 
 export def install-custom [] {
     with-nupm-home {
-        cd tests/packages/spam_custom
+        nupm install --path tests/packages/spam_custom
 
-        nupm install --path .
-        assert ([$env.NUPM_HOME plugins nu_plugin_test]
-            | path join
-            | path exists)
+        assert installed [plugins nu_plugin_test]
     }
 }
