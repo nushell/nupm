@@ -82,7 +82,7 @@ def install-modules [
             rm --recursive --force $dst_path
         }
 
-        if ($dst_path | path exists) == file and (not $force) {
+        if ($dst_path | path exists) and (not $force) {
             throw-error "module_already_installed" (
                 $"Module  ($src_path) is already installed in"
                 + $" ($modules_dir). Use `--force` to override it."
