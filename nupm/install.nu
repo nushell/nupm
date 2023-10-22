@@ -72,7 +72,7 @@ def install-modules [
 ]: list<path> -> nothing {
     each {|module|
         let src_path = $pkg_dir | path join $module
-        let dst_path = $modules_dir | path join $module
+        let dst_path = $modules_dir | path join ($module | path split | last)
 
         if not ($src_path | path exists) {
             throw-error "module_not_found" $"Module ($src_path) does not exist"
