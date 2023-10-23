@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set platform-specific variables
-        run: bash $CI_SCRIPTS/set-platform-specific-variables.sh "${{ runner.os }}" "$GITHUB_ENV"
+        run: bash $CI_SCRIPTS/set-platform-specific-variables.sh "${{ runner.os }}" >> "$GITHUB_ENV"
 
       - name: Install Nushell from Nightly
         run: bash $CI_SCRIPTS/install-nightly-nushell.sh "${{ env.ARCH }}" "${{ env.EXT }}" "${{ env.NU_BIN }}"
