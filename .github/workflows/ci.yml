@@ -12,7 +12,7 @@ defaults:
     shell: bash
 
 env:
-  CI_SCRIPTS: "./github/workflows/scripts"
+  CI_SCRIPTS: ".github/workflows/scripts"
 
 jobs:
   tests:
