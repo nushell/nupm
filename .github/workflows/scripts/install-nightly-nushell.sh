@@ -7,9 +7,9 @@ nu="$3"
 tarball=$(\
     curl -L https://api.github.com/repos/nushell/nightly/releases \
         | jq 'sort_by(.published_at) | reverse | .[0].assets'\
-        | jq '.[] | select(.name | test("$arch.$ext")) | {name, browser_download_url}'\
+        | jq ".[] | select(.name | test(\"$arch.$ext\")) | {name, browser_download_url}"\
 )
-name=$(echo $tarball | jq '.name' | tr -d '"' | sed 's/.$ext$//')
+name=$(echo $tarball | jq '.name' | tr -d '"' | sed "s/.$ext$//")
 url=$(echo $tarball | jq '.browser_download_url' | tr -d '"')
 
 curl -fLo $name $url
