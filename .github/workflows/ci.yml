@@ -11,6 +11,9 @@ defaults:
   run:
     shell: bash
 
+env:
+  CI_SCRIPTS: "./github/workflows/scripts"
+
 jobs:
   tests:
     strategy:
@@ -24,45 +27,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set platform-specific variables
-        run: |
-          if [ "${{ runner.os }}" = "Linux" ]; then
-            echo "ARCH=x86_64-linux-gnu-full" >> $GITHUB_ENV
-            echo "EXT=tar.gz" >> $GITHUB_ENV
-            echo "NU_BIN=nu" >> $GITHUB_ENV
-            echo "CWD=$PWD" >> $GITHUB_ENV
-          elif [ "${{ runner.os }}" = "Windows" ]; then
-            echo "ARCH=x86_64-pc-windows-msvc" >> $GITHUB_ENV
-            echo "EXT=zip" >> $GITHUB_ENV
-            echo "NU_BIN=nu.exe" >> $GITHUB_ENV
-            # NOTE: for some reason, `$PWD` gives an incorrect path on Windows, e.g. it looks like
-            # `/d/a/nupm/nupm` where it should really be `d:\a\nupm\nupm`: this commands changes the
-            # `/` into `\` and replaces the first part of the path with "x:\"
-            echo "CWD=$(echo $PWD | tr '/' '\\' | sed 's/^\\\(.\)\\/\1:\\/')" >> $GITHUB_ENV
-          elif [ "${{ runner.os }}" = "macOS" ]; then
-            echo "ARCH=x86_64-apple-darwin" >> $GITHUB_ENV
-            echo "EXT=tar.gz" >> $GITHUB_ENV
-            echo "NU_BIN=nu" >> $GITHUB_ENV
-            echo "CWD=$PWD" >> $GITHUB_ENV
-          fi
+        run: bash $CI_SCRIPTS/set-platform-specific-variables.sh
 
       - name: Install Nushell from Nightly
-        run: |
-          tarball=$(\
-            curl -L https://api.github.com/repos/nushell/nightly/releases \
-                | jq 'sort_by(.published_at) | reverse | .[0].assets'\
-                | jq '.[] | select(.name | test("${{ env.ARCH }}.${{ env.EXT }}")) | {name, browser_download_url}'\
-            )
-          name=$(echo $tarball | jq '.name' | tr -d '"' | sed 's/.${{ env.EXT }}$//')
-          url=$(echo $tarball | jq '.browser_download_url' | tr -d '"')
-
-          curl -fLo $name $url
-
-          if [ "${{ env.EXT }}" = "tar.gz" ]; then
-            tar xvf $name --directory /tmp
-          elif [ "${{ env.EXT }}" = "zip" ]; then
-            unzip $name -d "/tmp/$name"
-          fi
-          cp "/tmp/$name/${{ env.NU_BIN }}" "$HOME/${{ env.NU_BIN }}"
+        run: bash $CI_SCRIPTS/install-nightly-nushell.sh
 
       - name: Show Nushell Version
         run: |
