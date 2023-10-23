@@ -30,7 +30,7 @@ jobs:
         run: bash $CI_SCRIPTS/set-platform-specific-variables.sh "${{ runner.os }}" "$GITHUB_ENV"
 
       - name: Install Nushell from Nightly
-        run: bash $CI_SCRIPTS/install-nightly-nushell.sh
+        run: bash $CI_SCRIPTS/install-nightly-nushell.sh "${{ env.ARCH }}" "${{ env.EXT }}" "${{ env.NU_BIN }}"
 
       - name: Show Nushell Version
         run: |
