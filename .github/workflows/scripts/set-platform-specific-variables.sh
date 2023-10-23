@@ -13,7 +13,7 @@ if [ "$os" = "Linux" ]; then
         EXT=tar.gz
         NU_BIN=nu
         NUPM=$HOME/nupm
-        CWD=$HOME
+        CWD=$PWD
     " | save-env
 elif [ "$os" = "Windows" ]; then
     echo "
@@ -29,7 +29,7 @@ elif [ "$os" = "macOS" ]; then
         EXT=tar.gz
         NU_BIN=nu
         NUPM=$HOME/nupm
-        CWD=$HOME
+        CWD=$PWD
     " | save-env
 else
     echo "UNKNOWN OS \`$os\`"
