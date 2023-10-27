@@ -11,9 +11,6 @@ defaults:
   run:
     shell: nu {0}
 
-env:
-  CI_SCRIPTS: ".github/workflows/scripts"
-
 jobs:
   tests:
     strategy:
