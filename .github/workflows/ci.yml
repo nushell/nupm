@@ -9,7 +9,7 @@ name: continuous-integration
 
 defaults:
   run:
-    shell: bash
+    shell: nu {0}
 
 env:
   CI_SCRIPTS: ".github/workflows/scripts"
@@ -26,16 +26,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set platform-specific variables
-        run: bash $CI_SCRIPTS/set-platform-specific-variables.sh "${{ runner.os }}" >> "$GITHUB_ENV"
-
-      - name: Install Nushell from Nightly
-        run: bash $CI_SCRIPTS/install-nightly-nushell.sh "${{ env.ARCH }}" "${{ env.EXT }}" "${{ env.NU_BIN }}"
+      - uses: hustcer/setup-nu@v3.7
+        with:
+          version: nightly
 
       - name: Show Nushell Version
-        run: |
-          "$HOME/${{ env.NU_BIN }}" --commands "version"
+        run: version
 
       - name: Run the tests
-        run: |
-          "$HOME/${{ env.NU_BIN }}" --commands "use ${{ env.CWD }}/nupm/; nupm test"
+        run: nu --commands $"use ($env.PWD)/nupm/; nupm test"
