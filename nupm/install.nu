@@ -176,7 +176,9 @@ export def main [
     --path  # Install package from a directory with package.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
 ]: nothing -> nothing {
-    nupm-home-prompt
+    if not (nupm-home-prompt) {
+        return
+    }
 
     if not $path {
         throw-error "missing_required_option" "`nupm install` currently requires a `--path` flag"
