@@ -31,6 +31,4 @@ jobs:
         run: version
 
       - name: Run the tests
-        run: |
-          use ./nupm/
-          nupm test
+        run: nu --commands $"use ($env.PWD)/nupm/; nupm test"
