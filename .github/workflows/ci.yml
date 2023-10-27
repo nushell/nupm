@@ -11,6 +11,9 @@ defaults:
   run:
     shell: nu {0}
 
+env:
+  NU_LOG_LEVEL: DEBUG
+
 jobs:
   tests:
     strategy:
