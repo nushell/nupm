@@ -7,7 +7,9 @@ export const DEFAULT_NUPM_HOME = ($nu.default-config-dir | path join "nupm")
 export const DEFAULT_NUPM_TEMP = ($nu.temp-path | path join "nupm")
 
 # Prompt to create $env.NUPM_HOME if it does not exist and some sanity checks.
-export def nupm-home-prompt [] {
+#
+# returns true if the root directory exists or has been created, false otherwise
+export def nupm-home-prompt []: nothing -> bool {
     if 'NUPM_HOME' not-in $env {
         error make --unspanned {
             msg: "Internal error: NUPM_HOME environment variable is not set"
@@ -23,7 +25,7 @@ export def nupm-home-prompt [] {
             }
         }
 
-        return
+        return true
     }
 
     mut answer = ''
@@ -35,10 +37,12 @@ export def nupm-home-prompt [] {
     }
 
     if ($answer | str downcase) != 'y' {
-        return
+        return false
     }
 
     mkdir $env.NUPM_HOME
+
+    true
 }
 
 export def script-dir [--ensure]: nothing -> path {
