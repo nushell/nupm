@@ -98,7 +98,7 @@ def install-modules [
             | where type == file
             | get name
             | each {|it|
-                open $it | str replace --all "{{ VERSION }}" $version | save --force $it
+                open $it | str replace --all "{{ NUPM_VERSION }}" $version | save --force $it
             }
     }
 

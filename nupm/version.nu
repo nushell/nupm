@@ -1,3 +1,3 @@
 export def main []: nothing -> string {
-    "{{ VERSION }}"
+    "{{ NUPM_VERSION }}"
 }
