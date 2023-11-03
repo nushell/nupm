@@ -66,6 +66,7 @@ def install-scripts [
 #
 # Input: Modules taken from 'package.nuon'
 def install-modules [
+    package: record      # The content of the package
     pkg_dir: path        # Package directory
     modules_dir: path    # Target directory where to install
     --force(-f): bool    # Overwrite already installed modules
@@ -91,6 +92,14 @@ def install-modules [
 
         log debug $"installing module `($src_path)` to `($modules_dir)`"
         cp -r $src_path $modules_dir
+
+        let version = $"($package.name)@($package.version)"
+        ls ($modules_dir | path join "**/*")
+            | where type == file
+            | get name
+            | each {|it|
+                open $it | str replace --all "{{ VERSION }}" $version | save --force $it
+            }
     }
 
     null
@@ -118,7 +127,7 @@ def install-path [
                 []
             }
             | append ($package.modules? | default [])
-            | install-modules $pkg_dir (module-dir --ensure) --force $force
+            | install-modules $package $pkg_dir (module-dir --ensure) --force $force
 
             $package.scripts?
             | default []
@@ -137,7 +146,7 @@ def install-path [
 
             $package.modules? 
             | default []
-            | install-modules $pkg_dir (module-dir --ensure) --force $force
+            | install-modules $package $pkg_dir (module-dir --ensure) --force $force
         },
         "custom" => {
             let build_file = $pkg_dir | path join "build.nu"
