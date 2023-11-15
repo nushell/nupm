@@ -102,7 +102,7 @@ def install-path [
     pkg_dir: path      # Directory (hopefully) containing 'package.nuon'
     --force(-f): bool  # Overwrite already installed package
 ] {
-    let pkg_dir = $pkg_dir | path expand --strict
+    let pkg_dir = $pkg_dir | path expand
 
     let package = open-package-file $pkg_dir
 
