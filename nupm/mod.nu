@@ -11,7 +11,7 @@ export-env {
 
 # Nushell Package Manager
 export def main []: nothing -> nothing {
-    nupm-home-prompt
+    nupm-home-prompt --no-confirm false
 
     print 'enjoy nupm!'
 }

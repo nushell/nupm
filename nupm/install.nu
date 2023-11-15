@@ -175,8 +175,9 @@ export def main [
     package # Name, path, or link to the package
     --path  # Install package from a directory with package.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
+    --no-confirm # Allows to bypass the interactive confirmation, useful for scripting
 ]: nothing -> nothing {
-    if not (nupm-home-prompt) {
+    if not (nupm-home-prompt --no-confirm $no_confirm) {
         return
     }
 
