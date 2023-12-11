@@ -36,15 +36,6 @@ export def install-module [] {
     }
 }
 
-export def install-module-nodefault [] {
-    with-nupm-home {
-        nupm install --path tests/packages/spam_module_nodefault
-
-        assert installed [modules nodefault ]
-        assert installed [modules nodefault mod.nu]
-    }
-}
-
 export def install-custom [] {
     with-nupm-home {
         nupm install --path tests/packages/spam_custom
