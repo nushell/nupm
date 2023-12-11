@@ -4,11 +4,11 @@ use utils/dirs.nu [ nupm-home-prompt script-dir module-dir tmp-dir ]
 use utils/log.nu throw-error
 
 def open-package-file [dir: path] {
-    let package_file = $dir | path join "package.nuon"
+    let package_file = $dir | path join "nupm.nuon"
 
     if not ($package_file | path exists) {
         throw-error "package_file_not_found" (
-            $'Could not find "package.nuon" in ($dir) or any parent directory.'
+            $'Could not find "nupm.nuon" in ($dir) or any parent directory.'
         )
     }
 
@@ -30,7 +30,7 @@ def open-package-file [dir: path] {
 
 # Install list of scripts into a directory
 #
-# Input: Scripts taken from 'package.nuon'
+# Input: Scripts taken from 'nupm.nuon'
 def install-scripts [
     pkg_dir: path        # Package directory
     scripts_dir: path    # Target directory where to install
@@ -64,7 +64,7 @@ def install-scripts [
 
 # Install list of modules into a directory
 #
-# Input: Modules taken from 'package.nuon'
+# Input: Modules taken from 'nupm.nuon'
 def install-modules [
     pkg_dir: path        # Package directory
     modules_dir: path    # Target directory where to install
@@ -99,7 +99,7 @@ def install-modules [
 
 # Install package from a directory containing 'project.nuon'
 def install-path [
-    pkg_dir: path      # Directory (hopefully) containing 'package.nuon'
+    pkg_dir: path      # Directory (hopefully) containing 'nupm.nuon'
     --force(-f): bool  # Overwrite already installed package
 ] {
     let pkg_dir = $pkg_dir | path expand
@@ -154,7 +154,7 @@ def install-path [
 
             do {
                 cd $tmp_dir
-                ^$nu.current-exe $build_file ($pkg_dir | path join 'package.nuon')
+                ^$nu.current-exe $build_file ($pkg_dir | path join 'nupm.nuon')
             }
 
             rm -rf $tmp_dir
@@ -173,7 +173,7 @@ def install-path [
 # Install a nupm package
 export def main [
     package # Name, path, or link to the package
-    --path  # Install package from a directory with package.nuon given by 'name'
+    --path  # Install package from a directory with nupm.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
     --no-confirm # Allows to bypass the interactive confirmation, useful for scripting
 ]: nothing -> nothing {
