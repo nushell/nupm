@@ -62,13 +62,16 @@ export def run [package: path, --target-directory: path = "target/"] {
     let pkg = open $pkg_file | get name
     let target_directory = $target_directory | path expand
 
+    let config_file = $nu.temp-path | path join config.nu
+    let env_file = $nu.temp-path | path join env.nu
+
     $"overlay use ($target_directory | path join $pkg (^git rev-parse HEAD) "activate.nu")"
-        | save --force ($nu.temp-path | path join env.nu)
-    "$env.config.show_banner = false" | save --force ($nu.temp-path | path join config.nu)
+        | save --force $env_file
+    "$env.config.show_banner = false" | save --force $config_file
 
     nu [
-        --config ($nu.temp-path | path join config.nu)
-        --env-config ($nu.temp-path | path join env.nu)
+        --config $config_file
+        --env-config $env_file
         --execute $"
             $env.PROMPT_COMMAND = '($pkg)'
             use ($package | path join $pkg)
