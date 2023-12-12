@@ -65,8 +65,19 @@ export def run [package: path, --target-directory: path = "target/"] {
     let config_file = $nu.temp-path | path join config.nu
     let env_file = $nu.temp-path | path join env.nu
 
-    $"overlay use ($target_directory | path join $pkg (^git rev-parse HEAD) "activate.nu")"
-        | save --force $env_file
+    let activation_file = $target_directory | path join $pkg (^git rev-parse HEAD) "activate.nu"
+    if not ($activation_file | path exists) {
+        error make {
+            msg: $"(ansi red_bold)package_not_built(ansi reset)",
+            label: {
+                text: "does not appear to be built",
+                span: (metadata $package).span,
+            },
+            help: $"could not find `($activation_file)`",
+        }
+    }
+
+    $"overlay use ($activation_file)" | save --force $env_file
     "$env.config.show_banner = false" | save --force $config_file
 
     ^$nu.current-exe [
