@@ -3,12 +3,16 @@ def null-device []: nothing -> path {
     "/dev/null"
 }
 
+# TODO: just to wait for 0.88 and built-in `mktemp`
+def mktemp [pattern: string, --tmpdir, --directory] {
+    ^mktemp -t -d $pattern
+}
+
 export def build [package: path, --target-directory: path = "target/"] {
     let pkg = open ($package | path join "package.nuon") | get name
     let target_directory = $target_directory | path expand
 
-    # TODO: use `mktemp` from `0.88`
-    let head = ^mktemp -t -d nupm_install_XXXXXXX
+    let head = mktemp --tmpdir --directory nupm_install_XXXXXXX
     ^git worktree add --detach $head HEAD out+err> (null-device)
     rm --recursive ($head | path join ".git")
     ^git worktree prune out+err> (null-device)
