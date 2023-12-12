@@ -16,7 +16,7 @@ export def build [package: path, --target-directory: path = "target/"] {
         error make {
             msg: $"(ansi red_bold)not_a_package(ansi reset)",
             label: {
-                text: $"does not appear to be a package",
+                text: "does not appear to be a package",
                 span: (metadata $package).span,
             },
             help: $"does not contain a `($PACKAGE_FILE)` file",
@@ -52,7 +52,7 @@ export def run [package: path, --target-directory: path = "target/"] {
         error make {
             msg: $"(ansi red_bold)not_a_package(ansi reset)",
             label: {
-                text: $"does not appear to be a package",
+                text: "does not appear to be a package",
                 span: (metadata $package).span,
             },
             help: $"does not contain a `($PACKAGE_FILE)` file",
