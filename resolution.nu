@@ -1,3 +1,5 @@
+const PACKAGE_FILE = "package.nuon"
+
 # NOTE: just to wait for 0.88 and `std null-device`
 def null-device []: nothing -> path {
     "/dev/null"
@@ -9,7 +11,19 @@ def mktemp [pattern: string, --tmpdir, --directory] {
 }
 
 export def build [package: path, --target-directory: path = "target/"] {
-    let pkg = open ($package | path join "package.nuon") | get name
+    let pkg_file = $package | path join $PACKAGE_FILE
+    if not ($pkg_file | path exists) {
+        error make {
+            msg: $"(ansi red_bold)not_a_package(ansi reset)",
+            label: {
+                text: $"does not appear to be a package",
+                span: (metadata $package).span,
+            },
+            help: $"does not contain a `($PACKAGE_FILE)` file",
+        }
+    }
+
+    let pkg = open $pkg_file | get name
     let target_directory = $target_directory | path expand
 
     let head = mktemp --tmpdir --directory nupm_install_XXXXXXX
@@ -33,7 +47,19 @@ export def build [package: path, --target-directory: path = "target/"] {
 }
 
 export def run [package: path, --target-directory: path = "target/"] {
-    let pkg = open ($package | path join "package.nuon") | get name
+    let pkg_file = $package | path join $PACKAGE_FILE
+    if not ($pkg_file | path exists) {
+        error make {
+            msg: $"(ansi red_bold)not_a_package(ansi reset)",
+            label: {
+                text: $"does not appear to be a package",
+                span: (metadata $package).span,
+            },
+            help: $"does not contain a `($PACKAGE_FILE)` file",
+        }
+    }
+
+    let pkg = open $pkg_file | get name
     let target_directory = $target_directory | path expand
 
     $"overlay use ($target_directory | path join $pkg (^git rev-parse HEAD) "activate.nu")"
