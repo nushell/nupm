@@ -69,7 +69,7 @@ export def run [package: path, --target-directory: path = "target/"] {
         | save --force $env_file
     "$env.config.show_banner = false" | save --force $config_file
 
-    nu [
+    ^$nu.current-exe [
         --config $config_file
         --env-config $env_file
         --execute $"
