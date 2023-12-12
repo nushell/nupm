@@ -36,8 +36,16 @@ export def run [package: path, --target-directory: path = "target/"] {
     let pkg = open ($package | path join "package.nuon") | get name
     let target_directory = $target_directory | path expand
 
-    nu --execute $"
-        overlay use ($target_directory | path join $pkg (^git rev-parse HEAD) "activate.nu")
-        const PKG = ($package | path join $pkg)
-    "
+    $"overlay use ($target_directory | path join $pkg (^git rev-parse HEAD) "activate.nu")"
+        | save --force ($nu.temp-path | path join env.nu)
+    "$env.config.show_banner = false" | save --force ($nu.temp-path | path join config.nu)
+
+    nu [
+        --config ($nu.temp-path | path join config.nu)
+        --env-config ($nu.temp-path | path join env.nu)
+        --execute $"
+            $env.PROMPT_COMMAND = '($pkg)'
+            use ($package | path join $pkg)
+        "
+    ]
 }
