@@ -1,6 +1,0 @@
-{
-    name: spam_module_nodefault,
-    type: module,
-    version: "0.1.0"
-    modules: src/nodefault
-}
