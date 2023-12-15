@@ -12,7 +12,7 @@ export def main [
 
     if $pkg_root == null {
         throw-error "package_file_not_found" (
-            $'Could not find "package.nuon" in ($dir) or any parent directory.'
+            $'Could not find "nupm.nuon" in ($dir) or any parent directory.'
         )
     }
 

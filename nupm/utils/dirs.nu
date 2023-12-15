@@ -82,12 +82,12 @@ export def tmp-dir [subdir: string, --ensure]: nothing -> path {
     $d
 }
 
-# Try to find the package root directory by looking for package.nuon in parent
+# Try to find the package root directory by looking for nupm.nuon in parent
 # directories.
 export def find-root [dir: path]: [ nothing -> path, nothing -> nothing] {
     let root_candidate = 1..($dir | path split | length)
         | reduce -f $dir {|_, acc|
-            if ($acc | path join package.nuon | path exists) {
+            if ($acc | path join nupm.nuon | path exists) {
                 $acc
             } else {
                 $acc | path dirname
@@ -95,8 +95,8 @@ export def find-root [dir: path]: [ nothing -> path, nothing -> nothing] {
         }
 
     # We need to do the last check in case the reduce loop ran to the end
-    # without finding package.nuon
-    if ($root_candidate | path join package.nuon | path type) == 'file' {
+    # without finding nupm.nuon
+    if ($root_candidate | path join nupm.nuon | path type) == 'file' {
         $root_candidate
     } else {
         null

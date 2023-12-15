@@ -5,7 +5,7 @@ This file collects design ideas and directions. The intention is iterate on this
 > **Note**  
 > in the following, until we settle down on precise names, we use the following placeholders:
 > - `METADATA_FILE`: the file containing the metadata of a package,
-> e.g. `project.nuon`, `metadata.json` or `package.nuon`
+> e.g. `project.nuon`, `metadata.json` or `nupm.nuon`
 > (name inspired by Julia's `Project.toml` or Rust's `Cargo.toml`)
 > - `NUPM_HOME`: the location of all the `nupm` files, overlays, scripts, libraries, ...,
 > e.g. `~/.nupm/`, `$env.XDG_DATA_HOME/nupm/` or `~/.local/share/nupm/`
