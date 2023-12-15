@@ -17,4 +17,5 @@
     { package: "github.com:amtoine/scripts", dir: "nu-sound-manager" },
     { package: "github.com:amtoine/zellij-layouts", dir: "nu-zellij" },
     { package: "github.com:nushell/nu_scripts" },
+    { package: "github.com:nushell/nupm" },
 ]
