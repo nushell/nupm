@@ -9,7 +9,7 @@ export const DEFAULT_NUPM_TEMP = ($nu.temp-path | path join "nupm")
 # Prompt to create $env.NUPM_HOME if it does not exist and some sanity checks.
 #
 # returns true if the root directory exists or has been created, false otherwise
-export def nupm-home-prompt [--no-confirm: bool]: nothing -> bool {
+export def nupm-home-prompt [--no-confirm]: nothing -> bool {
     if 'NUPM_HOME' not-in $env {
         error make --unspanned {
             msg: "Internal error: NUPM_HOME environment variable is not set"

@@ -34,7 +34,7 @@ def open-package-file [dir: path] {
 def install-scripts [
     pkg_dir: path        # Package directory
     scripts_dir: path    # Target directory where to install
-    --force(-f): bool    # Overwrite already installed scripts
+    --force(-f)          # Overwrite already installed scripts
 ]: list<path> -> nothing {
     each {|script|
         let src_path = $pkg_dir | path join $script
@@ -64,7 +64,7 @@ def install-scripts [
 # Install package from a directory containing 'project.nuon'
 def install-path [
     pkg_dir: path      # Directory (hopefully) containing 'nupm.nuon'
-    --force(-f): bool  # Overwrite already installed package
+    --force(-f)        # Overwrite already installed package
 ] {
     let pkg_dir = $pkg_dir | path expand
 
@@ -103,7 +103,7 @@ def install-path [
                 log debug $"installing scripts for package ($package.name)"
 
                 $package.scripts
-                | install-scripts $pkg_dir (script-dir --ensure) --force $force
+                | install-scripts $pkg_dir (script-dir --ensure) --force=$force
             }
         },
         "script" => {
@@ -111,7 +111,7 @@ def install-path [
 
             [ ($pkg_dir | path join $"($package.name).nu") ]
             | append ($package.scripts? | default [])
-            | install-scripts $pkg_dir (script-dir --ensure) --force $force
+            | install-scripts $pkg_dir (script-dir --ensure) --force=$force
         },
         "custom" => {
             let build_file = $pkg_dir | path join "build.nu"
@@ -151,7 +151,7 @@ export def main [
     --force(-f)  # Overwrite already installed package
     --no-confirm # Allows to bypass the interactive confirmation, useful for scripting
 ]: nothing -> nothing {
-    if not (nupm-home-prompt --no-confirm $no_confirm) {
+    if not (nupm-home-prompt --no-confirm=$no_confirm) {
         return
     }
 
@@ -159,5 +159,5 @@ export def main [
         throw-error "missing_required_option" "`nupm install` currently requires a `--path` flag"
     }
 
-    install-path $package --force $force
+    install-path $package --force=$force
 }
