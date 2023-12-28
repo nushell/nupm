@@ -6,7 +6,7 @@
             spam_script
             0.1.0
             https://github.com/nushell/nupm.git
-            38f80e78997129c42b8ee8a2cb542e0b059a9e44
+            e46e2a93adacf1b8daec83882dc0aa9437a0a7b4
             tests/packages/spam_script
         ]
     ]

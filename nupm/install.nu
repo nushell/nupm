@@ -4,7 +4,7 @@ use utils/completions.nu complete-registries
 use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir ]
 use utils/log.nu throw-error
 use utils/misc.nu check-cols
-use utils/version.nu sort-pkgs
+use utils/version.nu filter-by-version
 
 def open-package-file [dir: path] {
     let package_file = $dir | path join "nupm.nuon"
@@ -152,6 +152,7 @@ def install-path [
 def fetch-package [
     package: string  # Name of the package
     --registry: string  # Which registry to use
+    --version: string  # Package version to install
 ] {
     # Collect all registries matching the package and all matching packages
     let regs = $env.NUPM_REGISTRIES
@@ -224,7 +225,12 @@ def fetch-package [
 
     # Now, only one registry contains the package
     let reg = $regs | first
-    let pkg = $reg | get pkgs | sort-pkgs | last
+    let pkgs = $reg.pkgs | filter-by-version $version
+    let pkg = try {
+        $pkgs | last
+    } catch {
+        throw-error $'No package matching version `($version)`'
+    }
     print $pkg
 
     if $pkg.type == 'git' {
@@ -298,19 +304,24 @@ def download-pkg [
 # 1. Fetching the package (if the package is online)
 # 2. Installing the package (build action, if any; copy files to install location)
 export def main [
-    package # Name, path, or link to the package
-    --registry: string@complete-registries # Which registry to use
+    package  # Name, path, or link to the package
+    --registry: string@complete-registries  # Which registry to use
+    --pkg-version(-v): string  # Package version to install
     --path  # Install package from a directory with nupm.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
-    --no-confirm # Allows to bypass the interactive confirmation, useful for scripting
+    --no-confirm  # Allows to bypass the interactive confirmation, useful for scripting
 ]: nothing -> nothing {
     if not (nupm-home-prompt --no-confirm=$no_confirm) {
         return
     }
 
     let pkg = if not $path {
-        fetch-package $package --registry $registry
+        fetch-package $package --registry $registry --version $pkg_version
     } else {
+        if $pkg_version != null {
+            throw-error "Use only --path or --pkg-version, not both"
+        }
+
         $package
     }
 
