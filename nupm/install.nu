@@ -152,10 +152,13 @@ def fetch-package [
     package: string  # Name of the package
     --registry: string  # Which registry to use
 ] {
+    # Collect all registries matching the package and all matching packages
     let regs = $env.NUPM_REGISTRIES 
         | items {|name, path|
             if ($registry | is-empty) or ($name == $registry) or ($path == $registry) {
                 print $path
+
+                # Open registry (online or offline)
                 let registry = if ($path | path type) == file {
                     open $path
                 } else {
@@ -175,6 +178,7 @@ def fetch-package [
 
                 $registry | check-cols --missing-ok "registry" [ git local ] | ignore
 
+                # Find all packages matching $package in the registry
                 let pkgs_local = $registry.local? 
                     | default [] 
                     | check-cols "local packages" [ name version path ]
