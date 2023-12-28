@@ -3,13 +3,12 @@
 # Default installation path for nupm packages
 export const DEFAULT_NUPM_HOME = ($nu.default-config-dir | path join "nupm")
 
-# Default temporary path for various nupm purposes
-export const DEFAULT_NUPM_TEMP = ($nu.temp-path | path join "nupm")
-
 # Default path for installation cache
 export const DEFAULT_NUPM_CACHE = ($nu.default-config-dir
     | path join nupm cache)
 
+# Default temporary path for various nupm purposes
+export const DEFAULT_NUPM_TEMP = ($nu.temp-path | path join "nupm")
 
 # Prompt to create $env.NUPM_HOME if it does not exist and some sanity checks.
 #
@@ -67,6 +66,16 @@ export def script-dir [--ensure]: nothing -> path {
 
 export def module-dir [--ensure]: nothing -> path {
     let d = $env.NUPM_HOME | path join modules
+
+    if $ensure {
+        mkdir $d
+    }
+
+    $d
+}
+
+export def cache-dir [--ensure]: nothing -> path {
+    let d = $env.NUPM_CACHE
 
     if $ensure {
         mkdir $d

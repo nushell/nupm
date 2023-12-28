@@ -1,10 +1,10 @@
 use std log
 
 use utils/completions.nu complete-registries
-use utils/dirs.nu [ nupm-home-prompt script-dir module-dir tmp-dir ]
+use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir ]
 use utils/log.nu throw-error
-use utils/version.nu sort-pkgs
 use utils/misc.nu check-cols
+use utils/version.nu sort-pkgs
 
 def open-package-file [dir: path] {
     let package_file = $dir | path join "nupm.nuon"
@@ -154,7 +154,7 @@ def fetch-package [
     --registry: string  # Which registry to use
 ] {
     # Collect all registries matching the package and all matching packages
-    let regs = $env.NUPM_REGISTRIES 
+    let regs = $env.NUPM_REGISTRIES
         | items {|name, path|
             if ($registry | is-empty) or ($name == $registry) or ($path == $registry) {
                 print $path
@@ -180,18 +180,18 @@ def fetch-package [
                 $registry | check-cols --missing-ok "registry" [ git local ] | ignore
 
                 # Find all packages matching $package in the registry
-                let pkgs_local = $registry.local? 
-                    | default [] 
+                let pkgs_local = $registry.local?
+                    | default []
                     | check-cols "local packages" [ name version path ]
                     | where name == $package
 
-                let pkgs_git = $registry.git? 
-                    | default [] 
+                let pkgs_git = $registry.git?
+                    | default []
                     | check-cols "git packages" [ name version url revision path ]
                     | where name == $package
 
                 # Detect duplicate versions
-                let all_versions = $pkgs_local.version? 
+                let all_versions = $pkgs_local.version?
                     | default []
                     | append ($pkgs_git.version? | default [])
 
@@ -208,6 +208,7 @@ def fetch-package [
 
                 {
                     name: $name
+                    path: $path
                     pkgs: $pkgs
                 }
             }
@@ -222,7 +223,72 @@ def fetch-package [
     }
 
     # Now, only one registry contains the package
-    $regs | first | get pkgs | sort-pkgs | last
+    let reg = $regs | first
+    let pkg = $reg | get pkgs | sort-pkgs | last
+    print ($reg | table -e)
+
+    if $pkg.type == 'git' {
+        download-pkg $pkg
+    } else {
+        # local package path is either absolute or relative to the registry file
+        $reg.path | path join $pkg.path
+    }
+}
+
+# Downloads a package and returns its downloaded path
+def download-pkg [
+    pkg: record<
+        name: string,
+        version: string,
+        url: string,
+        revision: string,
+        path: string,
+        type: string,
+    >
+]: nothing -> path {
+    # TODO: Add some kind of hashing to check that files really match
+
+    if ($pkg.type != 'git') {
+        throw-error 'Downloading non-git packages is not supported yet'
+    }
+
+    let cache_dir = cache-dir --ensure
+    cd $cache_dir
+
+    let git_dir = $cache_dir | path join git
+    mkdir $git_dir
+    cd $git_dir
+
+    let repo_name = $pkg.url | url parse | get path | path parse | get stem
+    let url_hash = $pkg.url | hash md5 # in case of git repo name collision
+    let clone_dir = $'($repo_name)-($url_hash)-($pkg.revision)'
+
+    let pkg_dir = $env.PWD | path join $clone_dir $pkg.path
+
+    if ($pkg_dir | path exists) {
+        print 'Found package in cache'
+        return $pkg_dir
+    }
+
+    try {
+        git clone $pkg.url $clone_dir
+    } catch {
+        throw-error $'Error cloning repository ($pkg.url)'
+    }
+
+    cd $clone_dir
+
+    try {
+        git checkout $pkg.revision
+    } catch {
+        throw-error $'Error checking out revision ($pkg.revision)'
+    }
+
+    if not ($pkg_dir | path exists) {
+        throw-error $'Path ($pkg.path) does not exist'
+    }
+
+    $pkg_dir
 }
 
 # Install a nupm package
@@ -241,9 +307,11 @@ export def main [
         return
     }
 
-    if not $path {
+    let pkg = if not $path {
         fetch-package $package --registry $registry
+    } else {
+        $package
     }
 
-    # install-path $package --force=$force
+    install-path $pkg --force=$force
 }
