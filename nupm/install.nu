@@ -230,7 +230,8 @@ def fetch-package [
     if $pkg.type == 'git' {
         download-pkg $pkg
     } else {
-        # local package path is either absolute or relative to the registry file
+        # local package path is relative to the registry file (absolute paths
+        # are discouraged but work)
         $reg.path | path dirname | path join $pkg.path
     }
 }
