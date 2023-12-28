@@ -1,6 +1,6 @@
 {
     name: spam_script,
     type: script,
-    version: "0.1.0",
+    version: "0.2.0",
     scripts: ['spam_bar.nu']
 }

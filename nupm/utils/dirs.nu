@@ -6,6 +6,11 @@ export const DEFAULT_NUPM_HOME = ($nu.default-config-dir | path join "nupm")
 # Default temporary path for various nupm purposes
 export const DEFAULT_NUPM_TEMP = ($nu.temp-path | path join "nupm")
 
+# Default path for installation cache
+export const DEFAULT_NUPM_CACHE = ($nu.default-config-dir
+    | path join nupm cache)
+
+
 # Prompt to create $env.NUPM_HOME if it does not exist and some sanity checks.
 #
 # returns true if the root directory exists or has been created, false otherwise

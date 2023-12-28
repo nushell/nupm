@@ -1,4 +1,4 @@
 #!/usr/bin/env nu
 def main [] {
-    "Hello world!"
+    "Hello world v0.2.0!"
 }

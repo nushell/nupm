@@ -2,6 +2,8 @@ use std log
 
 use utils/dirs.nu [ nupm-home-prompt script-dir module-dir tmp-dir ]
 use utils/log.nu throw-error
+use utils/version.nu sort-pkgs
+use utils/misc.nu check-cols
 
 def open-package-file [dir: path] {
     let package_file = $dir | path join "nupm.nuon"
@@ -146,9 +148,86 @@ def install-path [
     }
 }
 
+def fetch-package [
+    package: string  # Name of the package
+    --registry: string  # Which registry to use
+] {
+    let regs = $env.NUPM_REGISTRIES 
+        | items {|name, path|
+            if ($registry | is-empty) or ($name == $registry) or ($path == $registry) {
+                print $path
+                let registry = if ($path | path type) == file {
+                    open $path
+                } else {
+                    try {
+                        let reg = http get $path
+
+                        if local in $reg {
+                            throw-error ("Can't have local packages in online registry"
+                                + $" '($path)'.")
+                        }
+
+                        $reg
+                    } catch {
+                        throw-error $"Cannot open '($path)' as a file or URL."
+                    }
+                }
+
+                $registry | check-cols --missing-ok "registry" [ git local ] | ignore
+
+                let pkgs_local = $registry.local? 
+                    | default [] 
+                    | check-cols "local packages" [ name version path ]
+                    | where name == $package
+
+                let pkgs_git = $registry.git? 
+                    | default [] 
+                    | check-cols "git packages" [ name version url revision path ]
+                    | where name == $package
+
+                # Detect duplicate versions
+                let all_versions = $pkgs_local.version? 
+                    | default []
+                    | append ($pkgs_git.version? | default [])
+
+                if ($all_versions | uniq | length) != ($all_versions | length) {
+                    throw-error ($'Duplicate versions of package ($package) detected'
+                        + $' in registry ($name).')
+                }
+
+                let pkgs = $pkgs_local
+                    | insert type local
+                    | insert url null
+                    | insert revision null
+                    | append ($pkgs_git | insert type git)
+
+                {
+                    name: $name
+                    pkgs: $pkgs
+                }
+            }
+        }
+        | compact
+
+    if ($regs | is-empty) {
+        throw-error 'No registries found'
+    } else if ($regs | length) > 1 {
+        # TODO: Here could be interactive prompt
+        throw-error 'Multiple registries contain the same package'
+    }
+
+    # Now, only one registry contains the package
+    $regs | first | get pkgs | sort-pkgs | last
+}
+
 # Install a nupm package
+#
+# Installation consists of two parts:
+# 1. Fetching the package (if the package is online)
+# 2. Installing the package (build action, if any; copy files to install location)
 export def main [
     package # Name, path, or link to the package
+    --registry: string # Which registry to use
     --path  # Install package from a directory with nupm.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
     --no-confirm # Allows to bypass the interactive confirmation, useful for scripting
@@ -158,8 +237,8 @@ export def main [
     }
 
     if not $path {
-        throw-error "missing_required_option" "`nupm install` currently requires a `--path` flag"
+        fetch-package $package --registry $registry
     }
 
-    install-path $package --force=$force
+    # install-path $package --force=$force
 }

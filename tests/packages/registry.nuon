@@ -1,0 +1,20 @@
+# Testing packages
+{
+    git: [
+        [name version url revision path];
+        [
+            spam_script
+            0.1.0
+            https://github.com/nushell/nupm.git
+            38f80e78997129c42b8ee8a2cb542e0b059a9e44
+            tests/packages/spam_script
+        ]
+    ]
+
+    local: [
+        [name        version path];
+        [spam_script 0.2.0   spam_script]
+        [spam_custom 0.1.0   spam_custom]
+        [spam_module 0.1.0   spam_module]
+    ]
+}
