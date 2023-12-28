@@ -1,5 +1,6 @@
 use std log
 
+use utils/completions.nu complete-registries
 use utils/dirs.nu [ nupm-home-prompt script-dir module-dir tmp-dir ]
 use utils/log.nu throw-error
 use utils/version.nu sort-pkgs
@@ -231,7 +232,7 @@ def fetch-package [
 # 2. Installing the package (build action, if any; copy files to install location)
 export def main [
     package # Name, path, or link to the package
-    --registry: string # Which registry to use
+    --registry: string@complete-registries # Which registry to use
     --path  # Install package from a directory with nupm.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
     --no-confirm # Allows to bypass the interactive confirmation, useful for scripting
