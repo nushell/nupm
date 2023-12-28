@@ -9,7 +9,7 @@ def sort-by-version []: table<version: string> -> table<version: string> {
 
 # Check if the target version is equal or higher than the target version
 def matches-version [version: string]: string -> bool {
-    # TODO: Add proper version sorting
+    # TODO: Add proper version matching
     $in == $version
 }
 
