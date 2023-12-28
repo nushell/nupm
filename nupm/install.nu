@@ -225,13 +225,13 @@ def fetch-package [
     # Now, only one registry contains the package
     let reg = $regs | first
     let pkg = $reg | get pkgs | sort-pkgs | last
-    print ($reg | table -e)
+    print $pkg
 
     if $pkg.type == 'git' {
         download-pkg $pkg
     } else {
         # local package path is either absolute or relative to the registry file
-        $reg.path | path join $pkg.path
+        $reg.path | path dirname | path join $pkg.path
     }
 }
 
