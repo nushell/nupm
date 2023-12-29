@@ -14,7 +14,11 @@ def matches-version [version: string]: string -> bool {
 }
 
 # Filter packages by version and sort them by version
-export def filter-by-version [version: string]: table<version: string> -> table<version: string> {
-    let pkgs = $in | filter {|row| $row.version | matches-version $version}
-    $pkgs | sort-by-version
+export def filter-by-version [version: any]: table<version: string> -> table<version: string> {
+    if $version == null {
+        $in
+    } else {
+        $in | filter {|row| $row.version | matches-version $version}
+    }
+    | sort-by-version
 }

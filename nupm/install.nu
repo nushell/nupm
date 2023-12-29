@@ -225,12 +225,7 @@ def fetch-package [
 
     # Now, only one registry contains the package
     let reg = $regs | first
-
-    let pkgs = if $version == null {
-        $reg.pkgs
-    } else {
-        $reg.pkgs | filter-by-version $version
-    }
+    let pkgs = $reg.pkgs | filter-by-version $version
 
     let pkg = try {
         $pkgs | last
