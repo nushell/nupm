@@ -152,7 +152,7 @@ def install-path [
 def fetch-package [
     package: string  # Name of the package
     --registry: string  # Which registry to use
-    --version: string  # Package version to install
+    --version: any  # Package version to install (string or null)
 ] {
     # Collect all registries matching the package and all matching packages
     let regs = $env.NUPM_REGISTRIES
@@ -225,12 +225,19 @@ def fetch-package [
 
     # Now, only one registry contains the package
     let reg = $regs | first
-    let pkgs = $reg.pkgs | filter-by-version $version
+
+    let pkgs = if $version == null {
+        $reg.pkgs
+    } else {
+        $reg.pkgs | filter-by-version $version
+    }
+
     let pkg = try {
         $pkgs | last
     } catch {
         throw-error $'No package matching version `($version)`'
     }
+
     print $pkg
 
     if $pkg.type == 'git' {
