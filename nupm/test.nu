@@ -31,7 +31,7 @@ export def main [
     print $'Testing package ($pkg_root)'
     cd $pkg_root
 
-    let tests = ^$nu.current-exe [
+    let tests = ^$nu.current-exe ...[
         --no-config-file
         --commands
         'use tests/
@@ -47,7 +47,7 @@ export def main [
         | where ($filter in $it)
         | par-each {|test|
             let res = do {
-                ^$nu.current-exe [
+                ^$nu.current-exe ...[
                     --no-config-file
                     --commands
                     $'use tests/; ($test)'
