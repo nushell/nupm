@@ -1,4 +1,4 @@
-# Testing packages
+# Testing registry for testing packages
 {
     git: [
         [name version url revision path];
