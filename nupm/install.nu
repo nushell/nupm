@@ -154,6 +154,11 @@ def fetch-package [
     --registry: string  # Which registry to use
     --version: any  # Package version to install (string or null)
 ] {
+    if not ($registry | is-empty) {
+        let reg_name = $registry | path parse | get stem
+        $env.NUPM_REGISTRIES = { $reg_name: $registry }
+    }
+
     # Collect all registries matching the package and all matching packages
     let regs = $env.NUPM_REGISTRIES
         | items {|name, path|

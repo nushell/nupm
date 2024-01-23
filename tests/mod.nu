@@ -3,6 +3,8 @@ use std assert
 use ../nupm/utils/dirs.nu tmp-dir
 use ../nupm
 
+const TEST_REGISTRY_PATH = ([tests packages registry.nuon] | path join)
+
 
 def with-nupm-home [closure: closure]: nothing -> nothing {
     let dir = tmp-dir test --ensure
@@ -41,5 +43,24 @@ export def install-custom [] {
         nupm install --path tests/packages/spam_custom
 
         assert installed [plugins nu_plugin_test]
+    }
+}
+
+export def install-from-registry-with-flag [] {
+    with-nupm-home {
+        nupm install --registry $TEST_REGISTRY_PATH spam_script
+
+        let contents = open ($env.NUPM_HOME | path join scripts spam_script.nu)
+        assert ($contents | str contains '0.2.0')
+    }
+}
+
+export def install-from-registry-without-flag [] {
+    with-nupm-home {
+        $env.NUPM_REGISTRIES = { test: $TEST_REGISTRY_PATH }
+        nupm install spam_script
+
+        let contents = open ($env.NUPM_HOME | path join scripts spam_script.nu)
+        assert ($contents | str contains '0.2.0')
     }
 }
