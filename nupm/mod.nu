@@ -1,4 +1,4 @@
-use utils/dirs.nu [ 
+use utils/dirs.nu [
     DEFAULT_NUPM_HOME DEFAULT_NUPM_TEMP DEFAULT_NUPM_CACHE  nupm-home-prompt
 ]
 
@@ -13,10 +13,10 @@ export-env {
     # Ensure temporary path is set.
     $env.NUPM_TEMP = ($env.NUPM_TEMP? | default $DEFAULT_NUPM_TEMP)
 
-        # Ensure install cache is set
+    # Ensure install cache is set
     $env.NUPM_CACHE = ($env.NUPM_CACHE? | default $DEFAULT_NUPM_CACHE)
 
-    # TODO: Maybe this is not the best way to store registries, but should be 
+    # TODO: Maybe this is not the best way to store registries, but should be
     #       good enough for now.
     # TODO: Remove local and kubouch which are just for testing
     # TODO: Move setting this to config file
