@@ -46,21 +46,27 @@ export def install-custom [] {
     }
 }
 
-export def install-from-registry-with-flag [] {
-    with-nupm-home {
-        nupm install --registry $TEST_REGISTRY_PATH spam_script
-
+export def install-from-local-registry [] {
+    def check-file [] {
         let contents = open ($env.NUPM_HOME | path join scripts spam_script.nu)
         assert ($contents | str contains '0.2.0')
     }
-}
 
-export def install-from-registry-without-flag [] {
+    with-nupm-home {
+        $env.NUPM_REGISTRIES = {}
+        nupm install --registry $TEST_REGISTRY_PATH spam_script
+        check-file
+    }
+
+    with-nupm-home {
+        $env.NUPM_REGISTRIES = { test: $TEST_REGISTRY_PATH }
+        nupm install --registry test spam_script
+        check-file
+    }
+
     with-nupm-home {
         $env.NUPM_REGISTRIES = { test: $TEST_REGISTRY_PATH }
         nupm install spam_script
-
-        let contents = open ($env.NUPM_HOME | path join scripts spam_script.nu)
-        assert ($contents | str contains '0.2.0')
+        check-file
     }
 }

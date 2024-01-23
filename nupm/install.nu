@@ -154,69 +154,74 @@ def fetch-package [
     --registry: string  # Which registry to use
     --version: any  # Package version to install (string or null)
 ] {
-    if not ($registry | is-empty) {
+    let registries = if (not ($registry | is-empty)) and ($registry in $env.NUPM_REGISTRIES) {
+        # If $registry is a valid column in $env.NUPM_REGISTRIES, use that
+        { $registry : ($env.NUPM_REGISTRIES | get $registry) }
+    } else if (not ($registry | is-empty)) and ($registry | path exists) {
+        # If $registry is a path, use that
         let reg_name = $registry | path parse | get stem
-        $env.NUPM_REGISTRIES = { $reg_name: $registry }
+        { $reg_name: $registry }
+    } else {
+        # Otherwise use $env.NUPM_REGISTRIES
+        $env.NUPM_REGISTRIES
     }
 
     # Collect all registries matching the package and all matching packages
-    let regs = $env.NUPM_REGISTRIES
+    let regs = $registries
         | items {|name, path|
-            if ($registry | is-empty) or ($name == $registry) or ($path == $registry) {
-                print $path
+            print $path
 
-                # Open registry (online or offline)
-                let registry = if ($path | path type) == file {
-                    open $path
-                } else {
-                    try {
-                        let reg = http get $path
+            # Open registry (online or offline)
+            let registry = if ($path | path type) == file {
+                open $path
+            } else {
+                try {
+                    let reg = http get $path
 
-                        if local in $reg {
-                            throw-error ("Can't have local packages in online registry"
-                                + $" '($path)'.")
-                        }
-
-                        $reg
-                    } catch {
-                        throw-error $"Cannot open '($path)' as a file or URL."
+                    if local in $reg {
+                        throw-error ("Can't have local packages in online registry"
+                            + $" '($path)'.")
                     }
+
+                    $reg
+                } catch {
+                    throw-error $"Cannot open '($path)' as a file or URL."
                 }
+            }
 
-                $registry | check-cols --missing-ok "registry" [ git local ] | ignore
+            $registry | check-cols --missing-ok "registry" [ git local ] | ignore
 
-                # Find all packages matching $package in the registry
-                let pkgs_local = $registry.local?
-                    | default []
-                    | check-cols "local packages" [ name version path ]
-                    | where name == $package
+            # Find all packages matching $package in the registry
+            let pkgs_local = $registry.local?
+                | default []
+                | check-cols "local packages" [ name version path ]
+                | where name == $package
 
-                let pkgs_git = $registry.git?
-                    | default []
-                    | check-cols "git packages" [ name version url revision path ]
-                    | where name == $package
+            let pkgs_git = $registry.git?
+                | default []
+                | check-cols "git packages" [ name version url revision path ]
+                | where name == $package
 
-                # Detect duplicate versions
-                let all_versions = $pkgs_local.version?
-                    | default []
-                    | append ($pkgs_git.version? | default [])
+            # Detect duplicate versions
+            let all_versions = $pkgs_local.version?
+                | default []
+                | append ($pkgs_git.version? | default [])
 
-                if ($all_versions | uniq | length) != ($all_versions | length) {
-                    throw-error ($'Duplicate versions of package ($package) detected'
-                        + $' in registry ($name).')
-                }
+            if ($all_versions | uniq | length) != ($all_versions | length) {
+                throw-error ($'Duplicate versions of package ($package) detected'
+                    + $' in registry ($name).')
+            }
 
-                let pkgs = $pkgs_local
-                    | insert type local
-                    | insert url null
-                    | insert revision null
-                    | append ($pkgs_git | insert type git)
+            let pkgs = $pkgs_local
+                | insert type local
+                | insert url null
+                | insert revision null
+                | append ($pkgs_git | insert type git)
 
-                {
-                    name: $name
-                    path: $path
-                    pkgs: $pkgs
-                }
+            {
+                name: $name
+                path: $path
+                pkgs: $pkgs
             }
         }
         | compact
@@ -312,7 +317,8 @@ def download-pkg [
 # 2. Installing the package (build action, if any; copy files to install location)
 export def main [
     package  # Name, path, or link to the package
-    --registry: string@complete-registries  # Which registry to use
+    --registry: string@complete-registries  # Which registry to use (either a name
+                                            # in $env.NUPM_REGISTRIES or a path)
     --pkg-version(-v): string  # Package version to install
     --path  # Install package from a directory with nupm.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
