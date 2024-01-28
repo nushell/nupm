@@ -188,7 +188,7 @@ def download-pkg [
     let pkg_dir = $env.PWD | path join $clone_dir $pkg.path
 
     if ($pkg_dir | path exists) {
-        print 'Found package in cache'
+        print $'Package ($pkg.name) found in cache'
         return $pkg_dir
     }
 
