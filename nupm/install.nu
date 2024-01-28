@@ -8,6 +8,12 @@ use utils/registry.nu search-package
 use utils/version.nu filter-by-version
 
 def open-package-file [dir: path] {
+    if not ($dir | path exists) {
+        throw-error "package_dir_does_not_exist" (
+            $"Package directory ($dir) does not exist"
+        )
+    }
+
     let package_file = $dir | path join "nupm.nuon"
 
     if not ($package_file | path exists) {
@@ -219,7 +225,7 @@ def fetch-package [
         --exact-match)
 
     if ($regs | is-empty) {
-        throw-error 'No registries found'
+        throw-error $'Package ($package) not found in any registry'
     } else if ($regs | length) > 1 {
         # TODO: Here could be interactive prompt
         throw-error 'Multiple registries contain the same package'

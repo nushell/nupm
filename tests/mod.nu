@@ -31,6 +31,12 @@ def "assert installed" [path_tokens: list<string>] {
     assert ($path_tokens | prepend $env.NUPM_HOME | path join | path exists)
 }
 
+def check-file-content [content: string] {
+    let file_str = open ($env.NUPM_HOME | path join scripts spam_script.nu)
+    assert ($file_str | str contains $content)
+}
+
+
 export def install-script [] {
     with-test-env {
         nupm install --path tests/packages/spam_script
@@ -59,25 +65,55 @@ export def install-custom [] {
 }
 
 export def install-from-local-registry [] {
-    def check-file [] {
-        let contents = open ($env.NUPM_HOME | path join scripts spam_script.nu)
-        assert ($contents | str contains '0.2.0')
-    }
-
     with-test-env {
         $env.NUPM_REGISTRIES = {}
         nupm install --registry $TEST_REGISTRY_PATH spam_script
-        check-file
+        check-file-content 0.2.0
     }
 
     with-test-env {
         nupm install --registry test spam_script
-        check-file
+        check-file-content 0.2.0
     }
 
     with-test-env {
         nupm install spam_script
-        check-file
+        check-file-content 0.2.0
+    }
+}
+
+export def install-with-version [] {
+    with-test-env {
+        nupm install spam_script -v 0.1.0
+        check-file-content 0.1.0
+    }
+}
+
+export def install-multiple-registries-fail [] {
+    with-test-env {
+        $env.NUPM_REGISTRIES.test2 = $TEST_REGISTRY_PATH
+
+        let out = try {
+            nupm install spam_script
+            "wrong value that shouldn't match the assert below"
+        } catch {|err|
+            $err.msg
+        }
+
+        assert ("Multiple registries contain the same package" in $out)
+    }
+}
+
+export def install-package-not-found [] {
+    with-test-env {
+        let out = try {
+            nupm install invalid-package
+            "wrong value that shouldn't match the assert below"
+        } catch {|err|
+            $err.msg
+        }
+
+        assert ("Package invalid-package not found in any registry" in $out)
     }
 }
 

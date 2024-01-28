@@ -1,19 +1,9 @@
 # Testing registry for testing packages
 {
-    git: [
-        [name version url revision path];
-        [
-            spam_script
-            0.1.0
-            https://github.com/nushell/nupm.git
-            e46e2a93adacf1b8daec83882dc0aa9437a0a7b4
-            tests/packages/spam_script
-        ]
-    ]
-
     local: [
         [name        version path];
         [spam_script 0.2.0   spam_script]
+        [spam_script 0.1.0   spam_script_old]
         [spam_custom 0.1.0   spam_custom]
         [spam_module 0.1.0   spam_module]
     ]
