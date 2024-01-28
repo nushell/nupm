@@ -228,7 +228,7 @@ def fetch-package [
         throw-error $'Package ($package) not found in any registry'
     } else if ($regs | length) > 1 {
         # TODO: Here could be interactive prompt
-        throw-error 'Multiple registries contain the same package'
+        throw-error $'Multiple registries contain package ($package)'
     }
 
     # Now, only one registry contains the package

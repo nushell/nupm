@@ -100,7 +100,7 @@ export def install-multiple-registries-fail [] {
             $err.msg
         }
 
-        assert ("Multiple registries contain the same package" in $out)
+        assert ("Multiple registries contain package spam_script" in $out)
     }
 }
 
