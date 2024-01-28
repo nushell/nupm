@@ -80,3 +80,10 @@ export def install-from-local-registry [] {
         check-file
     }
 }
+
+export def search-registry [] {
+    with-test-env {
+        $env.NUPM_REGISTRIES = { test: $TEST_REGISTRY_PATH }
+        assert ((nupm search spam | get pkgs.0 | length) == 4)
+    }
+}
