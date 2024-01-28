@@ -10,11 +10,13 @@ def with-test-env [closure: closure]: nothing -> nothing {
     let home = tmp-dir nupm_test --ensure
     let cache = tmp-dir 'nupm_test/cache' --ensure
     let temp = tmp-dir 'nupm_test/temp' --ensure
+    let reg = { test: $TEST_REGISTRY_PATH }
 
     with-env {
         NUPM_HOME: $home
         NUPM_CACHE: $cache
         NUPM_TEMP: $temp
+        NUPM_REGISTRIES: $reg
     } $closure
 
     rm --recursive $temp
@@ -69,13 +71,11 @@ export def install-from-local-registry [] {
     }
 
     with-test-env {
-        $env.NUPM_REGISTRIES = { test: $TEST_REGISTRY_PATH }
         nupm install --registry test spam_script
         check-file
     }
 
     with-test-env {
-        $env.NUPM_REGISTRIES = { test: $TEST_REGISTRY_PATH }
         nupm install spam_script
         check-file
     }
@@ -83,7 +83,6 @@ export def install-from-local-registry [] {
 
 export def search-registry [] {
     with-test-env {
-        $env.NUPM_REGISTRIES = { test: $TEST_REGISTRY_PATH }
         assert ((nupm search spam | get pkgs.0 | length) == 4)
     }
 }
