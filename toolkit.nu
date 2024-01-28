@@ -1,11 +1,15 @@
-export-env {
-    $env.NUPM_HOME = ($env.FILE_PWD | path join _nupm_dev)
-    $env.NUPM_CACHE = ($env.FILE_PWD | path join _nupm_dev cache)
-    $env.NUPM_TEMP = ($env.FILE_PWD | path join _nupm_dev tmp)
+export def --env set-nupm-env [] {
+    $env.NUPM_HOME =  ('./_nupm_dev' | path expand)
+    $env.NUPM_CACHE = ('./_nupm_dev/cache' | path expand)
+    $env.NUPM_TEMP =  ('./_nupm_dev/tmp' | path expand)
 
-    $env.PATH ++= [($env.FILE_PWD | path join _nupm_dev scripts)]
-    $env.NU_LIB_DIRS ++= [($env.FILE_PWD | path join _nupm_dev modules)]
+    $env.PATH ++= [('./_nupm_dev/scripts' | path expand)]
+    $env.NU_LIB_DIRS ++= [('./_nupm_dev/modules' | path expand)]
 
+    print-nupm-env
+}
+
+export def print-nupm-env [] {
     print $'NUPM_HOME:  ($env.NUPM_HOME)'
     print $'NUPM_CACHE: ($env.NUPM_CACHE)'
     print $'NUPM_TEMP:  ($env.NUPM_TEMP)'
