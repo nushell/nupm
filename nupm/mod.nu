@@ -4,6 +4,7 @@ use utils/dirs.nu [
 
 export module install.nu
 export module test.nu
+export module search.nu
 
 export-env {
     # Ensure that $env.NUPM_HOME is always set when running nupm. Any missing
