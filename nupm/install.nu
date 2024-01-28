@@ -87,9 +87,7 @@ def install-path [
             let destination = $module_dir | path join $package.name
 
             if $force {
-                if ($destination | path exists) {
-                    rm --recursive --force $destination
-                }
+                rm --recursive --force $destination
             }
 
             if ($destination | path type) == dir {
