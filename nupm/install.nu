@@ -98,8 +98,8 @@ def install-path [
 
             if ($destination | path type) == dir {
                 throw-error "package_already_installed" (
-                    $"Package ($package.name) is already installed."
-                    + "Use `--force` to override the package"
+                    $"Package ($package.name) is already installed in"
+                    + $" ($destination). Use `--force` to override the package"
                 )
             }
 
