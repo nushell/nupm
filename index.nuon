@@ -20,4 +20,5 @@
     { package: "github.com:nushell/nu_scripts", dir: "nu-hooks" },
     { package: "github.com:nushell/nu_scripts", dir: "themes" },
     { package: "github.com:nushell/nupm" },
+    { package: "github.com:amtoine/tmux-sessionizer.nu" },
 ]
