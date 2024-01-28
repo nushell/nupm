@@ -34,6 +34,4 @@ jobs:
         run: version
 
       - name: Run the tests
-        run: |
-          nu --commands $"use ($env.PWD)/nupm/; nupm install --no-confirm --force --path ."
-          nu --commands $"use ($env.PWD)/nupm/; nupm test"
+        run: nu --commands $"use ($env.PWD)/nupm/; nupm test"
