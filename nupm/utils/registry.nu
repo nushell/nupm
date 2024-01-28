@@ -28,8 +28,6 @@ export def search-package [
     # Collect all registries matching the package and all matching packages
     let regs = $registries
         | items {|name, path|
-            print $path
-
             # Open registry (online or offline)
             let registry = if ($path | path type) == file {
                 open $path
