@@ -10,9 +10,9 @@ export def --env set-nupm-env [] {
 }
 
 export def print-nupm-env [] {
-    print $'NUPM_HOME:  ($env.NUPM_HOME)'
-    print $'NUPM_CACHE: ($env.NUPM_CACHE)'
-    print $'NUPM_TEMP:  ($env.NUPM_TEMP)'
-    print $'PATH: ($env.PATH)'
-    print $'NU_LIB_DIRS: ($env.NU_LIB_DIRS)'
+    print $'NUPM_HOME:  ($env.NUPM_HOME?)'
+    print $'NUPM_CACHE: ($env.NUPM_CACHE?)'
+    print $'NUPM_TEMP:  ($env.NUPM_TEMP?)'
+    print $'PATH: ($env.PATH?)'
+    print $'NU_LIB_DIRS: ($env.NU_LIB_DIRS?)'
 }
