@@ -20,10 +20,9 @@ export-env {
     # TODO: Maybe this is not the best way to set registries, but should be
     #       good enough for now.
     # TODO: Add `nupm registry` for showing info about registries
-    # TODO: Add `nupm registry add/remove` to add/remove registry from the env
+    # TODO: Add `nupm registry add/remove` to add/remove registry from the env?
     $env.NUPM_REGISTRIES = {
-        # TODO: Change the registry to a URL
-        "nupm-test": ($env.FILE_PWD | path join registry.nuon)
+        nupm_test: 'https://raw.githubusercontent.com/nushell/nupm/main/registry.nuon'
     }
 }
 
