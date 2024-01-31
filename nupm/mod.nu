@@ -2,6 +2,7 @@ use utils/dirs.nu [ DEFAULT_NUPM_HOME DEFAULT_NUPM_TEMP nupm-home-prompt ]
 
 export module install.nu
 export module test.nu
+export module doc.nu
 
 export-env {
     # Ensure that $env.NUPM_HOME is always set when running nupm. Any missing

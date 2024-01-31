@@ -2,31 +2,7 @@ use std log
 
 use utils/dirs.nu [ nupm-home-prompt script-dir module-dir tmp-dir ]
 use utils/log.nu throw-error
-
-def open-package-file [dir: path] {
-    let package_file = $dir | path join "nupm.nuon"
-
-    if not ($package_file | path exists) {
-        throw-error "package_file_not_found" (
-            $'Could not find "nupm.nuon" in ($dir) or any parent directory.'
-        )
-    }
-
-    let package = open $package_file
-
-    log debug "checking package file for missing required keys"
-    let required_keys = [$. $.name $.version $.type]
-    let missing_keys = $required_keys
-        | where {|key| ($package | get -i $key) == null}
-    if not ($missing_keys | is-empty) {
-        throw-error "invalid_package_file" (
-            $"($package_file) is missing the following required keys:"
-            + $" ($missing_keys | str join ', ')"
-        )
-    }
-
-    $package
-}
+use utils/utils.nu open-package-file
 
 # Install list of scripts into a directory
 #
@@ -74,17 +50,17 @@ def install-path [
 
     match $package.type {
         "module" => {
-            let mod_dir = $pkg_dir | path join $package.name
+            let source_mod_dir = $pkg_dir | path join $package.name
 
-            if ($mod_dir | path type) != dir {
+            if ($source_mod_dir | path type) != dir {
                 throw-error "invalid_module_package" (
                     $"Module package '($package.name)' does not"
                     + $" contain directory '($package.name)'"
                 )
             }
 
-            let module_dir = module-dir --ensure
-            let destination = $module_dir | path join $package.name
+            let target_mod_dir = module-dir --ensure
+            let destination = $target_mod_dir | path join $package.name
 
             if $force {
                 rm --recursive --force $destination
@@ -97,7 +73,7 @@ def install-path [
                 )
             }
 
-            cp --recursive $mod_dir $module_dir
+            cp --recursive $source_mod_dir $target_mod_dir
 
             if $package.scripts? != null {
                 log debug $"installing scripts for package ($package.name)"

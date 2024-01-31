@@ -4,4 +4,5 @@
     version: "0.1.0"
     description: "Nushell package manager"
     license: "LICENSE"
+    documentation-dir: "./docs/commands/"
 }
