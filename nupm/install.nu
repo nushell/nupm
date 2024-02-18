@@ -1,9 +1,19 @@
 use std log
 
-use utils/dirs.nu [ nupm-home-prompt script-dir module-dir tmp-dir ]
+use utils/completions.nu complete-registries
+use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir ]
 use utils/log.nu throw-error
+use utils/misc.nu check-cols
+use utils/registry.nu search-package
+use utils/version.nu filter-by-version
 
 def open-package-file [dir: path] {
+    if not ($dir | path exists) {
+        throw-error "package_dir_does_not_exist" (
+            $"Package directory ($dir) does not exist"
+        )
+    }
+
     let package_file = $dir | path join "nupm.nuon"
 
     if not ($package_file | path exists) {
@@ -92,8 +102,8 @@ def install-path [
 
             if ($destination | path type) == dir {
                 throw-error "package_already_installed" (
-                    $"Package ($package.name) is already installed."
-                    + "Use `--force` to override the package"
+                    $"Package ($package.name) is already installed in"
+                    + $" ($destination). Use `--force` to override the package"
                 )
             }
 
@@ -144,20 +154,129 @@ def install-path [
     }
 }
 
+
+# Downloads a package and returns its downloaded path
+def download-pkg [
+    pkg: record<
+        name: string,
+        version: string,
+        url: string,
+        revision: string,
+        path: string,
+        type: string,
+    >
+]: nothing -> path {
+    # TODO: Add some kind of hashing to check that files really match
+
+    if ($pkg.type != 'git') {
+        throw-error 'Downloading non-git packages is not supported yet'
+    }
+
+    let cache_dir = cache-dir --ensure
+    cd $cache_dir
+
+    let git_dir = $cache_dir | path join git
+    mkdir $git_dir
+    cd $git_dir
+
+    let repo_name = $pkg.url | url parse | get path | path parse | get stem
+    let url_hash = $pkg.url | hash md5 # in case of git repo name collision
+    let clone_dir = $'($repo_name)-($url_hash)-($pkg.revision)'
+
+    let pkg_dir = $env.PWD | path join $clone_dir $pkg.path
+
+    if ($pkg_dir | path exists) {
+        print $'Package ($pkg.name) found in cache'
+        return $pkg_dir
+    }
+
+    try {
+        git clone $pkg.url $clone_dir
+    } catch {
+        throw-error $'Error cloning repository ($pkg.url)'
+    }
+
+    cd $clone_dir
+
+    try {
+        git checkout $pkg.revision
+    } catch {
+        throw-error $'Error checking out revision ($pkg.revision)'
+    }
+
+    if not ($pkg_dir | path exists) {
+        throw-error $'Path ($pkg.path) does not exist'
+    }
+
+    $pkg_dir
+}
+
+# Fetch a package from a registry
+def fetch-package [
+    package: string  # Name of the package
+    --registry: string  # Which registry to use
+    --version: string  # Package version to install (string or null)
+]: nothing -> path {
+    let regs = (search-package $package
+        --registry $registry
+        --version $version
+        --exact-match)
+
+    if ($regs | is-empty) {
+        throw-error $'Package ($package) not found in any registry'
+    } else if ($regs | length) > 1 {
+        # TODO: Here could be interactive prompt
+        throw-error $'Multiple registries contain package ($package)'
+    }
+
+    # Now, only one registry contains the package
+    let reg = $regs | first
+    let pkgs = $reg.pkgs | filter-by-version $version
+
+    let pkg = try {
+        $pkgs | last
+    } catch {
+        throw-error $'No package matching version `($version)`'
+    }
+
+    print $pkg
+
+    if $pkg.type == 'git' {
+        download-pkg $pkg
+    } else {
+        # local package path is relative to the registry file (absolute paths
+        # are discouraged but work)
+        $reg.path | path dirname | path join $pkg.path
+    }
+}
+
 # Install a nupm package
+#
+# Installation consists of two parts:
+# 1. Fetching the package (if the package is online)
+# 2. Installing the package (build action, if any; copy files to install location)
 export def main [
-    package # Name, path, or link to the package
+    package  # Name, path, or link to the package
+    --registry: string@complete-registries  # Which registry to use (either a name
+                                            # in $env.NUPM_REGISTRIES or a path)
+    --pkg-version(-v): string  # Package version to install
     --path  # Install package from a directory with nupm.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
-    --no-confirm # Allows to bypass the interactive confirmation, useful for scripting
+    --no-confirm  # Allows to bypass the interactive confirmation, useful for scripting
 ]: nothing -> nothing {
     if not (nupm-home-prompt --no-confirm=$no_confirm) {
         return
     }
 
-    if not $path {
-        throw-error "missing_required_option" "`nupm install` currently requires a `--path` flag"
+    let pkg: path = if not $path {
+        fetch-package $package --registry $registry --version $pkg_version
+    } else {
+        if $pkg_version != null {
+            throw-error "Use only --path or --pkg-version, not both"
+        }
+
+        $package
     }
 
-    install-path $package --force=$force
+    install-path $pkg --force=$force
 }
