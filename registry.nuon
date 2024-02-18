@@ -37,49 +37,49 @@
             nu_plugin_audio_hook,
             "0.1.12",
             "https://github.com/FMotalleb/nu_plugin_audio_hook",
-            "0.1.12",
+            "v0.1.12",
             .
         ],
         [
             nu_plugin_clipboard,
             "0.3.4",
             "https://github.com/FMotalleb/nu_plugin_clipboard",
-            "0.3.4",
+            "27faf8d",
             .
         ],
         [
             nu_plugin_desktop_notifications,
             "1.0.7",
             "https://github.com/FMotalleb/nu_plugin_desktop_notifications",
-            "1.0.7",
+            "7556310",
             .
         ],
         [
             nu_plugin_image,
             "0.3.2",
             "https://github.com/FMotalleb/nu_plugin_image",
-            "0.3.2",
+            "7703e79",
             .
         ],
         [
             nu_plugin_port_list,
             "1.2.10",
             "https://github.com/FMotalleb/nu_plugin_port_list",
-            "1.2.10",
+            "dddd72d",
             .
         ],
         [
             nu_plugin_port_scan,
             "1.0.10",
             "https://github.com/FMotalleb/nu_plugin_port_scan",
-            "1.0.10",
+            "7424a69",
             .
         ],
         [
             nu_plugin_qr_maker,
             "1.0.2",
             "https://github.com/FMotalleb/nu_plugin_qr_maker",
-            "1.0.2",
+            "73bf1e4",
             .
         ],
         [
@@ -163,21 +163,21 @@
             nu-hooks,
             "0.1.0",
             "https://github.com/nushell/nu_scripts",
-            "0.1.0",
+            "f04cb44",
             nu-hooks
         ],
         [
             nu-themes,
             "0.1.0",
             "https://github.com/nushell/nu_scripts",
-            "0.1.0",
+            "f04cb44",
             themes
         ],
         [
             nupm,
             "0.1.0",
             "https://github.com/nushell/nupm",
-            "0.1.0",
+            "29916fc",
             .
         ],
         [
