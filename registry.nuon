@@ -36,154 +36,154 @@
         [
             nu_plugin_audio_hook,
             "0.1.12",
-            "https://github.com/:FMotalleb/nu_plugin_audio_hook",
+            "https://github.com/FMotalleb/nu_plugin_audio_hook",
             "0.1.12",
             .
         ],
         [
             nu_plugin_clipboard,
             "0.3.4",
-            "https://github.com/:FMotalleb/nu_plugin_clipboard",
+            "https://github.com/FMotalleb/nu_plugin_clipboard",
             "0.3.4",
             .
         ],
         [
             nu_plugin_desktop_notifications,
             "1.0.7",
-            "https://github.com/:FMotalleb/nu_plugin_desktop_notifications",
+            "https://github.com/FMotalleb/nu_plugin_desktop_notifications",
             "1.0.7",
             .
         ],
         [
             nu_plugin_image,
             "0.3.2",
-            "https://github.com/:FMotalleb/nu_plugin_image",
+            "https://github.com/FMotalleb/nu_plugin_image",
             "0.3.2",
             .
         ],
         [
             nu_plugin_port_list,
             "1.2.10",
-            "https://github.com/:FMotalleb/nu_plugin_port_list",
+            "https://github.com/FMotalleb/nu_plugin_port_list",
             "1.2.10",
             .
         ],
         [
             nu_plugin_port_scan,
             "1.0.10",
-            "https://github.com/:FMotalleb/nu_plugin_port_scan",
+            "https://github.com/FMotalleb/nu_plugin_port_scan",
             "1.0.10",
             .
         ],
         [
             nu_plugin_qr_maker,
             "1.0.2",
-            "https://github.com/:FMotalleb/nu_plugin_qr_maker",
+            "https://github.com/FMotalleb/nu_plugin_qr_maker",
             "1.0.2",
             .
         ],
         [
             nu-git-manager,
             "0.6.0",
-            "https://github.com/:amtoine/nu-git-manager",
+            "https://github.com/amtoine/nu-git-manager",
             "0.6.0",
             pkgs/nu-git-manager
         ],
         [
             nu-git-manager-sugar,
             "0.6.0",
-            "https://github.com/:amtoine/nu-git-manager",
+            "https://github.com/amtoine/nu-git-manager",
             "0.6.0",
             pkgs/nu-git-manager-sugar
         ],
         [
             nu-pomodoro,
             "0.1.0",
-            "https://github.com/:amtoine/nu-pomodoro",
+            "https://github.com/amtoine/nu-pomodoro",
             "0.1.0",
             .
         ],
         [
             nu-right-prompt,
             "0.1.0",
-            "https://github.com/:amtoine/nu-right-prompt",
+            "https://github.com/amtoine/nu-right-prompt",
             "0.1.0",
             .
         ],
         [
             nu_plugin_explore,
             "0.1.2",
-            "https://github.com/:amtoine/nu_plugin_explore",
+            "https://github.com/amtoine/nu_plugin_explore",
             "0.1.2",
             .
         ],
         [
             nu-clippy,
             "0.1.0",
-            "https://github.com/:amtoine/scripts",
+            "https://github.com/amtoine/scripts",
             "0.1.0",
             nu-clippy
         ],
         [
             nu-logout,
             "0.1.0",
-            "https://github.com/:amtoine/scripts",
+            "https://github.com/amtoine/scripts",
             "0.1.0",
             nu-logout
         ],
         [
             nu-monitor-manager,
             "0.1.0",
-            "https://github.com/:amtoine/scripts",
+            "https://github.com/amtoine/scripts",
             "0.1.0",
             nu-monitor-manager
         ],
         [
             nu-scripts,
             "0.1.0",
-            "https://github.com/:amtoine/scripts",
+            "https://github.com/amtoine/scripts",
             "0.1.0",
             nu-scripts
         ],
         [
             nu-sound-manager,
             "0.1.0",
-            "https://github.com/:amtoine/scripts",
+            "https://github.com/amtoine/scripts",
             "0.1.0",
             nu-sound-manager
         ],
         [
             nu-zellij,
             "0.1.0",
-            "https://github.com/:amtoine/zellij-layouts",
+            "https://github.com/amtoine/zellij-layouts",
             "0.1.0",
             nu-zellij
         ],
         [
             nu-hooks,
             "0.1.0",
-            "https://github.com/:nushell/nu_scripts",
+            "https://github.com/nushell/nu_scripts",
             "0.1.0",
             nu-hooks
         ],
         [
             nu-themes,
             "0.1.0",
-            "https://github.com/:nushell/nu_scripts",
+            "https://github.com/nushell/nu_scripts",
             "0.1.0",
             themes
         ],
         [
             nupm,
             "0.1.0",
-            "https://github.com/:nushell/nupm",
+            "https://github.com/nushell/nupm",
             "0.1.0",
             .
         ],
         [
             tmux-sessionizer,
             "0.1.0",
-            "https://github.com/:amtoine/tmux-sessionizer",
+            "https://github.com/amtoine/tmux-sessionizer",
             "0.1.0",
             .
         ]
