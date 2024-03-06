@@ -84,6 +84,20 @@
         ],
         [
             nu-git-manager,
+            "0.7.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.7.0",
+            pkgs/nu-git-manager
+        ],
+        [
+            nu-git-manager-sugar,
+            "0.7.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.7.0",
+            pkgs/nu-git-manager-sugar
+        ],
+        [
+            nu-git-manager,
             "0.6.0",
             "https://github.com/amtoine/nu-git-manager",
             "0.6.0",
