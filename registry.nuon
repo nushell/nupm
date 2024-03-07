@@ -84,6 +84,20 @@
         ],
         [
             nu-git-manager,
+            "0.7.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.7.0",
+            pkgs/nu-git-manager
+        ],
+        [
+            nu-git-manager-sugar,
+            "0.7.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.7.0",
+            pkgs/nu-git-manager-sugar
+        ],
+        [
+            nu-git-manager,
             "0.6.0",
             "https://github.com/amtoine/nu-git-manager",
             "0.6.0",
@@ -94,6 +108,76 @@
             "0.6.0",
             "https://github.com/amtoine/nu-git-manager",
             "0.6.0",
+            pkgs/nu-git-manager-sugar
+        ],
+        [
+            nu-git-manager,
+            "0.5.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.5.0",
+            pkgs/nu-git-manager
+        ],
+        [
+            nu-git-manager-sugar,
+            "0.5.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.5.0",
+            pkgs/nu-git-manager-sugar
+        ],
+        [
+            nu-git-manager,
+            "0.4.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.4.0",
+            pkgs/nu-git-manager
+        ],
+        [
+            nu-git-manager-sugar,
+            "0.4.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.4.0",
+            pkgs/nu-git-manager-sugar
+        ],
+        [
+            nu-git-manager,
+            "0.3.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.3.0",
+            pkgs/nu-git-manager
+        ],
+        [
+            nu-git-manager-sugar,
+            "0.3.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.3.0",
+            pkgs/nu-git-manager-sugar
+        ],
+        [
+            nu-git-manager,
+            "0.2.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.2.0",
+            pkgs/nu-git-manager
+        ],
+        [
+            nu-git-manager-sugar,
+            "0.2.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.2.0",
+            pkgs/nu-git-manager-sugar
+        ],
+        [
+            nu-git-manager,
+            "0.1.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.1.0",
+            pkgs/nu-git-manager
+        ],
+        [
+            nu-git-manager-sugar,
+            "0.1.0",
+            "https://github.com/amtoine/nu-git-manager",
+            "0.1.0",
             pkgs/nu-git-manager-sugar
         ],
         [
@@ -114,7 +198,14 @@
             nu_plugin_explore,
             "0.1.2",
             "https://github.com/amtoine/nu_plugin_explore",
-            "4e8cc0b4e359986bc3cb214161f637b18f648d65",
+            "0.1.2",
+            .
+        ],
+        [
+            nu_plugin_explore,
+            "0.2.0",
+            "https://github.com/amtoine/nu_plugin_explore",
+            "0.2.0",
             .
         ],
         [
