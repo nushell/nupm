@@ -277,6 +277,13 @@
             "https://github.com/amtoine/tmux-sessionizer",
             "18f5cef534b8b494e4dee645e453231dd5d1bc4c",
             .
+        ],
+        [
+            tmux-sessionizer,
+            "main",
+            "https://github.com/amtoine/tmux-sessionizer",
+            "main",
+            .
         ]
     ]
 }
