@@ -20,7 +20,6 @@ export def check-cols [
         if not ($missing_cols | is-empty) {
             throw-error ($"Missing the following required columns in ($what):"
                 + $" ($missing_cols | str join ', ')")
-            )
         }
     }
 
@@ -30,7 +29,6 @@ export def check-cols [
         if not ($extra_cols | is-empty) {
             throw-error ($"Got the following extra columns in ($what):"
                 + $" ($extra_cols | str join ', ')")
-            )
         }
     }
 
