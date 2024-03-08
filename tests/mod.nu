@@ -122,3 +122,13 @@ export def search-registry [] {
         assert ((nupm search spam | get pkgs.0 | length) == 4)
     }
 }
+
+export def nupm-status-module [] {
+    with-test-env {
+        let files = (nupm status tests/packages/spam_module).files
+        assert ($files.0 ends-with (
+            [tests packages spam_module spam_module mod.nu] | path join))
+        assert ($files.1 ends-with (
+            [tests packages spam_module script.nu] | path join))
+    }
+}
