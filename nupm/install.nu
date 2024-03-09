@@ -4,39 +4,9 @@ use utils/completions.nu complete-registries
 use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir ]
 use utils/log.nu throw-error
 use utils/misc.nu check-cols
+use utils/package.nu open-package-file
 use utils/registry.nu search-package
 use utils/version.nu filter-by-version
-
-def open-package-file [dir: path] {
-    if not ($dir | path exists) {
-        throw-error "package_dir_does_not_exist" (
-            $"Package directory ($dir) does not exist"
-        )
-    }
-
-    let package_file = $dir | path join "nupm.nuon"
-
-    if not ($package_file | path exists) {
-        throw-error "package_file_not_found" (
-            $'Could not find "nupm.nuon" in ($dir) or any parent directory.'
-        )
-    }
-
-    let package = open $package_file
-
-    log debug "checking package file for missing required keys"
-    let required_keys = [$. $.name $.version $.type]
-    let missing_keys = $required_keys
-        | where {|key| ($package | get -i $key) == null}
-    if not ($missing_keys | is-empty) {
-        throw-error "invalid_package_file" (
-            $"($package_file) is missing the following required keys:"
-            + $" ($missing_keys | str join ', ')"
-        )
-    }
-
-    $package
-}
 
 # Install list of scripts into a directory
 #
