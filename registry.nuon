@@ -48,6 +48,13 @@
             .
         ],
         [
+            nu_plugin_clipboard,
+            "0.91.0",
+            "https://github.com/FMotalleb/nu_plugin_clipboard",
+            "2cd2a67",
+            .
+        ],
+        [
             nu_plugin_desktop_notifications,
             "1.0.7",
             "https://github.com/FMotalleb/nu_plugin_desktop_notifications",
@@ -69,10 +76,24 @@
             .
         ],
         [
+            nu_plugin_port_list,
+            "1.2.11",
+            "https://github.com/FMotalleb/nu_plugin_port_list",
+            "6bef9d8",
+            .
+        ],
+        [
             nu_plugin_port_scan,
             "1.0.10",
             "https://github.com/FMotalleb/nu_plugin_port_scan",
             "7424a69",
+            .
+        ],
+        [
+            nu_plugin_port_scan,
+            "1.0.11",
+            "https://github.com/FMotalleb/nu_plugin_port_scan",
+            "d4e6c8d",
             .
         ],
         [
