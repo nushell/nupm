@@ -23,7 +23,7 @@ export-env {
     # TODO: Add `nupm registry` for showing info about registries
     # TODO: Add `nupm registry add/remove` to add/remove registry from the env?
     $env.NUPM_REGISTRIES = {
-        nupm_test: 'https://raw.githubusercontent.com/nushell/nupm/main/registry.nuon'
+        nushell: 'https://raw.githubusercontent.com/nushell/nupm/main/registry.nuon'
     }
 }
 
