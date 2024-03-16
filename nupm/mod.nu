@@ -1,5 +1,6 @@
 use utils/dirs.nu [
-    DEFAULT_NUPM_HOME DEFAULT_NUPM_TEMP DEFAULT_NUPM_CACHE  nupm-home-prompt
+    DEFAULT_NUPM_HOME DEFAULT_NUPM_TEMP DEFAULT_NUPM_CACHE
+    DEFAULT_NUPM_REGISTRIES nupm-home-prompt
 ]
 
 export module install.nu
@@ -22,9 +23,8 @@ export-env {
     #       good enough for now.
     # TODO: Add `nupm registry` for showing info about registries
     # TODO: Add `nupm registry add/remove` to add/remove registry from the env?
-    $env.NUPM_REGISTRIES = {
-        nupm_test: 'https://raw.githubusercontent.com/nushell/nupm/main/registry.nuon'
-    }
+    $env.NUPM_REGISTRIES = ($env.NUPM_REGISTRIES?
+        | default $DEFAULT_NUPM_REGISTRIES)
 }
 
 # Nushell Package Manager

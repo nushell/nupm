@@ -10,6 +10,11 @@ export const DEFAULT_NUPM_CACHE = ($nu.default-config-dir
 # Default temporary path for various nupm purposes
 export const DEFAULT_NUPM_TEMP = ($nu.temp-path | path join "nupm")
 
+# Default registry
+export const DEFAULT_NUPM_REGISTRIES = {
+    nupm_test: 'https://raw.githubusercontent.com/nushell/nupm/main/registry.nuon'
+}
+
 # Prompt to create $env.NUPM_HOME if it does not exist and some sanity checks.
 #
 # returns true if the root directory exists or has been created, false otherwise
