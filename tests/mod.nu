@@ -132,3 +132,18 @@ export def nupm-status-module [] {
             [tests packages spam_module script.nu] | path join))
     }
 }
+
+export def env-vars-are-set [] {
+    $env.NUPM_HOME = null
+    $env.NUPM_TEMP = null
+    $env.NUPM_CACHE = null
+    $env.NUPM_REGISTRIES = null
+
+    use ../nupm/utils/dirs.nu
+    use ../nupm
+
+    assert equal $env.NUPM_HOME $dirs.DEFAULT_NUPM_HOME
+    assert equal $env.NUPM_TEMP $dirs.DEFAULT_NUPM_TEMP
+    assert equal $env.NUPM_CACHE $dirs.DEFAULT_NUPM_CACHE
+    assert equal $env.NUPM_REGISTRIES $dirs.DEFAULT_NUPM_REGISTRIES
+}
