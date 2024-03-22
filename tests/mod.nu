@@ -147,3 +147,28 @@ export def env-vars-are-set [] {
     assert equal $env.NUPM_CACHE $dirs.DEFAULT_NUPM_CACHE
     assert equal $env.NUPM_REGISTRIES $dirs.DEFAULT_NUPM_REGISTRIES
 }
+
+export def generate-local-registry [] {
+    with-test-env {
+        # let reg_file = [tests packages registry.nuon]
+        #     | path join
+        #     | path parse
+        #     | update stem test.nuon
+
+        cp -r tests/packages $env.NUPM_TEMP
+
+        let reg_file = $env.NUPM_TEMP | path join packages registry.nuon
+        let tmp_reg_file = $env.NUPM_TEMP | path join packages test_registry.nuon
+
+
+        [spam_script spam_script_old spam_custom spam_module] | each {|pkg|
+            cd ($env.NUPM_TEMP | path join packages $pkg)
+            nupm publish local $tmp_reg_file --save
+        }
+
+        let expected = open $reg_file | to nuon
+        let actual = open $tmp_reg_file | to nuon
+
+        assert equal $actual $expected
+    }
+}
