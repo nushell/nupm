@@ -1,10 +1,15 @@
 export def --env set-nupm-env [] {
-    $env.NUPM_HOME =  ('./_nupm_dev' | path expand)
-    $env.NUPM_CACHE = ('./_nupm_dev/cache' | path expand)
-    $env.NUPM_TEMP =  ('./_nupm_dev/tmp' | path expand)
+    if ($env.PWD | path basename) != 'nupm' {
+        print 'Run from nupm repo root'
+        return
+    }
 
-    $env.PATH ++= [('./_nupm_dev/scripts' | path expand)]
-    $env.NU_LIB_DIRS ++= [('./_nupm_dev/modules' | path expand)]
+    $env.NUPM_HOME =  ($env.PWD | path join '_nupm_dev')
+    $env.NUPM_CACHE = ($env.PWD | path join '_nupm_dev/cache')
+    $env.NUPM_TEMP =  ($env.PWD | path join '_nupm_dev/tmp')
+
+    $env.PATH = ($env.PATH | prepend ($env.PWD | path join '_nupm_dev/scripts'))
+    $env.NU_LIB_DIRS = ($env.NU_LIB_DIRS | prepend ($env.PWD | path join '_nupm_dev/modules'))
 
     print-nupm-env
 }
