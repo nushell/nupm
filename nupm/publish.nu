@@ -2,11 +2,9 @@ use utils/log.nu throw-error
 use utils/package.nu open-package-file
 use utils/version.nu sort-by-version
 
-# Generate package metadata and optionally add them to a registry
+# Generate git package metadata and optionally add them to a registry
 #
 # Needs to run from package root, i.e., where nupm.nuon is.
-export def main [] { }
-
 export def git [
     registry?: string
     --url(-u): string
@@ -41,6 +39,9 @@ export def git [
     }
 }
 
+# Generate local package metadata and optionally add them to a registry
+#
+# Needs to run from package root, i.e., where nupm.nuon is.
 export def local [
     registry?: string
     --path(-p): string
