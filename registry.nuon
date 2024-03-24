@@ -305,6 +305,20 @@
             "https://github.com/amtoine/tmux-sessionizer",
             "main",
             .
+        ],
+        [
+            nu-discord-update,
+            "0.1.0",
+            "https://github.com/amtoine/nu-discord-update",
+            "0.1.0",
+            .
+        ],
+        [
+            nu-fonts-install,
+            "0.1.0",
+            "https://github.com/amtoine/nu-fonts-install",
+            "0.1.0",
+            .
         ]
     ]
 }
