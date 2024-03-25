@@ -187,10 +187,7 @@ def fetch-package [
     --registry: string  # Which registry to use
     --version: string  # Package version to install (string or null)
 ]: nothing -> path {
-    let regs = (search-package $package
-        --registry $registry
-        --version $version
-        --exact-match)
+    let regs = search-package $package --registry $registry --exact-match
 
     if ($regs | is-empty) {
         throw-error $'Package ($package) not found in any registry'
@@ -216,7 +213,7 @@ def fetch-package [
     } else {
         # local package path is relative to the registry file (absolute paths
         # are discouraged but work)
-        $reg.path | path dirname | path join $pkg.path
+        $reg.registry_path | path dirname | path join $pkg.path
     }
 }
 

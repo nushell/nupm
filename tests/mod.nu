@@ -119,7 +119,7 @@ export def install-package-not-found [] {
 
 export def search-registry [] {
     with-test-env {
-        assert ((nupm search spam | get pkgs.0 | length) == 4)
+        assert ((nupm search spam | length) == 4)
     }
 }
 

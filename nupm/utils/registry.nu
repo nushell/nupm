@@ -8,7 +8,6 @@ use version.nu filter-by-version
 export def search-package [
     package: string  # Name of the package
     --registry: string  # Which registry to use
-    --version: any  # Package version to install (string or null)
     --exact-match  # Searched package name must match exactly
 ] -> table {
     let registries = if (not ($registry | is-empty)) and ($registry in $env.NUPM_REGISTRIES) {
@@ -78,7 +77,6 @@ export def search-package [
                 open $pkg_file_path
             }
             | flatten
-            | filter-by-version $version
 
             {
                 registry_name: $name
