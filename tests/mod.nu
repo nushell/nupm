@@ -3,7 +3,7 @@ use std assert
 use ../nupm/utils/dirs.nu tmp-dir
 use ../nupm
 
-const TEST_REGISTRY_PATH = ([tests packages registry.nuon] | path join)
+const TEST_REGISTRY_PATH = ([tests packages registry registry.nuon] | path join)
 
 
 def with-test-env [closure: closure]: nothing -> nothing {

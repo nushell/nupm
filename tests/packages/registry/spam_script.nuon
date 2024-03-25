@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [spam_script, "0.1.0", ../spam_script_old, local, null], [spam_script, "0.2.0", ../spam_script, local, null]]
