@@ -130,10 +130,12 @@ def download-pkg [
     pkg: record<
         name: string,
         version: string,
-        url: string,
-        revision: string,
         path: string,
         type: string,
+        info: record<
+            url: string,
+            revision: string,
+        >
     >
 ]: nothing -> path {
     # TODO: Add some kind of hashing to check that files really match
@@ -149,33 +151,37 @@ def download-pkg [
     mkdir $git_dir
     cd $git_dir
 
-    let repo_name = $pkg.url | url parse | get path | path parse | get stem
-    let url_hash = $pkg.url | hash md5 # in case of git repo name collision
-    let clone_dir = $'($repo_name)-($url_hash)-($pkg.revision)'
+    let repo_name = $pkg.info.url | url parse | get path | path parse | get stem
+    let url_hash = $pkg.info.url | hash md5 # in case of git repo name collision
+    let clone_dir = $'($repo_name)-($url_hash)-($pkg.info.revision)'
 
-    let pkg_dir = $env.PWD | path join $clone_dir $pkg.path
+    let pkg_dir = if $pkg.path == null {
+        $env.PWD | path join $clone_dir
+    } else {
+        $env.PWD | path join $clone_dir $pkg.path
+    }
 
     if ($pkg_dir | path exists) {
-        print $'Package ($pkg.name) found in cache'
+        print $'Package ($pkg.info.name) found in cache'
         return $pkg_dir
     }
 
     try {
-        git clone $pkg.url $clone_dir
+        git clone $pkg.info.url $clone_dir
     } catch {
-        throw-error $'Error cloning repository ($pkg.url)'
+        throw-error $'Error cloning repository ($pkg.info.url)'
     }
 
     cd $clone_dir
 
     try {
-        git checkout $pkg.revision
+        git checkout $pkg.info.revision
     } catch {
-        throw-error $'Error checking out revision ($pkg.revision)'
+        throw-error $'Error checking out revision ($pkg.info.revision)'
     }
 
     if not ($pkg_dir | path exists) {
-        throw-error $'Path ($pkg.path) does not exist'
+        throw-error $'Path ($pkg_dir) does not exist'
     }
 
     $pkg_dir
@@ -213,7 +219,11 @@ def fetch-package [
     } else {
         # local package path is relative to the registry file (absolute paths
         # are discouraged but work)
-        $reg.registry_path | path dirname | path join $pkg.path
+        if $pkg.path == null {
+            $reg.registry_path | path dirname
+        } else {
+            $reg.registry_path | path dirname | path join $pkg.path
+        }
     }
 }
 
