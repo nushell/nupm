@@ -1,5 +1,7 @@
 # Utilities related to nupm registries
 
+use misc.nu check-cols
+
 # Search for a package in a registry
 export def search-package [
     package: string  # Name of the package
