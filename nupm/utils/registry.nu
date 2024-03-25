@@ -20,7 +20,7 @@ export def search-package [
     }
 
     let name_matcher: closure = if $exact_match {
-        {|row| $row.name == $package }
+        {|row| $package == $row.name }
     } else {
         {|row| $package in $row.name }
     }
