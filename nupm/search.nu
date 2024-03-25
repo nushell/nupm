@@ -7,6 +7,7 @@ export def main [
     --registry: string@complete-registries  # Which registry to use (either a name
                                             # in $env.NUPM_REGISTRIES or a path)
     --pkg-version(-v): string  # Package version to install
+    --exact-match(-e)  # Match package name exactly
 ]: nothing -> table {
-    search-package $package --registry $registry --version $pkg_version
+    search-package $package --registry $registry --version $pkg_version --exact-match=$exact_match
 }
