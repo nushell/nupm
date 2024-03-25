@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [nu-discord-update, "0.1.0", null, git, {url: "https://github.com/amtoine/nu-discord-update", revision: "0284223340519630ee94d56c224cf8611abe2d0b"}]]

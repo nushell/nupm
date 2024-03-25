@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [nu-sound-manager, "0.1.0", nu-sound-manager, git, {url: "https://github.com/amtoine/scripts", revision: "b7c3401b4d2019909af203bfe89207aa39d52a1e"}]]

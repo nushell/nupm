@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [tmux-sessionizer, "0.1.0", null, git, {url: "https://github.com/amtoine/tmux-sessionizer", revision: "18f5cef534b8b494e4dee645e453231dd5d1bc4c"}], [tmux-sessionizer, main, null, git, {url: "https://github.com/amtoine/tmux-sessionizer", revision: main}]]

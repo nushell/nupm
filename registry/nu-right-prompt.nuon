@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [nu-right-prompt, "0.1.0", null, git, {url: "https://github.com/amtoine/nu-right-prompt", revision: main}]]
