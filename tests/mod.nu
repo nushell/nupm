@@ -157,17 +157,17 @@ export def generate-local-registry [] {
 
         cp -r tests/packages $env.NUPM_TEMP
 
-        let reg_file = $env.NUPM_TEMP | path join packages registry.nuon
+        let reg_file = $env.NUPM_TEMP | path join packages registry registry.nuon
         let tmp_reg_file = $env.NUPM_TEMP | path join packages test_registry.nuon
-
+        touch $tmp_reg_file
 
         [spam_script spam_script_old spam_custom spam_module] | each {|pkg|
             cd ($env.NUPM_TEMP | path join packages $pkg)
-            nupm publish local $tmp_reg_file --save
+            nupm publish $tmp_reg_file --local --save
         }
 
-        let expected = open $reg_file | to nuon
         let actual = open $tmp_reg_file | to nuon
+        let expected = open $reg_file | to nuon
 
         assert equal $actual $expected
     }

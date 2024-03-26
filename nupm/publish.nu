@@ -93,7 +93,7 @@ export def main [
         print ($reg_entry | table --expand)
 
         # Add the entry to the registry file
-        $reg_content = $reg_content | append $reg_entry | sort-by name
+        $reg_content = ($reg_content | append $reg_entry | sort-by name)
 
         if $save {
             print $"(ansi yellow)=> SAVED!(ansi reset)"
@@ -198,12 +198,12 @@ def open-registry-file []: path -> table<name: string, path: string, url: string
     let reg_path = $in
 
     let reg_content = try { open $reg_path }
-    let exp_type = 'table<name: string, path: string, url: string>'
+    let exp_cols = [name path url]
 
     if (($reg_content | is-not-empty)
-        and ($reg_content | describe) != $exp_type) {
-        throw-error ($"Unexpected content of registry ($reg_path)."
-            + $" Needs ($exp_type).")
+        and ($reg_content | columns) != $exp_cols) {
+        throw-error ($"Unexpected columns of registry ($reg_path)."
+            + $" Needs ($exp_cols).")
     }
 
     $reg_content | default []
