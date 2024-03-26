@@ -1,10 +1,12 @@
 # Utilities related to nupm registries
 
+use dirs.nu cache-dir
+use misc.nu check-cols
+
 # Search for a package in a registry
 export def search-package [
     package: string  # Name of the package
-    --registry: string  # Which registry to use
-    --version: any  # Package version to install (string or null)
+    --registry: string  # Which registry to use (name or path)
     --exact-match  # Searched package name must match exactly
 ] -> table {
     let registries = if (not ($registry | is-empty)) and ($registry in $env.NUPM_REGISTRIES) {
@@ -15,59 +17,68 @@ export def search-package [
         let reg_name = $registry | path parse | get stem
         { $reg_name: $registry }
     } else {
-        # Otherwise use $env.NUPM_REGISTRIES
+        # Otherwise use $env.NUPM_REGISTRIES as-is
         $env.NUPM_REGISTRIES
     }
 
     let name_matcher: closure = if $exact_match {
-        {|row| $row.name == $package }
+        {|row| $package == $row.name }
     } else {
         {|row| $package in $row.name }
     }
 
     # Collect all registries matching the package and all matching packages
     let regs = $registries
-        | items {|name, path|
+        | items {|name, url_or_path|
             # Open registry (online or offline)
-            let registry = if ($path | path type) == file {
-                open $path
+            let registry = if ($url_or_path | path type) == file {
+                {
+                    reg: (open $url_or_path)
+                    path: $url_or_path
+                }
+
             } else {
                 try {
-                    let reg = http get $path
+                    let reg = http get $url_or_path
 
-                    if local in $reg {
-                        throw-error ("Can't have local packages in online registry"
-                            + $" '($path)'.")
+                    let reg_file = cache-dir --ensure
+                        | path join registry $'($name).nuon'
+
+                    mkdir ($reg_file | path dirname)
+                    $reg | save --force $reg_file
+
+                    {
+                        reg: $reg
+                        path: $reg_file
                     }
-
-                    $reg
                 } catch {
-                    throw-error $"Cannot open '($path)' as a file or URL."
+                    throw-error $"Cannot open '($url_or_path)' as a file or URL."
                 }
             }
 
-            $registry | check-cols --missing-ok "registry" [ git local ] | ignore
+            $registry.reg | check-cols "registry" [ name path url ] | ignore
 
             # Find all packages matching $package in the registry
-            let pkgs_local = $registry.local?
-                | default []
-                | check-cols "local packages" [ name version path ]
-                | filter $name_matcher
+            let pkg_files = $registry.reg | filter $name_matcher
 
-            let pkgs_git = $registry.git?
-                | default []
-                | check-cols "git packages" [ name version url revision path ]
-                | filter $name_matcher
+            let pkgs = $pkg_files | each {|row|
+                let pkg_file_path = $registry.path
+                    | path dirname
+                    | path join $row.path
 
-            let pkgs = $pkgs_local
-                | insert type local
-                | insert url null
-                | insert revision null
-                | append ($pkgs_git | insert type git)
+                if $row.url != null {
+                    let pkg_file_content = http get $row.url
+                    # TODO: Add file hashing
+                    $pkg_file_content | save --force $pkg_file_path
+                }
+
+                open $pkg_file_path
+            }
+            | flatten
 
             {
-                name: $name
-                path: $path
+                registry_name: $name
+                registry_path: $registry.path
                 pkgs: $pkgs
             }
         }

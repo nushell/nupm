@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [nu-zellij, "0.1.0", nu-zellij, git, {url: "https://github.com/amtoine/zellij-layouts", revision: "46f4ded194a13b6acfb7b5b25ea9d179e4e74e12"}]]

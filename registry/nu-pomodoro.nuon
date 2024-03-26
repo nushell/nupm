@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [nu-pomodoro, "0.1.0", null, git, {url: "https://github.com/amtoine/nu-pomodoro", revision: main}]]

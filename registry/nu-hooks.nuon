@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [nu-hooks, "0.1.0", nu-hooks, git, {url: "https://github.com/nushell/nu_scripts", revision: "f04cb44"}]]

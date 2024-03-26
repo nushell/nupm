@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [nu_plugin_audio_hook, "0.1.12", null, git, {url: "https://github.com/FMotalleb/nu_plugin_audio_hook", revision: "v0.1.12"}]]

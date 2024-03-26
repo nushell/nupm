@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [nu_plugin_clipboard, "0.3.4", null, git, {url: "https://github.com/FMotalleb/nu_plugin_clipboard", revision: "27faf8d"}], [nu_plugin_clipboard, "0.91.0", null, git, {url: "https://github.com/FMotalleb/nu_plugin_clipboard", revision: "2cd2a67"}]]

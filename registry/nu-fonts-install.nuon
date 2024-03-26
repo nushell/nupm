@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [nu-fonts-install, "0.1.0", null, git, {url: "https://github.com/amtoine/nu-fonts-install", revision: "6b03e9eec09c6784393a725308c34d301a67f7e4"}]]
