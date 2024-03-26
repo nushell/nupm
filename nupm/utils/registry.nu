@@ -2,12 +2,11 @@
 
 use dirs.nu cache-dir
 use misc.nu check-cols
-use version.nu filter-by-version
 
 # Search for a package in a registry
 export def search-package [
     package: string  # Name of the package
-    --registry: string  # Which registry to use
+    --registry: string  # Which registry to use (name or path)
     --exact-match  # Searched package name must match exactly
 ] -> table {
     let registries = if (not ($registry | is-empty)) and ($registry in $env.NUPM_REGISTRIES) {
@@ -57,9 +56,7 @@ export def search-package [
                 }
             }
 
-            $registry.reg
-            | check-cols "registry" [ name path url ]
-            | ignore
+            $registry.reg | check-cols "registry" [ name path url ] | ignore
 
             # Find all packages matching $package in the registry
             let pkg_files = $registry.reg | filter $name_matcher
@@ -71,6 +68,7 @@ export def search-package [
 
                 if $row.url != null {
                     let pkg_file_content = http get $row.url
+                    # TODO: Add file hashing
                     $pkg_file_content | save --force $pkg_file_path
                 }
 

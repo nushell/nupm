@@ -1,101 +1,189 @@
 use utils/log.nu throw-error
 use utils/package.nu open-package-file
+use utils/registry.nu search-package
 use utils/version.nu sort-by-version
 
-# Generate git package metadata and optionally add them to a registry
+# Publish package to registry
 #
+# By default, changes are only previewed. To apply them, use the --save flag.
 # Needs to run from package root, i.e., where nupm.nuon is.
-export def git [
-    registry?: string
-    --url(-u): string
-    --path(-p): string
-    --revision(-r): string
-    --save
-]: [nothing -> nothing, nothing -> record] {
-    let pkg = open-package-file $env.PWD
-    let url = $url | default (guess-url)
-    let revision = $revision | default (guess-revision)
-
-    let result = {
-        name: $pkg.name
-        version: $pkg.version
-        url: $url
-        revision: $revision
-        path: $path
+export def main [
+    registry: string  # Registry file to publish to (name or path)
+    --git             # Publish package as a git package
+    --local           # Publish package as a local package
+    --info: record    # Package info based on package type (e.g., url and
+                      # revision for a git package)
+    --path: string    # Path to the package root
+    --pkg-file-url: string    # URL of a package registry file
+    --save            # Write changes to registry instead of printing changes
+] {
+    if $git and $local {
+        throw-error ("Cannot have more than one package type. Choose one of"
+            + " --git or --local or neither, not both.")
     }
 
-    if $registry == null {
-        $result
-    } else {
-        let reg_path = $registry | get-registry-path
-        let reg_content = $reg_path | open-registry-file
-        let updated = $reg_content | update-registry $result $registry "git"
-
-        if $save {
-            $updated | save --force $reg_path
-        } else {
-            $updated
-        }
-    }
-}
-
-# Generate local package metadata and optionally add them to a registry
-#
-# Needs to run from package root, i.e., where nupm.nuon is.
-export def local [
-    registry?: string
-    --path(-p): string
-    --save
-]: [nothing -> nothing, nothing -> record] {
     let pkg = open-package-file $env.PWD
 
-    let result = {
+    # Registry must point to a local path
+    let reg_path = $registry | get-registry-path
+
+    if ($reg_path | path type) != 'file' {
+        throw-error $'Registry path ($reg_path) must be a local path.'
+    }
+
+    print $'Registry path: (ansi cyan_bold)($reg_path)(ansi reset)'
+
+    # Guess package type
+    let pkg_type = if $git {
+        "git"
+    } else if $local {
+        "local"
+    } else {
+        let res = search-package $pkg.name --registry $reg_path --exact-match
+            | first # there will be only one result because we passed local path
+            | get pkgs
+            | sort-by-version
+
+        if ($res | is-empty) {
+            throw-error ($"Cannot guess package type because pacakge"
+                + $" ($pkg.name) was not found in registry ($registry). Specify"
+                + " the type manually with --git or --local flag.")
+        }
+
+        $res | last | get type
+    }
+
+    # Create entry to the registry file
+    mut reg_content = $reg_path | open-registry-file
+
+    let name_matches = if ($reg_content | length) > 0 {
+        $reg_content | where name == $pkg.name
+    } else {
+        []
+    }
+
+    mut existing_entry = null
+
+    if ($name_matches | length) == 1 {
+        $existing_entry = ($name_matches | first)
+    } else if ($name_matches | length) > 1 {
+        throw-error ($"Registry ($registry) contains multiple packages named"
+            + $" ($pkg.name). This shouldn't happen.")
+    }
+
+    let pkg_file_path = if $existing_entry == null {
+        $'($pkg.name).nuon'
+    } else {
+        $existing_entry.path
+    }
+
+    if $existing_entry == null {
+        let pkg_file_url = if $pkg_file_url != null {
+            $pkg_file_url
+        }
+
+        let reg_entry = {
+            name: $pkg.name
+            path: $pkg_file_path
+            url: $pkg_file_url
+        }
+
+        print ""
+        print $"New entry to registry file (ansi cyan_bold)($reg_path)(ansi reset):"
+        print ($reg_entry | table --expand)
+
+        # Add the entry to the registry file
+        $reg_content = $reg_content | append $reg_entry | sort-by name
+
+        if $save {
+            print $"(ansi yellow)=> SAVED!(ansi reset)"
+            $reg_content | save --force $reg_path
+        }
+    } else {
+        print $"Registry file (ansi cyan_bold)($reg_path)(ansi reset) unchanged"
+    }
+
+    # Create entry to the package file
+    mut info = $info
+
+    if $pkg_type == 'git' {
+        $info = ($info | default {
+            url: (guess-url)
+            revision: (guess-revision)
+        })
+    }
+
+    match $pkg_type {
+        'git' => {
+            if $info == null or ($info | columns) != [url revision] {
+                throw-error ("Package type 'git' requires info with url and"
+                    + " revision fields.")
+            }
+        }
+        'local' => {
+            if $info != null {
+                throw-error "Package type 'local' must have null info."
+            }
+        }
+    }
+
+    let pkg_entry = {
         name: $pkg.name
         version: $pkg.version
         path: $path
+        type: $pkg_type
+        info: $info
     }
 
-    if $registry == null {
-        $result
+    let pkg_file_path = $reg_path | path dirname | path join $pkg_file_path
+
+    print ""
+    print ("New entry to package file"
+        + $" (ansi cyan_bold)($pkg_file_path)(ansi reset):")
+    print ($pkg_entry | table --expand)
+
+    # Add the entry to the package file
+    let pkg_file_content = $pkg_file_path | open-reg-pkg-file
+
+    if $pkg.version in $pkg_file_content.version {
+        throw-error ($"Version ($pkg.version) of package ($pkg.name) is already"
+            + $" published in registry ($registry)")
+    }
+
+    let pkg_file_content = $pkg_file_content
+        | append $pkg_entry
+        | sort-by-version
+
+    if $save {
+        print $"(ansi yellow)=> SAVED!(ansi reset)"
+        $pkg_file_content | save --force $pkg_file_path
     } else {
-        let reg_path = $registry | get-registry-path
-
-        let path = try {
-            $env.PWD | path relative-to ($reg_path | path dirname)
-        } catch {
-            $env.PWD
-        }
-
-        let $path = if ($path | is-empty) { null } else { $path }
-        let result = $result | update path $path
-
-        let reg_content = $reg_path | open-registry-file
-        let updated = $reg_content | update-registry $result $registry "local"
-
-        if $save {
-            $updated | save --force $reg_path
-        } else {
-            $updated
-        }
+        print ""
+        print $"(ansi yellow)If the changes look good, re-run with --save to apply them.(ansi reset)"
     }
 }
 
 def guess-url [] -> string {
-    mut url = ^git remote get-url origin | complete | get stdout
+    mut url = (do -i { ^git remote get-url origin | complete } | get stdout)
 
     if ($url | is-empty) {
-        let first_remote = ^git remote | lines | first
-        $url = (^git remote get-url $first_remote | complete | get stdout)
+        let first_remote = do -i { ^git remote | lines | first } | get stdout
+
+        if not ($first_remote | is-empty) {
+            $url = (do -i { ^git remote get-url $first_remote | complete }
+                | get stdout)
+        }
     }
 
     $url | str trim
 }
 
 def guess-revision [] -> string {
-    mut revision = ^git describe --tags --abbrev=0 | complete | get stdout
+    mut revision = (do -i { ^git describe --tags --abbrev=0 | complete }
+        | get stdout)
 
     if ($revision | is-empty) {
-        $revision = (^git rev-parse HEAD | complete | get stdout)
+        $revision = (do -i { ^git rev-parse HEAD | complete } | get stdout)
     }
 
     $revision | str trim
@@ -106,40 +194,37 @@ def get-registry-path []: string -> path {
     $env.NUPM_REGISTRIES | get -i $registry | default ($registry | path expand)
 }
 
-def open-registry-file []: path -> record {
+def open-registry-file []: path -> table<name: string, path: string, url: string> {
     let reg_path = $in
 
     let reg_content = try { open $reg_path }
+    let exp_type = 'table<name: string, path: string, url: string>'
 
-    if ($reg_content | is-not-empty) and ($reg_content | describe -d | get type) != 'record' {
+    if (($reg_content | is-not-empty)
+        and ($reg_content | describe) != $exp_type) {
         throw-error ($"Unexpected content of registry ($reg_path)."
-            + " Needs a record.")
+            + $" Needs ($exp_type).")
     }
 
-    $reg_content | default {}
+    $reg_content | default []
 }
 
-def update-registry [pkg_entry: record, registry: string, type: string]: record -> record {
-    let reg_content = $in
+def open-reg-pkg-file []: [ path -> table<
+        name: string
+        version: string
+        path: string
+        type: string
+        info: record<url: string, revision: string>> ] {
+    let pkg_path = $in
 
-    let pkgs_local = $reg_content | get -i local | default []
-    let pkgs_git = $reg_content | get -i git | default []
-    let pkgs_all = $pkgs_local | append $pkgs_git
+    let pkg_content = try { open $pkg_path }
+    let exp_cols = [name version path type info]
 
-    if ($pkg_entry.name in $pkgs_all.name
-        and $pkg_entry.version in $pkgs_all.version) {
-        throw-error ($"Package ($pkg_entry.name) version ($pkg_entry.version)"
-            + $" is already present in registry ($registry)")
+    if (($pkg_content | is-not-empty)
+        and ($pkg_content | columns) != $exp_cols) {
+        throw-error ($"Unexpected columns of package file ($pkg_path)."
+            + $" Needs ($exp_cols).")
     }
 
-    let pkgs_out = match $type {
-        "git" => $pkgs_git,
-        "local" => $pkgs_local,
-        _ => { throw-error $"Internal error: wrong registry type ($type)" }
-    }
-
-    $reg_content | upsert $type ($pkgs_out
-        | append $pkg_entry
-        | sort-by name
-        | sort-by-version)
+    $pkg_content | default []
 }
