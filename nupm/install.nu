@@ -3,7 +3,7 @@ use std log
 use utils/completions.nu complete-registries
 use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir ]
 use utils/log.nu throw-error
-use utils/misc.nu check-cols
+use utils/misc.nu [check-cols url]
 use utils/package.nu open-package-file
 use utils/registry.nu search-package
 use utils/version.nu filter-by-version
@@ -151,7 +151,7 @@ def download-pkg [
     mkdir $git_dir
     cd $git_dir
 
-    let repo_name = $pkg.info.url | url parse | get path | path parse | get stem
+    let repo_name = $pkg.info.url | url stem
     let url_hash = $pkg.info.url | hash md5 # in case of git repo name collision
     let clone_dir = $'($repo_name)-($url_hash)-($pkg.info.revision)'
 

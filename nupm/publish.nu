@@ -13,8 +13,8 @@ export def main [
     --local           # Publish package as a local package
     --info: record    # Package info based on package type (e.g., url and
                       # revision for a git package)
-    --path: string    # Path to the package root
-    --pkg-file-url: string    # URL of a package registry file
+    --path: string    # Path to the package root relative to the registry file
+    # --pkg-file-url: string    # URL of a package registry file
     --save            # Write changes to registry instead of printing changes
 ] {
     if $git and $local {
@@ -28,7 +28,7 @@ export def main [
     let reg_path = $registry | get-registry-path
 
     if ($reg_path | path type) != 'file' {
-        throw-error $'Registry path ($reg_path) must be a local path.'
+        throw-error $'Registry path ($reg_path) must be a path.'
     }
 
     print $'Registry path: (ansi cyan_bold)($reg_path)(ansi reset)'
@@ -78,14 +78,14 @@ export def main [
     }
 
     if $existing_entry == null {
-        let pkg_file_url = if $pkg_file_url != null {
-            $pkg_file_url
-        }
+        # let pkg_file_url = if $pkg_file_url != null {
+        #     $pkg_file_url
+        # }
 
         let reg_entry = {
             name: $pkg.name
             path: $pkg_file_path
-            url: $pkg_file_url
+            # url: $pkg_file_url
         }
 
         print ""
@@ -198,7 +198,7 @@ def open-registry-file []: path -> table<name: string, path: string, url: string
     let reg_path = $in
 
     let reg_content = try { open $reg_path }
-    let exp_cols = [name path url]
+    let exp_cols = [name path]
 
     if (($reg_content | is-not-empty)
         and ($reg_content | columns) != $exp_cols) {

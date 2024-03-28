@@ -1,1 +1,1 @@
-[[name, path, url]; [spam_custom, spam_custom.nuon, null], [spam_module, spam_module.nuon, null], [spam_script, spam_script.nuon, null]]
+[[name, path]; [spam_custom, spam_custom.nuon], [spam_module, spam_module.nuon], [spam_script, spam_script.nuon]]
