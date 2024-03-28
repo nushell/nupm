@@ -1,7 +1,11 @@
-export def --env set-nupm-env [] {
+export def --env set-nupm-env [--clear] {
     if ($env.PWD | path basename) != 'nupm' {
         print 'Run from nupm repo root'
         return
+    }
+
+    if $clear {
+        rm -rf _nupm_dev
     }
 
     $env.NUPM_HOME =  ($env.PWD | path join _nupm_dev)
