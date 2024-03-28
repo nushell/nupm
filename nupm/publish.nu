@@ -31,8 +31,6 @@ export def main [
         throw-error $'Registry path ($reg_path) must be a path to a local file.'
     }
 
-    print $'Registry path: (ansi cyan_bold)($reg_path)(ansi reset)'
-
     # Guess package type
     let pkg_type = if $git {
         "git"
