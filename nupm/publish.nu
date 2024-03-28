@@ -78,14 +78,9 @@ export def main [
     }
 
     if $existing_entry == null {
-        # let pkg_file_url = if $pkg_file_url != null {
-        #     $pkg_file_url
-        # }
-
         let reg_entry = {
             name: $pkg.name
             path: $pkg_file_path
-            # url: $pkg_file_url
         }
 
         print ""
