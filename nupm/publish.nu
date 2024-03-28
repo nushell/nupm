@@ -9,13 +9,13 @@ use utils/version.nu sort-by-version
 # By default, changes are only previewed. To apply them, use the --save flag.
 # Needs to run from package root, i.e., where nupm.nuon is.
 export def main [
-    registry: string  # Registry file to publish to (name or path)
+    registry: string  # Registry file to publish to (local file or name pointing
+                      # at a local registry)
     --git             # Publish package as a git package
     --local           # Publish package as a local package
     --info: record    # Package info based on package type (e.g., url and
                       # revision for a git package)
     --path: string    # Path to the package root relative to the registry file
-    # --pkg-file-url: string    # URL of a package registry file
     --save            # Write changes to registry instead of printing changes
 ] {
     if $git and $local {
