@@ -28,7 +28,7 @@ export def main [
     let reg_path = $registry | get-registry-path
 
     if ($reg_path | path type) != 'file' {
-        throw-error $'Registry path ($reg_path) must be a path.'
+        throw-error $'Registry path ($reg_path) must be a path to a local file.'
     }
 
     print $'Registry path: (ansi cyan_bold)($reg_path)(ansi reset)'
