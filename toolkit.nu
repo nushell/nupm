@@ -11,8 +11,7 @@ export def --env set-nupm-env [--clear] {
     $env.NUPM_HOME =  ($env.PWD | path join _nupm_dev)
     $env.NUPM_CACHE = ($env.PWD | path join _nupm_dev cache)
     $env.NUPM_TEMP =  ($env.PWD | path join _nupm_dev tmp)
-    # $env.NUPM_REGISTRIES = { nupm_dev: ($env.PWD | path join registry registry.nuon) }
-    $env.NUPM_REGISTRIES = { nupm_dev: 'https://git.sr.ht/~kubouch/nupkgs/blob/main/registry/registry.nuon' }
+    $env.NUPM_REGISTRIES = { nupm_dev: ($env.PWD | path join registry registry.nuon) }
 
     if $nu.os-info.family == 'windows' and 'Path' in $env {
         $env.Path = ($env.Path | prepend ($env.PWD | path join _nupm_dev scripts))
