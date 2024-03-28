@@ -1,7 +1,14 @@
 # Utilities related to nupm registries
 
 use dirs.nu cache-dir
-use misc.nu [check-cols url]
+use log.nu throw-error
+use misc.nu [check-cols url hash-file]
+
+# Columns of a registry file
+export const REG_COLS = [ name path hash ]
+
+# Columns of a registry package file
+export const REG_PKG_COLS = [ name version path type info ]
 
 # Search for a package in a registry
 export def search-package [
@@ -58,7 +65,7 @@ export def search-package [
                 }
             }
 
-            $registry.reg | check-cols "registry" [ name path ] | ignore
+            $registry.reg | check-cols "registry" $REG_COLS | ignore
 
             # Find all packages matching $package in the registry
             let pkg_files = $registry.reg | filter $name_matcher
@@ -68,10 +75,20 @@ export def search-package [
                     | path dirname
                     | path join $row.path
 
-                if $registry.is_url {
+                let hash = if ($pkg_file_path | path type) == file {
+                    $pkg_file_path | hash-file
+                }
+
+                if $registry.is_url and $hash != $row.hash {
                     let url = $url_or_path | url update-name $row.path
-                    # TODO: Add file hashing
                     http get $url | save --force $pkg_file_path
+                }
+
+                let new_hash = $pkg_file_path | hash-file
+
+                if $new_hash != $row.hash {
+                    throw-error ($'Content of package file ($pkg_file_path)'
+                        + $' does not match expected hash ($row.hash)')
                 }
 
                 open $pkg_file_path

@@ -1,6 +1,7 @@
 use utils/log.nu throw-error
+use utils/misc.nu hash-fn
 use utils/package.nu open-package-file
-use utils/registry.nu search-package
+use utils/registry.nu [ search-package REG_COLS REG_PKG_COLS ]
 use utils/version.nu sort-by-version
 
 # Publish package to registry
@@ -51,7 +52,7 @@ export def main [
         $res | last | get type
     }
 
-    # Create entry to the registry file
+    # Preparation
     mut reg_content = $reg_path | open-registry-file
 
     let name_matches = if ($reg_content | length) > 0 {
@@ -73,27 +74,6 @@ export def main [
         $'($pkg.name).nuon'
     } else {
         $existing_entry.path
-    }
-
-    if $existing_entry == null {
-        let reg_entry = {
-            name: $pkg.name
-            path: $pkg_file_path
-        }
-
-        print ""
-        print $"New entry to registry file (ansi cyan_bold)($reg_path)(ansi reset):"
-        print ($reg_entry | table --expand)
-
-        # Add the entry to the registry file
-        $reg_content = ($reg_content | append $reg_entry | sort-by name)
-
-        if $save {
-            print $"(ansi yellow)=> SAVED!(ansi reset)"
-            $reg_content | save --force $reg_path
-        }
-    } else {
-        print $"Registry file (ansi cyan_bold)($reg_path)(ansi reset) unchanged"
     }
 
     # Create entry to the package file
@@ -128,28 +108,57 @@ export def main [
         info: $info
     }
 
-    let pkg_file_path = $reg_path | path dirname | path join $pkg_file_path
+    let pkg_file_path_full = $reg_path
+        | path dirname
+        | path join $pkg_file_path
+        | path expand
 
     print ""
     print ("New entry to package file"
-        + $" (ansi cyan_bold)($pkg_file_path)(ansi reset):")
+        + $" (ansi cyan_bold)($pkg_file_path_full)(ansi reset):")
     print ($pkg_entry | table --expand)
 
-    # Add the entry to the package file
-    let pkg_file_content = $pkg_file_path | open-reg-pkg-file
+    # add the entry to the package file
+    let pkg_file_content = $pkg_file_path_full | open-reg-pkg-file
 
     if $pkg.version in $pkg_file_content.version {
         throw-error ($"Version ($pkg.version) of package ($pkg.name) is already"
             + $" published in registry ($registry)")
     }
 
-    let pkg_file_content = $pkg_file_content
+    let pkg_file_nuon = $pkg_file_content
         | append $pkg_entry
         | sort-by-version
+        | to nuon
 
     if $save {
         print $"(ansi yellow)=> SAVED!(ansi reset)"
-        $pkg_file_content | save --force $pkg_file_path
+        $pkg_file_nuon | save --raw --force $pkg_file_path_full
+    }
+
+    # Create entry to the registry file
+    let hash = $pkg_file_nuon | hash-fn
+
+    let reg_entry = {
+        name: $pkg.name
+        path: $pkg_file_path
+        hash: $hash
+    }
+
+    print ""
+    print $"New entry to registry file (ansi cyan_bold)($reg_path)(ansi reset):"
+    print ($reg_entry | table --expand)
+
+    # add the entry to the registry file
+    let reg_nuon = $reg_content
+        | where name != $pkg.name
+        | append $reg_entry
+        | sort-by name
+        | to nuon
+
+    if $save {
+        print $"(ansi yellow)=> SAVED!(ansi reset)"
+        $reg_nuon | save --raw --force $reg_path
     } else {
         print ""
         print $"(ansi yellow)If the changes look good, re-run with --save to apply them.(ansi reset)"
@@ -191,12 +200,12 @@ def open-registry-file []: path -> table<name: string, path: string, url: string
     let reg_path = $in
 
     let reg_content = try { open $reg_path }
-    let exp_cols = [name path]
+    let exp_cols = $REG_COLS
 
     if (($reg_content | is-not-empty)
         and ($reg_content | columns) != $exp_cols) {
         throw-error ($"Unexpected columns of registry ($reg_path)."
-            + $" Needs ($exp_cols).")
+            + $" Got ($reg_content | columns), needs ($exp_cols).")
     }
 
     $reg_content | default []
@@ -211,12 +220,12 @@ def open-reg-pkg-file []: [ path -> table<
     let pkg_path = $in
 
     let pkg_content = try { open $pkg_path }
-    let exp_cols = [name version path type info]
+    let exp_cols = $REG_PKG_COLS
 
     if (($pkg_content | is-not-empty)
         and ($pkg_content | columns) != $exp_cols) {
         throw-error ($"Unexpected columns of package file ($pkg_path)."
-            + $" Needs ($exp_cols).")
+            + $" Got ($pkg_content | columns), needs ($exp_cols).")
     }
 
     $pkg_content | default []

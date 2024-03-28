@@ -150,15 +150,20 @@ export def env-vars-are-set [] {
 
 export def generate-local-registry [] {
     with-test-env {
-        cp -r tests/packages $env.NUPM_TEMP
+        # cp -r tests/packages $env.NUPM_TEMP
+        mkdir ($env.NUPM_TEMP | path join packages registry)
 
-        let reg_file = $env.NUPM_TEMP | path join packages registry registry.nuon
-        let tmp_reg_file = $env.NUPM_TEMP | path join packages test_registry.nuon
+        let reg_file = [tests packages registry registry.nuon] | path join
+        let tmp_reg_file = [
+            $env.NUPM_TEMP packages registry test_registry.nuon
+        ]
+        | path join
+
         touch $tmp_reg_file
 
         [spam_script spam_script_old spam_custom spam_module] | each {|pkg|
-            cd ($env.NUPM_TEMP | path join packages $pkg)
-            nupm publish $tmp_reg_file --local --save
+            cd ([tests packages $pkg] | path join)
+            nupm publish $tmp_reg_file --local --save --path $'../($pkg)'
         }
 
         let actual = open $tmp_reg_file | to nuon

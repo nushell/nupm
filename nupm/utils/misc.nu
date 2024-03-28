@@ -35,6 +35,17 @@ export def check-cols [
     $inp
 }
 
+# Compute a hash of a string
+export def hash-fn []: string -> string {
+    let hash = $in | hash md5
+    [ 'md5' $hash ] | str join '-'
+}
+
+# Compute a hash of file contents
+export def hash-file []: path -> string {
+    open --raw | hash-fn
+}
+
 # Extensions to the `url ...` commands
 export module url {
 

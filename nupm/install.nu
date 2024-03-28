@@ -3,7 +3,7 @@ use std log
 use utils/completions.nu complete-registries
 use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir ]
 use utils/log.nu throw-error
-use utils/misc.nu [check-cols url]
+use utils/misc.nu [check-cols hash-fn url]
 use utils/package.nu open-package-file
 use utils/registry.nu search-package
 use utils/version.nu filter-by-version
@@ -132,10 +132,7 @@ def download-pkg [
         version: string,
         path: string,
         type: string,
-        info: record<
-            url: string,
-            revision: string,
-        >
+        info: any,
     >
 ]: nothing -> path {
     # TODO: Add some kind of hashing to check that files really match
@@ -152,7 +149,7 @@ def download-pkg [
     cd $git_dir
 
     let repo_name = $pkg.info.url | url stem
-    let url_hash = $pkg.info.url | hash md5 # in case of git repo name collision
+    let url_hash = $pkg.info.url | hash-fn # in case of git repo name collision
     let clone_dir = $'($repo_name)-($url_hash)-($pkg.info.revision)'
 
     let pkg_dir = if $pkg.path == null {
@@ -162,7 +159,7 @@ def download-pkg [
     }
 
     if ($pkg_dir | path exists) {
-        print $'Package ($pkg.info.name) found in cache'
+        print $'Package ($pkg.name) found in cache'
         return $pkg_dir
     }
 
