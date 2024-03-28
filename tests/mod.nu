@@ -150,11 +150,6 @@ export def env-vars-are-set [] {
 
 export def generate-local-registry [] {
     with-test-env {
-        # let reg_file = [tests packages registry.nuon]
-        #     | path join
-        #     | path parse
-        #     | update stem test.nuon
-
         cp -r tests/packages $env.NUPM_TEMP
 
         let reg_file = $env.NUPM_TEMP | path join packages registry registry.nuon
