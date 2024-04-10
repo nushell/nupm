@@ -27,13 +27,7 @@ export def print-nupm-env [] {
     print $'NUPM_HOME:  ($env.NUPM_HOME?)'
     print $'NUPM_CACHE: ($env.NUPM_CACHE?)'
     print $'NUPM_TEMP:  ($env.NUPM_TEMP?)'
-    if $nu.os-info.family == 'windows' and 'Path' in $env {
-        print $'Path: ($env.Path?)'
-    } else if 'PATH' in $env {
-        print $'PATH: ($env.PATH?)'
-    } else {
-        print 'no PATH env var'
-    }
+    print $"PATH: ($env.PATH? | default $env.Path? | default [])"
     print $'NU_LIB_DIRS: ($env.NU_LIB_DIRS?)'
     print $'NUPM_REGISTRIES: ($env.NUPM_REGISTRIES?)'
 }
