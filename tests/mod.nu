@@ -163,7 +163,7 @@ export def generate-local-registry [] {
 
         [spam_script spam_script_old spam_custom spam_module] | each {|pkg|
             cd ([tests packages $pkg] | path join)
-            nupm publish $tmp_reg_file --local --save --path $'../($pkg)'
+            nupm publish $tmp_reg_file --local --save --path (".." | path join $pkg)
         }
 
         let actual = open $tmp_reg_file | to nuon
