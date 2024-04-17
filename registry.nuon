@@ -230,6 +230,20 @@
             .
         ],
         [
+            nu_plugin_explore,
+            "0.92.3-c06ef201b72b3cbe901820417106b7d65c6f01e1",
+            "https://github.com/amtoine/nu_plugin_explore",
+            "0.92.3-c06ef201b72b3cbe901820417106b7d65c6f01e1",
+            .
+        ],
+        [
+            nu_plugin_explore,
+            "0.92.0",
+            "https://github.com/amtoine/nu_plugin_explore",
+            "0.92.",
+            .
+        ],
+        [
             nu-clippy,
             "0.1.0",
             "https://github.com/amtoine/scripts",
