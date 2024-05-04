@@ -237,6 +237,48 @@
             .
         ],
         [
+            nu_plugin_explore,
+            "0.92.0",
+            "https://github.com/amtoine/nu_plugin_explore",
+            "0.92.",
+            .
+        ],
+        [
+            nu_plugin_explore,
+            "0.92.3-c06ef201b72b3cbe901820417106b7d65c6f01e1",
+            "https://github.com/amtoine/nu_plugin_explore",
+            "0.92.3-c06ef201b72b3cbe901820417106b7d65c6f01e1",
+            .
+        ],
+        [
+            nu_plugin_explore,
+            "0.92.3-55edef5ddaf3d3d55290863446c2dd50c012e9bc",
+            "https://github.com/amtoine/nu_plugin_explore",
+            "0.92.3-55edef5ddaf3d3d55290863446c2dd50c012e9bc",
+            .
+        ],
+        [
+            nu_plugin_explore,
+            "0.92.3-be5ed3290cb116cbe9f3038f7a2d46aaac85a25c",
+            "https://github.com/amtoine/nu_plugin_explore",
+            "0.92.3-be5ed3290cb116cbe9f3038f7a2d46aaac85a25c",
+            .
+        ],
+        [
+            nu_plugin_explore,
+            "0.92.3-2595f31541554c6d8602ebebc9dffbc4dd29dd89",
+            "https://github.com/amtoine/nu_plugin_explore",
+            "0.92.3-2595f31541554c6d8602ebebc9dffbc4dd29dd89",
+            .
+        ],
+        [
+            nu_plugin_explore,
+            "0.93.0",
+            "https://github.com/amtoine/nu_plugin_explore",
+            "0.93.0",
+            .
+        ],
+        [
             nu-clippy,
             "0.1.0",
             "https://github.com/amtoine/scripts",
