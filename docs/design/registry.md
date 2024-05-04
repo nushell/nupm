@@ -6,7 +6,7 @@ Two types of files compose a registry:
 * The "main" registry file containing the list of "registry package files"
 * Registry package files containing the details of each package.
 
-These files **should not** be edited manually. They are intended to be auto-generated and updated with `nupm publish` only.
+These files **should not** be edited manually. They are intended to be auto-generated and updated with `nupm publish` only. They also shouldn't contain any newlines to avoid potential problems with file hashes between Windows and non-Windows platforms.
 
 ## "Main" registry file
 
@@ -22,7 +22,7 @@ The file is sorted by `name`. No duplicate package names allowed.
 These files contain the actual information about the package that is used do fetch and install the package. Multiple versions of the same package are supported. It has exactly the following columns:
 * `name`: Name of the package
 * `version`: Version of the package
-* `path`: Path where to look for nupm.nuon (relative to the package root*)
+* `path`: Path where to look for nupm.nuon (relative to the package root*, in the case of git packages, or the main registry file, if local package)
 * `type`: Type of the package. Currently only "git" and "local"
 * `info`: Package-specific info based on `type`. It can be one of the following:
   * `null` if `type` is "local"
