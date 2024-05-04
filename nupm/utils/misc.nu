@@ -43,13 +43,7 @@ export def hash-fn []: string -> string {
 
 # Compute a hash of file contents
 export def hash-file []: path -> string {
-    let p = $in
-
-    if ($p | path parse).extension == "nuon" {
-        open $p | to nuon | hash-fn
-    } else {
-        open $p --raw | hash-fn
-    }
+    open --raw | hash-fn
 }
 
 # Extensions to the `url ...` commands
