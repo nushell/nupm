@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: hustcer/setup-nu@v3.7
+      - uses: hustcer/setup-nu@v3.10
         with:
           version: nightly
 
