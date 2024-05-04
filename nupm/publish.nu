@@ -8,14 +8,21 @@ use utils/version.nu sort-by-version
 #
 # By default, changes are only previewed. To apply them, use the --save flag.
 # Needs to run from package root, i.e., where nupm.nuon is.
+#
+# The --path flag defines the `path` field of the registry package file. Its
+# meaning depends on the package type:
+# * git packages   : Path to the package relative to git repo root
+# * local packages : Path to the package relative to registry file
+# Furthermore, `\` inside the `path` field are  replaced with `/` to avoid
+# conflicts between Windows and non-Windows platforms.
 export def main [
     registry: string  # Registry file to publish to (local file or name pointing
                       # at a local registry)
     --git             # Publish package as a git package
     --local           # Publish package as a local package
-    --info: record    # Package info based on package type (e.g., url and
-                      # revision for a git package)
-    --path: string    # Path to the package root relative to the registry file
+    --info: record    # Package info based on package type (e.g., `url` and
+                      # `revision` for a git package)
+    --path: string    # `path` field of the registry entry file
     --save            # Write changes to registry instead of printing changes
 ] {
     if $git and $local {
