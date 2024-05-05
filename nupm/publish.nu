@@ -6,6 +6,8 @@ use utils/version.nu sort-by-version
 
 # Publish package to registry
 #
+# The package being published is determined by the current working directory.
+#
 # By default, changes are only previewed. To apply them, use the --save flag.
 # Needs to run from package root, i.e., where nupm.nuon is.
 #
