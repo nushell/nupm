@@ -107,7 +107,7 @@ export def main [
         }
     }
 
-    let path = if $path != null { $path | str replace '\' '/' }
+    let path = if $path != null { $path | str replace --all '\' '/' }
 
     let pkg_entry = {
         name: $pkg.name
