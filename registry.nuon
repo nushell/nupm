@@ -279,6 +279,13 @@
             .
         ],
         [
+            nu_plugin_explore,
+            "0.94.0",
+            "https://github.com/amtoine/nu_plugin_explore",
+            "0.94.0",
+            .
+        ],
+        [
             nu-clippy,
             "0.1.0",
             "https://github.com/amtoine/scripts",
