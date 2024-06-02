@@ -16,3 +16,7 @@ export def print-nupm-env [] {
     print $'PATH: ($env.PATH?)'
     print $'NU_LIB_DIRS: ($env.NU_LIB_DIRS?)'
 }
+
+export def set-nuon-diff [] {
+    git config diff.nuon.textconv (pwd | path join scripts print-nuon.nu)
+}
