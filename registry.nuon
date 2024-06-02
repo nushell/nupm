@@ -69,6 +69,13 @@
             .
         ],
         [
+            nu_plugin_clipboard,
+            "0.94.0",
+            "https://github.com/FMotalleb/nu_plugin_clipboard",
+            "0a349e7",
+            .
+        ],
+        [
             nu_plugin_desktop_notifications,
             "1.0.7",
             "https://github.com/FMotalleb/nu_plugin_desktop_notifications",
