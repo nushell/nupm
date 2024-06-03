@@ -3,7 +3,7 @@ use std assert
 use ../nupm/utils/dirs.nu tmp-dir
 use ../nupm
 
-const TEST_REGISTRY_PATH = ([tests packages registry.nuon] | path join)
+const TEST_REGISTRY_PATH = ([tests packages registry registry.nuon] | path join)
 
 
 def with-test-env [closure: closure]: nothing -> nothing {
@@ -119,7 +119,7 @@ export def install-package-not-found [] {
 
 export def search-registry [] {
     with-test-env {
-        assert ((nupm search spam | get pkgs.0 | length) == 4)
+        assert ((nupm search spam | length) == 4)
     }
 }
 
@@ -146,4 +146,33 @@ export def env-vars-are-set [] {
     assert equal $env.NUPM_TEMP $dirs.DEFAULT_NUPM_TEMP
     assert equal $env.NUPM_CACHE $dirs.DEFAULT_NUPM_CACHE
     assert equal $env.NUPM_REGISTRIES $dirs.DEFAULT_NUPM_REGISTRIES
+}
+
+export def generate-local-registry [] {
+    with-test-env {
+        mkdir ($env.NUPM_TEMP | path join packages registry)
+
+        let reg_file = [tests packages registry registry.nuon] | path join
+        let tmp_reg_file = [
+            $env.NUPM_TEMP packages registry test_registry.nuon
+        ]
+        | path join
+
+        touch $tmp_reg_file
+
+        [spam_script spam_script_old spam_custom spam_module] | each {|pkg|
+            cd ([tests packages $pkg] | path join)
+            nupm publish $tmp_reg_file --local --save --path (".." | path join $pkg)
+        }
+
+        let actual = open $tmp_reg_file | to nuon
+        let expected = open $reg_file | to nuon
+
+        assert equal $actual $expected
+    }
+}
+
+export def registry-files-no-newlines [] {
+    assert (ls tests/packages/registry/*nuon
+        | all { not (open $in.name --raw | str contains (char nl)) })
 }

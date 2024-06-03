@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [nu_plugin_port_scan, "1.0.10", null, git, {url: "https://github.com/FMotalleb/nu_plugin_port_scan", revision: "7424a69"}], [nu_plugin_port_scan, "1.0.11", null, git, {url: "https://github.com/FMotalleb/nu_plugin_port_scan", revision: "d4e6c8d"}]]

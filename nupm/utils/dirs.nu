@@ -12,7 +12,7 @@ export const DEFAULT_NUPM_TEMP = ($nu.temp-path | path join "nupm")
 
 # Default registry
 export const DEFAULT_NUPM_REGISTRIES = {
-    nupm_test: 'https://raw.githubusercontent.com/nushell/nupm/main/registry.nuon'
+    nupm_test: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
 }
 
 # Prompt to create $env.NUPM_HOME if it does not exist and some sanity checks.

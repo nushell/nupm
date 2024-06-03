@@ -3,7 +3,7 @@ use std log
 use utils/completions.nu complete-registries
 use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir ]
 use utils/log.nu throw-error
-use utils/misc.nu check-cols
+use utils/misc.nu [check-cols hash-fn url]
 use utils/package.nu open-package-file
 use utils/registry.nu search-package
 use utils/version.nu filter-by-version
@@ -130,10 +130,9 @@ def download-pkg [
     pkg: record<
         name: string,
         version: string,
-        url: string,
-        revision: string,
         path: string,
         type: string,
+        info: any,
     >
 ]: nothing -> path {
     # TODO: Add some kind of hashing to check that files really match
@@ -149,11 +148,15 @@ def download-pkg [
     mkdir $git_dir
     cd $git_dir
 
-    let repo_name = $pkg.url | url parse | get path | path parse | get stem
-    let url_hash = $pkg.url | hash md5 # in case of git repo name collision
-    let clone_dir = $'($repo_name)-($url_hash)-($pkg.revision)'
+    let repo_name = $pkg.info.url | url stem
+    let url_hash = $pkg.info.url | hash-fn # in case of git repo name collision
+    let clone_dir = $'($repo_name)-($url_hash)-($pkg.info.revision)'
 
-    let pkg_dir = $env.PWD | path join $clone_dir $pkg.path
+    let pkg_dir = if $pkg.path == null {
+        $env.PWD | path join $clone_dir
+    } else {
+        $env.PWD | path join $clone_dir ($pkg.path | path dirname)
+    }
 
     if ($pkg_dir | path exists) {
         print $'Package ($pkg.name) found in cache'
@@ -161,21 +164,21 @@ def download-pkg [
     }
 
     try {
-        git clone $pkg.url $clone_dir
+        git clone $pkg.info.url $clone_dir
     } catch {
-        throw-error $'Error cloning repository ($pkg.url)'
+        throw-error $'Error cloning repository ($pkg.info.url)'
     }
 
     cd $clone_dir
 
     try {
-        git checkout $pkg.revision
+        git checkout $pkg.info.revision
     } catch {
-        throw-error $'Error checking out revision ($pkg.revision)'
+        throw-error $'Error checking out revision ($pkg.info.revision)'
     }
 
     if not ($pkg_dir | path exists) {
-        throw-error $'Path ($pkg.path) does not exist'
+        throw-error $'Path ($pkg_dir) does not exist'
     }
 
     $pkg_dir
@@ -187,10 +190,7 @@ def fetch-package [
     --registry: string  # Which registry to use
     --version: string  # Package version to install (string or null)
 ]: nothing -> path {
-    let regs = (search-package $package
-        --registry $registry
-        --version $version
-        --exact-match)
+    let regs = search-package $package --registry $registry --exact-match
 
     if ($regs | is-empty) {
         throw-error $'Package ($package) not found in any registry'
@@ -216,7 +216,11 @@ def fetch-package [
     } else {
         # local package path is relative to the registry file (absolute paths
         # are discouraged but work)
-        $reg.path | path dirname | path join $pkg.path
+        if $pkg.path == null {
+            $reg.registry_path | path dirname
+        } else {
+            $reg.registry_path | path dirname | path join $pkg.path
+        }
     }
 }
 

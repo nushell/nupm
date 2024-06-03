@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [nu_plugin_explore, "0.1.2", nu_plugin_registry.nuon, git, {url: "https://github.com/amtoine/nu_plugin_explore", revision: "e5518c7f25cec3537bf897a7ef8d1818eb76aa94"}], [nu_plugin_explore, "0.93.0", nu_plugin_registry.nuon, git, {url: "https://github.com/amtoine/nu_plugin_explore", revision: "15d87012538084d73571718af5b5e858de447065"}]]
