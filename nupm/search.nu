@@ -14,13 +14,13 @@ export def main [
     | flatten
     | each {|row|
         {
-            registry_name: $row.registry_name
-            registry_path: $row.registry_path
             name: $row.pkgs.name
             version: $row.pkgs.version
             path: $row.pkgs.path
             type: $row.pkgs.type
             info: $row.pkgs.info
+            registry_name: $row.registry_name
+            registry_path: $row.registry_path
         }
     }
     | filter-by-version $pkg_version
