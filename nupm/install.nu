@@ -238,6 +238,7 @@ export def main [
     --force(-f)  # Overwrite already installed package
     --no-confirm  # Allows to bypass the interactive confirmation, useful for scripting
 ]: nothing -> nothing {
+    use std/log
     if not (nupm-home-prompt --no-confirm=$no_confirm) {
         return
     }
