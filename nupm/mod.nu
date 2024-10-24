@@ -1,3 +1,5 @@
+use std/log
+
 use utils/dirs.nu [
     DEFAULT_NUPM_HOME DEFAULT_NUPM_TEMP DEFAULT_NUPM_CACHE
     DEFAULT_NUPM_REGISTRIES nupm-home-prompt
@@ -26,6 +28,8 @@ export-env {
     # TODO: Add `nupm registry add/remove` to add/remove registry from the env?
     $env.NUPM_REGISTRIES = ($env.NUPM_REGISTRIES?
         | default $DEFAULT_NUPM_REGISTRIES)
+        
+    use std/log []
 }
 
 # Nushell Package Manager
