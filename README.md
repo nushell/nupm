@@ -34,7 +34,7 @@ One can change the location of the Nupm directory with `$env.NUPM_HOME`, e.g.
 $env.NUPM_HOME = ($env.XDG_DATA_HOME | path join "nupm")
 ```
 
-Because Nupm will install modules and scripts in `{{nupm-home}}/modules/` and `{{nupm-home}}/scripts/` respectively, it iis a good idea to add these paths to `$env.NU_LIB_DIRS` and `$env.PATH` respectively, e.g. if you have `$env.NUPM_HOME` defined:
+Because Nupm will install modules and scripts in `{{nupm-home}}/modules/` and `{{nupm-home}}/scripts/` respectively, it is a good idea to add these paths to `$env.NU_LIB_DIRS` and `$env.PATH` respectively, e.g. if you have `$env.NUPM_HOME` defined:
 ```nushell
 # env.nu
 
