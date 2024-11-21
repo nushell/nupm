@@ -8,7 +8,7 @@ use misc.nu [check-cols url hash-file]
 export const REG_COLS = [ name path hash ]
 
 # Columns of a registry package file
-export const REG_PKG_COLS = [ name version path type info ]
+export const REG_PKG_COLS = [ name version path type info dirty ]
 
 # Search for a package in a registry
 export def search-package [
@@ -86,19 +86,17 @@ export def search-package [
 
                 let new_hash = $pkg_file_path | hash-file
 
-                if $new_hash != $row.hash {
-                    throw-error ($'Content of package file ($pkg_file_path)'
-                        + $' does not match expected hash ($row.hash)')
-                }
+                # check package hash
+                let dirty = $new_hash != $row.hash
 
-                open $pkg_file_path
+                open $pkg_file_path | insert dirty $dirty
             }
             | flatten
 
             {
                 registry_name: $name
                 registry_path: $registry.path
-                pkgs: $pkgs
+                pkgs: $pkgs,
             }
         }
         | compact

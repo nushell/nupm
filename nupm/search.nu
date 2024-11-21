@@ -13,15 +13,19 @@ export def main [
     search-package $package --registry $registry --exact-match=$exact_match
     | flatten
     | each {|row|
-        {
-            registry_name: $row.registry_name
-            registry_path: $row.registry_path
-            name: $row.pkgs.name
-            version: $row.pkgs.version
-            path: $row.pkgs.path
-            type: $row.pkgs.type
-            info: $row.pkgs.info
+        if $row.pkgs.dirty {
+            null
+        } else {
+            {
+                registry_name: $row.registry_name
+                registry_path: $row.registry_path
+                name: $row.pkgs.name
+                version: $row.pkgs.version
+                path: $row.pkgs.path
+                type: $row.pkgs.type
+                info: $row.pkgs.info
+            }
         }
     }
-    | filter-by-version $pkg_version
+    | compact | filter-by-version $pkg_version
 }
