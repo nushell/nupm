@@ -10,22 +10,18 @@ export def main [
     --pkg-version(-v): string  # Package version to install
     --exact-match(-e)  # Match package name exactly
 ]: nothing -> table {
-    search-package $package --registry $registry --exact-match=$exact_match
+    search-package $package --registry $registry --exact-match=$exact_match --skip-dirty-pkg
     | flatten
     | each {|row|
-        if $row.pkgs.dirty {
-            null
-        } else {
-            {
-                registry_name: $row.registry_name
-                registry_path: $row.registry_path
-                name: $row.pkgs.name
-                version: $row.pkgs.version
-                path: $row.pkgs.path
-                type: $row.pkgs.type
-                info: $row.pkgs.info
-            }
+        {
+            registry_name: $row.registry_name
+            registry_path: $row.registry_path
+            name: $row.pkgs.name
+            version: $row.pkgs.version
+            path: $row.pkgs.path
+            type: $row.pkgs.type
+            info: $row.pkgs.info
         }
     }
-    | compact | filter-by-version $pkg_version
+    | filter-by-version $pkg_version
 }
