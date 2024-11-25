@@ -1,7 +1,7 @@
 [
     [name, path, hash];
 
-    [spam_custom, spam_custom.nuon, "md5-90c14f51108a3c067d1f1e11f156ca98"],
-    [spam_module, spam_module.nuon, "md5-c14d7a703fb0e587cf19934c5a397619"],
-    [spam_script, spam_script.nuon, "md5-d7724c6282cc7eb878178b79f8617e29"],
+    [spam_custom, spam_custom.nuon, "md5-7b3a5119d1af5a025dae32bcfc7cab96"],
+    [spam_module, spam_module.nuon, "md5-618c7c8ed97b423f111790d97bcd8486"],
+    [spam_script, spam_script.nuon, "md5-ce1b060a68ebb42291e364b5daa6d47a"],
 ]
