@@ -28,7 +28,7 @@ jobs:
 
       - uses: hustcer/setup-nu@v3.10
         with:
-          version: nightly
+          version: "0.100.0"
 
       - name: Show Nushell Version
         run: version
