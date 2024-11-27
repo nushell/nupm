@@ -171,8 +171,3 @@ export def generate-local-registry [] {
         assert equal $actual $expected
     }
 }
-
-export def registry-files-no-newlines [] {
-    assert (ls tests/packages/registry/*nuon
-        | all { not (open $in.name --raw | str contains (char nl)) })
-}

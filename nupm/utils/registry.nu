@@ -2,7 +2,7 @@
 
 use dirs.nu cache-dir
 use log.nu throw-error
-use misc.nu [check-cols url hash-file]
+use misc.nu [check-cols url hash-file hash-fn]
 
 # Columns of a registry file
 export const REG_COLS = [ name path hash ]
@@ -84,7 +84,7 @@ export def search-package [
                     http get $url | save --force $pkg_file_path
                 }
 
-                let new_hash = $pkg_file_path | hash-file
+                let new_hash = open $pkg_file_path | to nuon | hash-fn
 
                 if $new_hash != $row.hash {
                     throw-error ($'Content of package file ($pkg_file_path)'
