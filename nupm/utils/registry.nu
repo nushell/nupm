@@ -8,14 +8,13 @@ use misc.nu [check-cols url hash-file]
 export const REG_COLS = [ name path hash ]
 
 # Columns of a registry package file
-export const REG_PKG_COLS = [ name version path type info ]
+export const REG_PKG_COLS = [ name version path type info hash_mismatch ]
 
 # Search for a package in a registry
 export def search-package [
     package: string  # Name of the package
     --registry: string  # Which registry to use (name or path)
     --exact-match  # Searched package name must match exactly
-    --skip-dirty-pkg # Skip packages with failed hash checks
 ] -> table {
     let registries = if (not ($registry | is-empty)) and ($registry in $env.NUPM_REGISTRIES) {
         # If $registry is a valid column in $env.NUPM_REGISTRIES, use that
@@ -87,17 +86,7 @@ export def search-package [
 
                 let new_hash = $pkg_file_path | hash-file
 
-                let dirty = $new_hash != $row.hash
-                if $new_hash != $row.hash {
-                    if $skip_dirty_pkg {
-                        null
-                    } else {
-                        throw-error ($'Content of package file `($url_or_path)'
-                            + $' does not match expected hash `($row.hash)`.')
-                    }
-                } else {
-                    open $pkg_file_path | insert dirty $dirty
-                }
+                open $pkg_file_path | insert hash_mismatch ($new_hash != $row.hash)
             }
             | compact
             | flatten
