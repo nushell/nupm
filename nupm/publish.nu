@@ -176,7 +176,7 @@ export def main [
     }
 }
 
-def guess-url [] -> string {
+def guess-url []: nothing -> string {
     mut url = (do -i { ^git remote get-url origin | complete } | get stdout)
 
     if ($url | is-empty) {
@@ -191,7 +191,7 @@ def guess-url [] -> string {
     $url | str trim
 }
 
-def guess-revision [] -> string {
+def guess-revision []: nothing -> string {
     mut revision = (do -i { ^git describe --tags --abbrev=0 | complete }
         | get stdout)
 
