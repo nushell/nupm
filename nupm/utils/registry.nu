@@ -15,7 +15,7 @@ export def search-package [
     package: string  # Name of the package
     --registry: string  # Which registry to use (name or path)
     --exact-match  # Searched package name must match exactly
-] -> table {
+]: nothing -> table {
     let registries = if (not ($registry | is-empty)) and ($registry in $env.NUPM_REGISTRIES) {
         # If $registry is a valid column in $env.NUPM_REGISTRIES, use that
         { $registry : ($env.NUPM_REGISTRIES | get $registry) }
