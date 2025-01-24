@@ -12,7 +12,7 @@
 - `supported-os`: Operating systems supported by the package, the most broad possibility: `{"arch": ["*"], "family": ["*"], "name": ["*"]}`. Matched by `$nu.os-info`
 - `url`: Package website/GitHub repository. Basically a place where one can find some additional info about the package
 
-## Optional attribtues
+## Optional attributes
 - `dependencies`: Packages needed by the package — versions have to be specified. e.g. `[nupm/0.7.0]`. Semantic versioning is also supported: `[nupm/~0.7]`
 - `installer`: Name of a script (relative to the package scope) that will install the package instead (or in addition to) of default `nupm` logic
 - `keywords`: List of keywords used by `nupm search` in addition to `name`

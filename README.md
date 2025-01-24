@@ -3,8 +3,12 @@
 ## Table of content
 - [*installation*](#recycle-installation-toc)
 - [*configuration*](#gear-configuration-toc)
+- [*usage*](#rocket-usage-toc)
+  - [*install a package*](#install-a-package-toc)
+  - [*update a package*](#update-a-package-toc)
+  - [*define a package*](#define-a-package-toc)
 - [*running a test suite*](#test_tube-running-a-test-suite-toc)
-    - [*run the tests*](#run-the-tests-of-Nupm-toc)
+  - [*run the tests*](#run-the-tests-of-Nupm-toc)
 - [*design*](#memo-design-of-nupm-toc)
 
 :warning: **This project is in an experimentation stage and not intended for serious use!** :warning:
@@ -20,10 +24,10 @@
 Both of the above commands will make `nupm` and all its subcommands available in your current scope. `overlay use` will allow you to `overlay hide` the `nupm` overlay when you don't need it.
 
 > **Note**
-> `nupm` is able to install itself: from inside the root of your local copy of `nupm`, run
+> `nupm` is able to install itself: from outside the root of your local copy of `nupm`, run
 > ```nushell
-> use nupm/
-> nupm install --force --path .
+> use nupm/nupm
+> nupm install nupm --force --path
 > ```
 
 ## :gear: configuration [[toc](#table-of-content)]
@@ -50,6 +54,46 @@ $env.PATH = (
         | prepend ($env.NUPM_HOME | path join "scripts")
         | uniq
 )
+```
+
+## :rocket: usage [[toc](#table-of-content)]
+
+The following uses a fictional `foo` package for examples.
+
+### install a package [[toc](#table-of-content)]
+
+```nushell
+git clone https://github.com/nushell/foo.git
+nupm install foo --path
+```
+
+### update a package [[toc](#table-of-content)]
+
+Assuming the repository is already cloned, you can update the package with the following:
+
+```nushell
+do { cd foo; git pull }
+nupm install foo --force --path
+```
+
+### define a package [[toc](#table-of-content)]
+
+In order to use a package with Nupm, a directory should be structured similar to the following `foo` module:
+
+- `foo/`
+    - `mod.nu`
+    - (other scripts and modules)
+- `nupm.nuon`
+
+The `nupm.nuon` file is a metadata file that describes the package. It should contain the following fields:
+
+```nushell
+{
+    name: "foo"
+    description: "A package that demonstrates use of Nupm"
+    type: "module"
+    license: "MIT"
+}
 ```
 
 ## :test_tube: running a test suite [[toc](#table-of-content)]
