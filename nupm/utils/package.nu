@@ -27,13 +27,15 @@ export def open-package-file [dir: path] {
         )
     }
 
+    # TODO: Verify types of each field
+
     $package
 }
 
 # Lists files of a package
 #
 # This will be useful for file integrity checks
-export def list-package-files [pkg_dir: path, pkg: record] -> list<path> {
+export def list-package-files [pkg_dir: path, pkg: record]: nothing -> list<path> {
     let activation = match $pkg.type {
         'module' => $'use ($pkg.name)'
         'script' => {
@@ -60,9 +62,9 @@ export def list-package-files [pkg_dir: path, pkg: record] -> list<path> {
         }
     }
 
-    $files ++= ($pkg.scripts?
+    $files ++= [($pkg.scripts?
         | default []
-        | each {|script| $pkg_dir | path join $script})
+        | each {|script| $pkg_dir | path join $script})]
 
     $files
 }

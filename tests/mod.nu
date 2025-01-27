@@ -128,7 +128,7 @@ export def nupm-status-module [] {
         let files = (nupm status tests/packages/spam_module).files
         assert ($files.0 ends-with (
             [tests packages spam_module spam_module mod.nu] | path join))
-        assert ($files.1 ends-with (
+        assert ($files.1.0 ends-with (
             [tests packages spam_module script.nu] | path join))
     }
 }
@@ -170,9 +170,4 @@ export def generate-local-registry [] {
 
         assert equal $actual $expected
     }
-}
-
-export def registry-files-no-newlines [] {
-    assert (ls tests/packages/registry/*nuon
-        | all { not (open $in.name --raw | str contains (char nl)) })
 }

@@ -2,7 +2,7 @@
 
 use dirs.nu cache-dir
 use log.nu throw-error
-use misc.nu [check-cols url hash-file]
+use misc.nu [check-cols url hash-file hash-fn]
 
 # Columns of a registry file
 export const REG_COLS = [ name path hash ]
@@ -15,7 +15,7 @@ export def search-package [
     package: string  # Name of the package
     --registry: string  # Which registry to use (name or path)
     --exact-match  # Searched package name must match exactly
-] -> table {
+]: nothing -> table {
     let registries = if (not ($registry | is-empty)) and ($registry in $env.NUPM_REGISTRIES) {
         # If $registry is a valid column in $env.NUPM_REGISTRIES, use that
         { $registry : ($env.NUPM_REGISTRIES | get $registry) }
@@ -84,7 +84,7 @@ export def search-package [
                     http get $url | save --force $pkg_file_path
                 }
 
-                let new_hash = $pkg_file_path | hash-file
+                let new_hash = open $pkg_file_path | to nuon | hash-fn
 
                 open $pkg_file_path | insert hash_mismatch ($new_hash != $row.hash)
             }
