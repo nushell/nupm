@@ -13,7 +13,7 @@ def install-scripts [
     pkg_dir: path        # Package directory
     scripts_dir: path    # Target directory where to install
     --force(-f)          # Overwrite already installed scripts
-]: list<path> -> nothing {
+]: [list<path> -> nothing] {
     each {|script|
         let src_path = $pkg_dir | path join $script
 

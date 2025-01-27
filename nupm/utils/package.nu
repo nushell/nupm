@@ -27,6 +27,8 @@ export def open-package-file [dir: path] {
         )
     }
 
+    # TODO: Verify types of each field
+
     $package
 }
 
@@ -60,9 +62,9 @@ export def list-package-files [pkg_dir: path, pkg: record]: nothing -> list<path
         }
     }
 
-    $files ++= ($pkg.scripts?
+    $files ++= [($pkg.scripts?
         | default []
-        | each {|script| $pkg_dir | path join $script})
+        | each {|script| $pkg_dir | path join $script})]
 
     $files
 }
