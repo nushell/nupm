@@ -2,5 +2,5 @@
     name: spam_module,
     type: module,
     version: "0.1.0"
-    scripts: script.nu
+    scripts: [script.nu]
 }
