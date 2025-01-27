@@ -58,7 +58,9 @@ $env.PATH = (
 
 ## :rocket: usage [[toc](#table-of-content)]
 
-The following uses a fictional `foo` package for examples.
+Nupm can install different types of packages, such as modules and scripts. It also provides a mechanism for a custom installation using a `build.nu` file.
+
+As an illustrative example, the following demonstrates use of a fictional `foo` module-based package.
 
 ### install a package [[toc](#table-of-content)]
 
@@ -69,16 +71,17 @@ nupm install foo --path
 
 ### update a package [[toc](#table-of-content)]
 
-Assuming the repository is already cloned, you can update the package with the following:
+Assuming the repository is already cloned, you can update the module package with the following:
 
 ```nushell
 do { cd foo; git pull }
 nupm install foo --force --path
 ```
+This usage will likely change once a dedicated `nupm update` command is added.
 
 ### define a package [[toc](#table-of-content)]
 
-In order to use a package with Nupm, a directory should be structured similar to the following `foo` module:
+In order to use a module-based package with Nupm, a directory should be structured similar to the following `foo` module:
 
 - `foo/`
     - `mod.nu`
@@ -95,6 +98,8 @@ The `nupm.nuon` file is a metadata file that describes the package. It should co
     license: "MIT"
 }
 ```
+
+Nupm also supports other types of packages. See [Project Structure](https://github.com/nushell/nupm/blob/main/docs/design/README.md#project-structure-toc) for more details.
 
 ## :test_tube: running a test suite [[toc](#table-of-content)]
 as it is done in Nupm, one can define tests in a project and run them with the `nupm test` command:
