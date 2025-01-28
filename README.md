@@ -3,8 +3,12 @@
 ## Table of content
 - [*installation*](#recycle-installation-toc)
 - [*configuration*](#gear-configuration-toc)
+- [*usage*](#rocket-usage-toc)
+  - [*install a package*](#install-a-package-toc)
+  - [*update a package*](#update-a-package-toc)
+  - [*define a package*](#define-a-package-toc)
 - [*running a test suite*](#test_tube-running-a-test-suite-toc)
-    - [*run the tests*](#run-the-tests-of-Nupm-toc)
+  - [*run the tests*](#run-the-tests-of-Nupm-toc)
 - [*design*](#memo-design-of-nupm-toc)
 
 :warning: **This project is in an experimentation stage and not intended for serious use!** :warning:
@@ -20,10 +24,10 @@
 Both of the above commands will make `nupm` and all its subcommands available in your current scope. `overlay use` will allow you to `overlay hide` the `nupm` overlay when you don't need it.
 
 > **Note**
-> `nupm` is able to install itself: from inside the root of your local copy of `nupm`, run
+> `nupm` is able to install itself: from outside the root of your local copy of `nupm`, run
 > ```nushell
-> use nupm/
-> nupm install --force --path .
+> use nupm/nupm
+> nupm install nupm --force --path
 > ```
 
 ## :gear: configuration [[toc](#table-of-content)]
@@ -51,6 +55,51 @@ $env.PATH = (
         | uniq
 )
 ```
+
+## :rocket: usage [[toc](#table-of-content)]
+
+Nupm can install different types of packages, such as modules and scripts. It also provides a mechanism for a custom installation using a `build.nu` file.
+
+As an illustrative example, the following demonstrates use of a fictional `foo` module-based package.
+
+### install a package [[toc](#table-of-content)]
+
+```nushell
+git clone https://github.com/nushell/foo.git
+nupm install foo --path
+```
+
+### update a package [[toc](#table-of-content)]
+
+Assuming the repository is already cloned, you can update the module package with the following:
+
+```nushell
+do { cd foo; git pull }
+nupm install foo --force --path
+```
+This usage will likely change once a dedicated `nupm update` command is added.
+
+### define a package [[toc](#table-of-content)]
+
+In order to use a module-based package with Nupm, a directory should be structured similar to the following `foo` module:
+
+- `foo/`
+    - `mod.nu`
+    - (other scripts and modules)
+- `nupm.nuon`
+
+The `nupm.nuon` file is a metadata file that describes the package. It should contain the following fields:
+
+```nushell
+{
+    name: "foo"
+    description: "A package that demonstrates use of Nupm"
+    type: "module"
+    license: "MIT"
+}
+```
+
+Nupm also supports other types of packages. See [Project Structure](https://github.com/nushell/nupm/blob/main/docs/design/README.md#project-structure-toc) for more details.
 
 ## :test_tube: running a test suite [[toc](#table-of-content)]
 as it is done in Nupm, one can define tests in a project and run them with the `nupm test` command:
