@@ -8,7 +8,7 @@ use misc.nu [check-cols url hash-file hash-fn]
 export const REG_COLS = [ name path hash ]
 
 # Columns of a registry package file
-export const REG_PKG_COLS = [ name version path type info hash_mismatch ]
+export const REG_PKG_COLS = [ name version path type info ]
 
 # Search for a package in a registry
 export def search-package [
