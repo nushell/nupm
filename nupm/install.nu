@@ -207,9 +207,9 @@ def fetch-package [
         throw-error $'No package matching version `($version)`'
     }
 
-    if $pkg.hash_mismatch != true {
+    if $pkg.hash_mismatch == true {
       throw-error ($'Content of package file ($pkg.path)'
-                        + $' does not match expected hash') 
+                        + $' does not match expected hash')
     }
 
     print $pkg
