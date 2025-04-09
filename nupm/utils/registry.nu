@@ -86,19 +86,15 @@ export def search-package [
 
                 let new_hash = open $pkg_file_path | to nuon | hash-fn
 
-                if $new_hash != $row.hash {
-                    throw-error ($'Content of package file ($pkg_file_path)'
-                        + $' does not match expected hash ($row.hash)')
-                }
-
-                open $pkg_file_path
+                open $pkg_file_path | insert hash_mismatch ($new_hash != $row.hash)
             }
+            | compact
             | flatten
 
             {
                 registry_name: $name
                 registry_path: $registry.path
-                pkgs: $pkgs
+                pkgs: $pkgs,
             }
         }
         | compact

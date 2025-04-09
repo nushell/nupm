@@ -10,7 +10,7 @@ export def main [
     --pkg-version(-v): string  # Package version to install
     --exact-match(-e)  # Match package name exactly
 ]: nothing -> table {
-    search-package $package --registry $registry --exact-match=$exact_match
+    let result = search-package $package --registry $registry --exact-match=$exact_match
     | flatten
     | each {|row|
         {
@@ -24,4 +24,6 @@ export def main [
         }
     }
     | filter-by-version $pkg_version
+
+    return $result
 }
