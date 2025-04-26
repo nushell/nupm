@@ -21,6 +21,7 @@
 `nupm` is a module. Download the repository and treat the [`nupm`](https://github.com/nushell/nupm/tree/main/nupm`) directory as a module. For example:
 * `use nupm/`
 * `overlay use nupm/ --prefix`
+
 Both of the above commands will make `nupm` and all its subcommands available in your current scope. `overlay use` will allow you to `overlay hide` the `nupm` overlay when you don't need it.
 
 > **Note**
