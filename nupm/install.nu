@@ -222,7 +222,7 @@ def fetch-package [
         if $pkg.path == null {
             $reg.registry_path | path dirname
         } else {
-            $reg.registry_path | path dirname | path join $pkg.path
+            $reg.registry_path | path dirname | path join (if $pkg.path == "./" { "" } else { $pkg.path })
         }
     }
 }
