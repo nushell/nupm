@@ -1,1 +1,1 @@
-[[name, version, path, type, info]; [nupm, "0.1.0", null, git, {url: "https://github.com/nushell/nupm", revision: "29916fc"}], [nupm, "0.2.1", "./", git, {url: "git@github.com:Rydwxz/nupm.git", revision: "35f1c7da372f9fd0706c469a04febf9c1fe64a93"}]]
+[[name, version, path, type, info]; [nupm, "0.1.0", null, git, {url: "https://github.com/nushell/nupm", revision: "29916fc"}]]

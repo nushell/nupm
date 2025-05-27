@@ -176,6 +176,9 @@ export def main [
     }
 }
 
+# if git repo of package is managed via ssh, i.e. you can actually push to it,
+# this gives "git@github.com:{user}/{repo}.git"
+# but download-pkg cannot accept that format
 def guess-url []: nothing -> string {
     mut url = (do -i { ^git remote get-url origin | complete } | get stdout)
 
@@ -186,6 +189,17 @@ def guess-url []: nothing -> string {
             $url = (do -i { ^git remote get-url $first_remote | complete }
                 | get stdout)
         }
+    }
+
+    let url = if ($url | str contains "git@github") {
+        print $url
+        # why tf won't this parse succeed?!?!?
+        let parsed = $url | parse "git@github.com:{user}/{repo}.git"
+        print $parsed
+        # $'https://github.com/($parsed.user.0)/($parsed.repo.0)'
+        $url
+     } else {
+        $url
     }
 
     $url | str trim
