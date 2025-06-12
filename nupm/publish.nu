@@ -109,7 +109,7 @@ export def main [
         }
     }
 
-    let path = if $path != null { $path | str replace --all '\' '/' }
+    let path = if $path != null { $path | str replace --all '\' '/' } else { "." }
 
     let pkg_entry = {
         name: $pkg.name
@@ -186,6 +186,13 @@ def guess-url []: nothing -> string {
             $url = (do -i { ^git remote get-url $first_remote | complete }
                 | get stdout)
         }
+    }
+
+    let url = if ($url | str contains "git@github") {
+        let parsed = $url | str trim | parse "git@github.com:{user}/{repo}.git"
+        $'https://github.com/($parsed.user.0)/($parsed.repo.0)'
+     } else {
+        $url
     }
 
     $url | str trim

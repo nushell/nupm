@@ -49,6 +49,7 @@ export def search-package [
                 try {
                     let reg = http get $url_or_path
 
+                    # why didn't this line create the cache?
                     let reg_file = cache-dir --ensure
                         | path join registry $'($name).nuon'
 
