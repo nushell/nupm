@@ -68,7 +68,7 @@ export def search-package [
             $registry.reg | check-cols "registry" $REG_COLS | ignore
 
             # Find all packages matching $package in the registry
-            let pkg_files = $registry.reg | filter $name_matcher
+            let pkg_files = $registry.reg | where $name_matcher
 
             let pkgs = $pkg_files | each {|row|
                 let pkg_file_path = $registry.path
