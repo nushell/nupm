@@ -1,4 +1,4 @@
-# Registry management for nupm
+init-indexinit-indexinit-indexinit-indexinit-indexinit-index# Registry management for nupm
 
 use utils/dirs.nu [nupm-home-prompt]
 use utils/log.nu throw-error
@@ -12,14 +12,14 @@ export def main []: nothing -> table {
 # List all configured registries
 @example "List all registries with details" { nupm registry list }
 export def list []: nothing -> table {
-    let registry_list_path = $env.NUPM_HOME | path join "registry_list.nuon"
-    
-    if not ($registry_list_path | path exists) {
+    let registry_idx_path = $env.NUPM_HOME | path join "registry_idx.nuon"
+
+    if not ($registry_idx_path | path exists) {
         init
     }
-    
-    let registries = open $registry_list_path
-    
+
+    let registries = open $registry_idx_path
+
     $registries | select name url enabled | sort-by name
 }
 
@@ -31,29 +31,38 @@ export def add [
     url: string,        # URL or path to the registry
     --enabled=true      # Whether the registry should be enabled
 ]: nothing -> nothing {
-    let registry_list_path = $env.NUPM_HOME | path join "registry_list.nuon"
-    
-    if not ($registry_list_path | path exists) {
+    let registry_idx_path = $env.NUPM_HOME | path join "registry_idx.nuon"
+
+    if not ($registry_idx_path | path exists) {
         init
     }
-    
-    mut registries = open $registry_list_path
-    
+
+    mut registries = open $registry_idx_path
+
     # Check if registry already exists
     if ($registries | where name == $name | length) > 0 {
         throw-error $"Registry '($name)' already exists. Use 'nupm registry update' to modify it."
     }
-    
+
     # Add new registry
     $registries = ($registries | append {
         name: $name,
         url: $url,
         enabled: $enabled
     })
-    
-    $registries | save --force $registry_list_path
-    
+
+    $registries | save --force $registry_idx_path
+
     print $"Registry '($name)' added successfully."
+}
+
+# returns registry_idx path
+def get_index [] {
+  # TODO
+    let idx_path = $env.NUPM_HOME | path join "registry_idx.nuon"
+    if not ($idx_path | path exists) {
+        throw-error "No registry list found. Run 'nupm registry init' first."
+    }
 }
 
 # Remove a registry
@@ -61,23 +70,23 @@ export def add [
 export def remove [
     name: string        # Name of the registry to remove
 ]: nothing -> nothing {
-    let registry_list_path = $env.NUPM_HOME | path join "registry_list.nuon"
-    
-    if not ($registry_list_path | path exists) {
+    let registry_idx_path = $env.NUPM_HOME | path join "registry_idx.nuon"
+
+    if not ($registry_idx_path | path exists) {
         throw-error "No registry list found. Run 'nupm registry init' first."
     }
-    
-    let registries = open $registry_list_path
-    
+
+    let registries = open $registry_idx_path
+
     # Check if registry exists
     if ($registries | where name == $name | length) == 0 {
         throw-error $"Registry '($name)' not found."
     }
-    
+
     # Remove registry
     let updated_registries = $registries | where name != $name
-    $updated_registries | save --force $registry_list_path
-    
+    $updated_registries | save --force $registry_idx_path
+
     print $"Registry '($name)' removed successfully."
 }
 
@@ -91,19 +100,19 @@ export def update [
     --enable,           # Enable the registry
     --disable           # Disable the registry
 ]: nothing -> nothing {
-    let registry_list_path = $env.NUPM_HOME | path join "registry_list.nuon"
-    
-    if not ($registry_list_path | path exists) {
+    let registry_idx_path = $env.NUPM_HOME | path join "registry_idx.nuon"
+
+    if not ($registry_idx_path | path exists) {
         throw-error "No registry list found. Run 'nupm registry init' first."
     }
-    
-    mut registries = open $registry_list_path
-    
+
+    mut registries = open $registry_idx_path
+
     # Check if registry exists
     if ($registries | where name == $name | length) == 0 {
         throw-error $"Registry '($name)' not found."
     }
-    
+
     # Update registry
     $registries = ($registries | each {|reg|
         if $reg.name == $name {
@@ -115,7 +124,7 @@ export def update [
             } else {
                 $reg.enabled
             }
-            
+
             {
                 name: $reg.name,
                 url: $updated_url,
@@ -125,26 +134,29 @@ export def update [
             $reg
         }
     })
-    
-    $registries | save --force $registry_list_path
-    
+
+    $registries | save --force $registry_idx_path
+
     print $"Registry '($name)' updated successfully."
 }
 
-# Initialize registry_list.nuon with default registries
-@example "Initialize registry list" { nupm registry init }
-export def init []: nothing -> nothing {
+# Initialize registry_idx.nuon with default registries
+@example "Initialize registry list" { nupm registry init-index }
+export def init-index [
+
+    registry?: record<name: string, url: string, enabled: bool>
+]: nothing -> nothing {
     if not (nupm-home-prompt) {
         throw-error "Cannot create NUPM_HOME directory."
     }
-    
-    let registry_list_path = $env.NUPM_HOME | path join "registry_list.nuon"
-    
-    if ($registry_list_path | path exists) {
-        print $"Registry list already exists at ($registry_list_path)"
+
+    let registry_idx_path = $env.NUPM_HOME | path join "registry_idx.nuon"
+
+    if ($registry_idx_path | path exists) {
+        print $"Registry list already exists at ($registry_idx_path)"
         return
     }
-    
+
     # Initialize with the default nupm registry
     let default_registries = [
         {
@@ -153,10 +165,10 @@ export def init []: nothing -> nothing {
             enabled: true
         }
     ]
-    
-    $default_registries | save $registry_list_path
-    
-    print $"Registry list initialized at ($registry_list_path)"
+
+    $default_registries | save $registry_idx_path
+
+    print $"Registry list initialized at ($registry_idx_path)"
 }
 
 # Show detailed information about a specific registry
@@ -164,18 +176,18 @@ export def init []: nothing -> nothing {
 export def info [
     name: string        # Name of the registry
 ]: nothing -> table {
-    let registry_list_path = $env.NUPM_HOME | path join "registry_list.nuon"
-    
-    if not ($registry_list_path | path exists) {
+    let registry_idx_path = $env.NUPM_HOME | path join "registry_idx.nuon"
+
+    if not ($registry_idx_path | path exists) {
         throw-error "No registry list found. Run 'nupm registry init' first."
     }
-    
-    let registries = open $registry_list_path
+
+    let registries = open $registry_idx_path
     let registry = $registries | where name == $name
-    
+
     if ($registry | length) == 0 {
         throw-error $"Registry '($name)' not found."
     }
-    
+
     $registry | first
 }
