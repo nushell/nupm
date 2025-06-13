@@ -9,7 +9,16 @@ use utils/version.nu sort-by-version
 # Publishes the package in the current working directory to a registry.
 # The package must have a nupm.nuon metadata file.
 #
-# By default, changes are only previewed. To apply them, use the --save flag.
+# By default, changes are only previewed. To apply them, use the `--save` flag.
+# Needs to run from package root, i.e., where nupm.nuon is.
+#
+# The `--path` flag defines the `path` field of the registry package file. Its
+# meaning depends on the package type:
+# * git packages   : Path to the package relative to git repo root
+# * local packages : Path to the package relative to registry file
+#
+# NOTE: `\` inside the `path` field are  replaced with `/` to avoid
+# conflicts between Windows and non-Windows platforms.
 @example "Publish with additional package info" {
   nupm publish my-registry.nuon --git --info {url: "https://github.com/user/repo", revision: "main"}
 }

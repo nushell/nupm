@@ -18,7 +18,6 @@ use utils/version.nu filter-by-version
 @example "Search for specific version" {
   nupm search my-package --pkg-version 1.2.0
 }
-@category "nupm subcommand"
 export def main [
     package  # Name, path, or link to the package
     --registry: string@complete-registries  # Which registry to use (either a name
