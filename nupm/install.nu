@@ -233,7 +233,7 @@ def fetch-package [
 # 1. Fetching the package (if the package is online)
 # 2. Installing the package (build action, if any; copy files to install location)
 export def main [
-    package # Name, path, or link to the package
+    package  # Name, path, or link to the package
     --registry: string@complete-registries  # Which registry to use (either a name
                                             # in $env.NUPM_REGISTRIES or a path)
     --pkg-version(-v): string  # Package version to install
