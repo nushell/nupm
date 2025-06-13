@@ -6,17 +6,28 @@ use utils/version.nu sort-by-version
 
 # Publish package to registry
 #
-# The package being published is determined by the current working directory.
+# Publishes the package in the current working directory to a registry.
+# The package must have a nupm.nuon metadata file.
 #
-# By default, changes are only previewed. To apply them, use the --save flag.
+# By default, changes are only previewed. To apply them, use the `--save` flag.
 # Needs to run from package root, i.e., where nupm.nuon is.
 #
-# The --path flag defines the `path` field of the registry package file. Its
+# The `--path` flag defines the `path` field of the registry package file. Its
 # meaning depends on the package type:
 # * git packages   : Path to the package relative to git repo root
 # * local packages : Path to the package relative to registry file
-# Furthermore, `\` inside the `path` field are  replaced with `/` to avoid
+#
+# NOTE: `\` inside the `path` field are  replaced with `/` to avoid
 # conflicts between Windows and non-Windows platforms.
+@example "Publish with additional package info" {
+  nupm publish my-registry.nuon --git --info {url: "https://github.com/user/repo", revision: "main"}
+}
+@example "Publish git package with custom path" {
+  nupm publish my-registry.nuon --git --path packages/my-package
+}
+@example "Publish and save to local registry" {
+  nupm publish my-registry.nuon --local --save
+}
 export def main [
     registry: string  # Registry file to publish to (local file or name pointing
                       # at a local registry)
@@ -53,7 +64,7 @@ export def main [
             | sort-by-version
 
         if ($res | is-empty) {
-            throw-error ($"Cannot guess package type because pacakge"
+            throw-error ($"Cannot guess package type because package"
                 + $" ($pkg.name) was not found in registry ($registry). Specify"
                 + " the type manually with --git or --local flag.")
         }

@@ -28,13 +28,28 @@ export-env {
     # TODO: Add `nupm registry add/remove` to add/remove registry from the env?
     $env.NUPM_REGISTRIES = ($env.NUPM_REGISTRIES?
         | default $DEFAULT_NUPM_REGISTRIES)
-        
+
     use std/log []
 }
 
 # Nushell Package Manager
-export def main []: nothing -> nothing {
+#
+# nupm is a package manager for Nushell that allows you to install, manage, and publish
+# Nushell packages including modules, scripts, and custom packages.
+#
+# Configuration:
+#   Set `NUPM_HOME` environment variable to change installation directory
+#   Set `NUPM_REGISTRIES` to configure package registries
+@example "Install a package from a local directory" { nupm install my-package --path }
+@example "Publish a package" { nupm publish my-registry.nuon --local --save }
+@example "Search for specific version" { nupm search my-package --pkg-version 1.2.0 }
+@example "Check status of specific package directory" { nupm status ./my-package }
+@example "Run tests" { nupm test }
+export def main [subcommand?]: nothing -> nothing {
     nupm-home-prompt --no-confirm=false
+
+    let subcommands = help modules | where name == nupm | get submodules.0.name
+    print $"(ansi green)Usage(ansi reset): nupm \(($subcommands | str join '|'))"
 
     print 'enjoy nupm!'
 }

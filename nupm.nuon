@@ -1,7 +1,7 @@
-{
-    name: nupm
-    type: module
-    version: "0.2.0"
-    description: "Nushell package manager"
-    license: "LICENSE"
+
+    name: nupm,
+    type: module,
+    version: "0.2.0",
+    description: "Nushell package manager",
+    license: "LICENSE",
 }

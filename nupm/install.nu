@@ -153,7 +153,7 @@ def download-pkg [
     let pkg_dir = if $pkg.path == null {
         $env.PWD | path join $clone_dir
     } else {
-        $env.PWD | path join $clone_dir ($pkg.path | path dirname)
+        $env.PWD | path join $clone_dir $pkg.path
     }
 
     if ($pkg_dir | path exists) {
