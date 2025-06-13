@@ -7,6 +7,7 @@ use utils/dirs.nu [
 
 export module install.nu
 export module publish.nu
+export module registry.nu
 export module search.nu
 export module status.nu
 export module test.nu
