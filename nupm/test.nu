@@ -1,7 +1,23 @@
 use utils/dirs.nu [ tmp-dir find-root ]
 use utils/log.nu throw-error
 
-# Experimental test runner
+# Run tests for a nupm package
+#
+# Discovers and runs all exported test functions from the tests/ directory.
+# Tests are Nushell functions that should throw errors on failure.
+# The test runner provides isolated environments and reports results.
+@example "Run all tests in current package" {
+  nupm test
+}
+@example "Run tests matching a filter" {
+  nupm test install
+}
+@example "Run tests from specific directory" {
+  nupm test --dir ./my-package
+}
+@example "Show test output for debugging" {
+  nupm test --show-stdout
+}
 export def main [
     filter?: string  = ''  # Run only tests containing this substring
     --dir: path  # Directory where to run tests (default: $env.PWD)
