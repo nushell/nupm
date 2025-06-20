@@ -12,7 +12,7 @@ export def filter-by-version [version: any]: table<version: string> -> table<ver
     if $version == null {
         $in
     } else {
-        $in | filter {|row| $row.version | matches-version $version}
+        $in | where {|row| $row.version | matches-version $version}
     }
     | sort-by-version
 }
