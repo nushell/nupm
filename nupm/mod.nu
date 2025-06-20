@@ -7,6 +7,7 @@ use utils/dirs.nu [
 
 export module install.nu
 export module publish.nu
+export module registry.nu
 export module search.nu
 export module status.nu
 export module test.nu
@@ -22,10 +23,6 @@ export-env {
     # Ensure install cache is set
     $env.NUPM_CACHE = ($env.NUPM_CACHE? | default $DEFAULT_NUPM_CACHE)
 
-    # TODO: Maybe this is not the best way to set registries, but should be
-    #       good enough for now.
-    # TODO: Add `nupm registry` for showing info about registries
-    # TODO: Add `nupm registry add/remove` to add/remove registry from the env?
     $env.NUPM_REGISTRIES = ($env.NUPM_REGISTRIES?
         | default $DEFAULT_NUPM_REGISTRIES)
 
