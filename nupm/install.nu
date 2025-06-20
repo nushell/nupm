@@ -153,7 +153,7 @@ def download-pkg [
     let pkg_dir = if $pkg.path == null {
         $env.PWD | path join $clone_dir
     } else {
-        $env.PWD | path join $clone_dir ($pkg.path | path dirname)
+        $env.PWD | path join $clone_dir $pkg.path
     }
 
     if ($pkg_dir | path exists) {
@@ -222,7 +222,7 @@ def fetch-package [
         if $pkg.path == null {
             $reg.registry_path | path dirname
         } else {
-            $reg.registry_path | path dirname | path join $pkg.path
+            $reg.registry_path | path dirname | path join (if $pkg.path == "." { "" } else { $pkg.path })
         }
     }
 }
