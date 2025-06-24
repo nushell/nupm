@@ -13,7 +13,7 @@ This file collects design ideas and directions. The intention is iterate on this
 # Table of content
 - [Project Structure](#project-structure-toc)
 - [Separate virtual environments](#separate-virtual-environments-toc)
-- [Installation, bootstraping](#installation-bootstraping-toc)
+- [Installation, bootstrapping](#installation-bootstrapping-toc)
 - [Dependency handling](#dependency-handling-toc)
 - [Package repository](#package-repository-toc)
 - [API / CLI Interface](#api--cli-interface-toc)
@@ -73,9 +73,9 @@ The overlays could be used to achieve all three goals at the same time. When ins
 * This file can be installed into a global location that's in your `NU_LIB_DIRS` (e.g., `nupm.home/overlays`) -- now you have a global Python-like virtual environment
   * Each overlay under `nupm.home/overlays` will mimic the main nupm.home structure, e.g., for an overlay `spam` there will be `nupm.home/overlays/spam/bin`, `nupm.home/overlays/spam/modules` (`nupm.home/overlays/spam/overlays`? It might not be the best idea to have it recursive)
 
-Each package would basically have its own overlay. This overlay file (it's just a module) could be used to also handle dependencies. If your project depends on `foo` and `bar` which both depend on `spam` but different versions, they could both import the different verions privately in their own overlay files and in your project's overlay file would be just `export use path/to/foo` and `export use path/to/bar`. This should prevent name clashing of `spam`. The only problem that needs to be figured out is how to tell `foo` to be aware of its overlay.
+Each package would basically have its own overlay. This overlay file (it's just a module) could be used to also handle dependencies. If your project depends on `foo` and `bar` which both depend on `spam` but different versions, they could both import the different versions privately in their own overlay files and in your project's overlay file would be just `export use path/to/foo` and `export use path/to/bar`. This should prevent name clashing of `spam`. The only problem that needs to be figured out is how to tell `foo` to be aware of its overlay.
 
-## Installation, bootstraping [[toc](#table-of-content)]
+## Installation, bootstrapping [[toc](#table-of-content)]
 
 Requires these actions from the user (this should be kept as minimal as possible):
 * Add `nupm.home/bin` to PATH (install location for binary projects)
@@ -178,7 +178,7 @@ The following are for Python-style global overlays, we might need to re-think th
 ### Other CLI-related notes [[toc](#table-of-content)]
 
 * We could later think about being able to extend `nupm`, like `cargo` has plugins.
-* Mutable actions (like install) have by default Y/n prompt, but can be overriden with `--yes`
+* Mutable actions (like install) have by default Y/n prompt, but can be overridden with `--yes`
 * By default, new projects are cross-platform:
     * Windows
     * MacOS

@@ -58,7 +58,7 @@ export module url {
     export def update-name [new_name: string]: string -> string {
         url parse
         | update path {|url|
-            # skip the first '/' and replace last elemnt with the new name
+            # skip the first '/' and replace last element with the new name
             let parts = $url.path | path split | skip 1 | drop 1
             $parts | append $new_name | str join '/'
         }
