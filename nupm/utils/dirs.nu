@@ -74,7 +74,7 @@ export def cache-dir [--ensure]: nothing -> path {
     $d
 }
 
-export def temp-dir [subdir: string, --ensure]: nothing -> path {
+export def tmp-dir [subdir: string, --ensure]: nothing -> path {
     let d = $env.nupm.temp
         | path join $subdir
         | path join (random chars -l 8)

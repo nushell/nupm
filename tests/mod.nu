@@ -1,6 +1,6 @@
 use std assert
 
-use ../nupm/utils/dirs.nu temp-dir
+use ../nupm/utils/dirs.nu tmp-dir
 use ../nupm
 
 const TEST_REGISTRY_PATH = ([tests packages registry registry.nuon] | path join)
@@ -8,9 +8,9 @@ const TEST_REGISTRY_PATH = ([tests packages registry registry.nuon] | path join)
 
 def with-test-env [closure: closure]: nothing -> nothing {
     echo $nupm
-    let home = temp-dir nupm_test --ensure
-    let cache = temp-dir 'nupm_test/cache' --ensure
-    let temp = temp-dir 'nupm_test/temp' --ensure
+    let home = tmp-dir nupm_test --ensure
+    let cache = tmp-dir 'nupm_test/cache' --ensure
+    let temp = tmp-dir 'nupm_test/temp' --ensure
     let reg = { test: $TEST_REGISTRY_PATH }
 
     with-env {

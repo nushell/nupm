@@ -1,5 +1,5 @@
 use utils/completions.nu complete-registries
-use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir temp-dir ]
+use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir ]
 use utils/log.nu throw-error
 use utils/misc.nu [check-cols hash-fn url]
 use utils/package.nu open-package-file
@@ -102,7 +102,7 @@ def install-path [
                     --span (metadata $pkg_dir | get span))
             }
 
-            let tmp_dir = temp-dir build --ensure
+            let tmp_dir = tmp-dir build --ensure
 
             do {
                 cd $tmp_dir
