@@ -1,5 +1,5 @@
 use utils/completions.nu complete-registries
-use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir ]
+use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir temp-dir ]
 use utils/log.nu throw-error
 use utils/misc.nu [check-cols hash-fn url]
 use utils/package.nu open-package-file
@@ -102,11 +102,18 @@ def install-path [
                     --span (metadata $pkg_dir | get span))
             }
 
-            let tmp_dir = tmp-dir build --ensure
+            let tmp_dir = temp-dir build --ensure
 
             do {
                 cd $tmp_dir
+                # let package_file = ($pkg_dir | path join 'nupm.nuon')
                 ^$nu.current-exe $build_file ($pkg_dir | path join 'nupm.nuon')
+
+                # ^$nu.current-exe --no-config-file --commands $"
+                #     $env.nupm = ($env.nupm | to nuon);
+                #     source ($build_file | to nuon);
+                #     main ($package_file | to nuon)
+                # "
             }
 
             rm -rf $tmp_dir
@@ -241,6 +248,7 @@ export def main [
     --force(-f)  # Overwrite already installed package
     --no-confirm  # Allows to bypass the interactive confirmation, useful for scripting
 ]: nothing -> nothing {
+    echo $env.nupm
     if not (nupm-home-prompt --no-confirm=$no_confirm) {
         return
     }

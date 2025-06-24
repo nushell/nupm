@@ -13,8 +13,8 @@ export module test.nu
 export const BASE_NUPM_CONFIG = {
   default-home: ($nu.default-config-dir | path join "nupm")
   default-cache: ($nu.default-config-dir | path join nupm cache)
-  # default-temp: ($nu.temp-path | path join "nupm")
-  default-registry: {
+  default-temp: ($nu.temp-path | path join "nupm")
+  default-registries: {
     nupm: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
   }
 }
@@ -25,7 +25,7 @@ export-env {
       home: ($env.nupm?.home? | default $BASE_NUPM_CONFIG.default-home)
       cache: ($env.nupm?.cache? | default $BASE_NUPM_CONFIG.default-cache)
       temp: ($env.nupm?.temp? | default ($nu.temp-path | path join "nupm"))
-      registries: ($env.nupm?.registries? |  default $BASE_NUPM_CONFIG.default-registry)
+      registries: ($env.nupm?.registries? |  default $BASE_NUPM_CONFIG.default-registries)
     } | merge $BASE_NUPM_CONFIG
     # Should this filename be hardcoded for simplicity?
     $env.nupm.index-path = ($env.nupm.home | path join "registry_index.nuon")
@@ -47,7 +47,7 @@ export-env {
 #
 # Configuration:
 #   Set `nupm.home` environment variable to change installation directory
-#   Set `NUPM_REGISTRIES` to configure package registries
+#   Set `nupm.registries` to configure package registries
 @example "Install a package from a local directory" { nupm install my-package --path }
 @example "Publish a package" { nupm publish my-registry.nuon --local --save }
 @example "Search for specific version" { nupm search my-package --pkg-version 1.2.0 }

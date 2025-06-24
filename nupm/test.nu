@@ -1,4 +1,4 @@
-use utils/dirs.nu [ tmp-dir find-root ]
+use utils/dirs.nu [ temp-dir find-root ]
 use utils/log.nu throw-error
 
 # Run tests for a nupm package

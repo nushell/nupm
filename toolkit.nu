@@ -9,8 +9,8 @@ export def --env set-nupm-env [--clear] {
     }
 
     $env.nupm.home =  ($env.PWD | path join _nupm_dev)
-    $env.NUPM_CACHE = ($env.PWD | path join _nupm_dev cache)
-    $env.NUPM_TEMP =  ($env.PWD | path join _nupm_dev tmp)
+    $env.nupm.cache = ($env.PWD | path join _nupm_dev cache)
+    $env.nupm.temp =  ($env.PWD | path join _nupm_dev tmp)
     $env.nupm.registries = { nupm_dev: ($env.PWD | path join registry registry.nuon) }
 
     if $nu.os-info.family == 'windows' and 'Path' in $env {
@@ -25,11 +25,11 @@ export def --env set-nupm-env [--clear] {
 
 export def print-nupm-env [] {
     print $'nupm.home:  ($env.nupm.home?)'
-    print $'NUPM_CACHE: ($env.NUPM_CACHE?)'
-    print $'NUPM_TEMP:  ($env.NUPM_TEMP?)'
+    print $'nupm.cache: ($env.nupm.cache?)'
+    print $'nupm.temp:  ($env.nupm.temp?)'
     print $"PATH: ($env.PATH? | default $env.Path? | default [])"
     print $'NU_LIB_DIRS: ($env.NU_LIB_DIRS?)'
-    print $'NUPM_REGISTRIES: ($env.nupm.registries?)'
+    print $'nupm.registires: ($env.nupm.registries?)'
 }
 
 # turn on pretty diffs for NUON data files

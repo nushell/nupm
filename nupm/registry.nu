@@ -12,30 +12,17 @@ export def main []: nothing -> table {
 # List all configured registries
 @example "List all registries with details" { nupm registry list }
 export def list []: nothing -> table {
-    $env.nupm.registries | select name url | sort-by name
+    $env.nupm.registries | transpose name url | sort-by name
 }
 
 
+# TODO
 # Show detailed information about a specific registry
-@example "Show registry information" { nupm registry info nupm }
-export def describe [
-    name: string        # Name of the registry
-]: nothing -> table {
-    let registry_idx_path = $env.nupm.home | path join "registry_idx.nuon"
-
-    if not ($registry_idx_path | path exists) {
-        throw-error "No registry list found. Run 'nupm registry init' first."
-    }
-
-    let registries = open $registry_idx_path
-    let registry = $registries | where name == $name
-
-    if ($registry | length) == 0 {
-        throw-error $"Registry '($name)' not found."
-    }
-
-    $registry | first
-}
+# @example "Show registry information" { nupm registry describe nupm }
+# export def describe [
+#     name: string        # Name of the registry
+# ]: nothing -> table {
+# }
 
 # Add a new registry
 @example "Add a new registry" { nupm registry add my-registry https://example.com/registry.nuon }
@@ -73,7 +60,6 @@ export def --env remove [
 
 # Update a given registry url
 @example "Update registry URL" { nupm registry set-url my-registry https://new-url.com/registry.nuon }
-@example "Rename a registry" { nupm registry update my-registry --set-name our-registry }
 export def --env set-url [
     name: string,   # Name of the registry to update
     url: string,

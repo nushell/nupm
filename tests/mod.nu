@@ -1,19 +1,20 @@
 use std assert
 
-use ../nupm/utils/dirs.nu tmp-dir
+use ../nupm/utils/dirs.nu temp-dir
 use ../nupm
 
 const TEST_REGISTRY_PATH = ([tests packages registry registry.nuon] | path join)
 
 
 def with-test-env [closure: closure]: nothing -> nothing {
-    let home = tmp-dir nupm_test --ensure
-    let cache = tmp-dir 'nupm_test/cache' --ensure
-    let temp = tmp-dir 'nupm_test/temp' --ensure
+    echo $nupm
+    let home = temp-dir nupm_test --ensure
+    let cache = temp-dir 'nupm_test/cache' --ensure
+    let temp = temp-dir 'nupm_test/temp' --ensure
     let reg = { test: $TEST_REGISTRY_PATH }
 
     with-env {
-      nupm {
+      nupm: {
         home: $home
         cache: $cache
         temp: $temp
@@ -31,6 +32,12 @@ def with-test-env [closure: closure]: nothing -> nothing {
 #     > assert installed [scripts script.nu]
 def "assert installed" [path_tokens: list<string>] {
     assert ($path_tokens | prepend $env.nupm.home | path join | path exists)
+}
+
+export def test-env-is-set [] {
+    with-test-env {
+      $env.nupm.home | is-empty
+    }
 }
 
 def check-file-content [content: string] {
@@ -60,6 +67,9 @@ export def install-module [] {
 
 export def install-custom [] {
     with-test-env {
+      use std/log
+        log info CUSTOM
+        log info $env.nupm.home
         nupm install --path tests/packages/spam_custom
 
         assert installed [plugins nu_plugin_test]
@@ -136,27 +146,23 @@ export def nupm-status-module [] {
 }
 
 export def env-vars-are-set [] {
-    $env.nupm.home = null
-    $env.NUPM_TEMP = null
-    $env.NUPM_CACHE = null
-    $env.nupm.registries = null
+    $env.nupm = null
 
-    use ../nupm/utils/dirs.nu
     use ../nupm
 
-    assert equal $env.nupm.home $dirs.DEFAULT_nupm.home
-    assert equal $env.NUPM_TEMP $dirs.DEFAULT_NUPM_TEMP
-    assert equal $env.NUPM_CACHE $dirs.DEFAULT_NUPM_CACHE
-    assert equal $env.nupm.registries $dirs.DEFAULT_NUPM_REGISTRIES
+    assert equal $env.nupm.home $nupm.BASE_NUPM_CONFIG.default-home
+    assert equal $env.nupm.temp $nupm.BASE_NUPM_CONFIG.default-temp
+    assert equal $env.nupm.cache $nupm.BASE_NUPM_CONFIG.default-cache
+    assert equal $env.nupm.registries $nupm.BASE_NUPM_CONFIG.default-registries
 }
 
 export def generate-local-registry [] {
     with-test-env {
-        mkdir ($env.NUPM_TEMP | path join packages registry)
+        mkdir ($env.nupm.temp | path join packages registry)
 
         let reg_file = [tests packages registry registry.nuon] | path join
         let tmp_reg_file = [
-            $env.NUPM_TEMP packages registry test_registry.nuon
+            $env.nupm.temp packages registry test_registry.nuon
         ]
         | path join
 
@@ -176,27 +182,20 @@ export def generate-local-registry [] {
 
 export def registry-list [] {
     with-test-env {
-        # Initialize registry list
-        nupm registry init
-
         # Get list of registries
         let registries = nupm registry list
 
-        # Should have default nupm registry
+        # Should have test registry from test environment
         assert equal ($registries | length) 1
-        assert equal $registries.0.name "nupm"
-        assert equal $registries.0.url "https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon"
-        assert equal $registries.0.enabled true
+        assert equal $registries.0.name "test"
+        assert equal $registries.0.url $TEST_REGISTRY_PATH
     }
 }
 
 export def registry-add [] {
     with-test-env {
-        # Initialize registry list
-        nupm registry init
-
         # Add a new registry
-        nupm registry add test-registry https://example.com/test.nuon --enabled=false
+        nupm registry add test-registry https://example.com/test.nuon
 
         # Verify registry was added
         let registries = nupm registry list
@@ -205,7 +204,6 @@ export def registry-add [] {
         let test_reg = $registries | where name == "test-registry" | first
         assert equal $test_reg.name "test-registry"
         assert equal $test_reg.url "https://example.com/test.nuon"
-        assert equal $test_reg.enabled false
 
         # Try to add duplicate registry (should fail)
         let add_result = try {
@@ -217,13 +215,14 @@ export def registry-add [] {
 
         assert ("Registry 'test-registry' already exists" in $add_result)
 
-        # Add another registry with default enabled=true
+        # Add another registry
         nupm registry add another-registry ./local-registry.nuon
 
         let registries_final = nupm registry list
         assert equal ($registries_final | length) 3
 
         let another_reg = $registries_final | where name == "another-registry" | first
-        assert equal $another_reg.enabled true
+        assert equal $another_reg.name "another-registry"
+        assert equal $another_reg.url "./local-registry.nuon"
     }
 }
