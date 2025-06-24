@@ -222,7 +222,7 @@ def guess-revision []: nothing -> string {
 
 def get-registry-path []: string -> path {
     let registry = $in
-    $env.NUPM_REGISTRIES | get -i $registry | default ($registry | path expand)
+    $env.nupm.registries | get -i $registry | default ($registry | path expand)
 }
 
 def open-registry-file []: path -> table<name: string, path: string, url: string> {

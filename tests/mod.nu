@@ -13,7 +13,7 @@ def with-test-env [closure: closure]: nothing -> nothing {
     let reg = { test: $TEST_REGISTRY_PATH }
 
     with-env {
-        NUPM_HOME: $home
+        nupm.home: $home
         NUPM_CACHE: $cache
         NUPM_TEMP: $temp
         NUPM_REGISTRIES: $reg
@@ -25,14 +25,14 @@ def with-test-env [closure: closure]: nothing -> nothing {
 }
 
 # Examples:
-#     make sure `$env.NUPM_HOME/scripts/script.nu` exists
+#     make sure `$env.nupm.home/scripts/script.nu` exists
 #     > assert installed [scripts script.nu]
 def "assert installed" [path_tokens: list<string>] {
-    assert ($path_tokens | prepend $env.NUPM_HOME | path join | path exists)
+    assert ($path_tokens | prepend $env.nupm.home | path join | path exists)
 }
 
 def check-file-content [content: string] {
-    let file_str = open ($env.NUPM_HOME | path join scripts spam_script.nu)
+    let file_str = open ($env.nupm.home | path join scripts spam_script.nu)
     assert ($file_str | str contains $content)
 }
 
@@ -66,7 +66,7 @@ export def install-custom [] {
 
 export def install-from-local-registry [] {
     with-test-env {
-        $env.NUPM_REGISTRIES = {}
+        $env.nupm.registries = {}
         nupm install --registry $TEST_REGISTRY_PATH spam_script
         check-file-content 0.2.0
     }
@@ -91,7 +91,7 @@ export def install-with-version [] {
 
 export def install-multiple-registries-fail [] {
     with-test-env {
-        $env.NUPM_REGISTRIES.test2 = $TEST_REGISTRY_PATH
+        $env.nupm.registries.test2 = $TEST_REGISTRY_PATH
 
         let out = try {
             nupm install spam_script
@@ -134,18 +134,18 @@ export def nupm-status-module [] {
 }
 
 export def env-vars-are-set [] {
-    $env.NUPM_HOME = null
+    $env.nupm.home = null
     $env.NUPM_TEMP = null
     $env.NUPM_CACHE = null
-    $env.NUPM_REGISTRIES = null
+    $env.nupm.registries = null
 
     use ../nupm/utils/dirs.nu
     use ../nupm
 
-    assert equal $env.NUPM_HOME $dirs.DEFAULT_NUPM_HOME
+    assert equal $env.nupm.home $dirs.DEFAULT_nupm.home
     assert equal $env.NUPM_TEMP $dirs.DEFAULT_NUPM_TEMP
     assert equal $env.NUPM_CACHE $dirs.DEFAULT_NUPM_CACHE
-    assert equal $env.NUPM_REGISTRIES $dirs.DEFAULT_NUPM_REGISTRIES
+    assert equal $env.nupm.registries $dirs.DEFAULT_NUPM_REGISTRIES
 }
 
 export def generate-local-registry [] {

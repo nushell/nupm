@@ -7,7 +7,7 @@ This file collects design ideas and directions. The intention is iterate on this
 > - `METADATA_FILE`: the file containing the metadata of a package,
 > e.g. `project.nuon`, `metadata.json` or `nupm.nuon`
 > (name inspired by Julia's `Project.toml` or Rust's `Cargo.toml`)
-> - `NUPM_HOME`: the location of all the `nupm` files, overlays, scripts, libraries, ...,
+> - `nupm.home`: the location of all the `nupm` files, overlays, scripts, libraries, ...,
 > e.g. `~/.nupm/`, `$env.XDG_DATA_HOME/nupm/` or `~/.local/share/nupm/`
 
 # Table of content
@@ -37,7 +37,7 @@ spam
 ```
 * meant as a runnable script, equivalent of Rust's binary project
 * could use the `.nush` extension if we agree to support it
-* installed under `NUPM_HOME/bin/`
+* installed under `nupm.home/bin/`
 
 2. Module
 ```
@@ -47,7 +47,7 @@ spam
     └── mod.nu
 ```
 * meant as a library to be `use`d or `overlay use`d, equivalent of Rust's library project
-* installed under `NUPM_HOME/modules/`
+* installed under `nupm.home/modules/`
 
 You can also install non-Nushell packages as well using a "custom" project type where you specify a `build.nu` installation script
 (e.g., you can install Nushell itself with it).
@@ -69,18 +69,18 @@ Related to that is a lock file: It is intended to describe exactly the dependenc
 
 The overlays could be used to achieve all three goals at the same time. When installing a dependency for a package
 * `nupm` adds entry to a **lock file** (this should be the only file you need to 100% replicate the environment)
-* A .nu file (module) is auto-generated from the lock file and contains export statements like `export module NUPM_HOME/cache/packages/spam-v16.4.0-124ptnpbf/spam`. Calling `overlay use` on the file will activate your virtual environment, now you have a per-project environment
-* This file can be installed into a global location that's in your `NU_LIB_DIRS` (e.g., `NUPM_HOME/overlays`) -- now you have a global Python-like virtual environment
-  * Each overlay under `NUPM_HOME/overlays` will mimic the main NUPM_HOME structure, e.g., for an overlay `spam` there will be `NUPM_HOME/overlays/spam/bin`, `NUPM_HOME/overlays/spam/modules` (`NUPM_HOME/overlays/spam/overlays`? It might not be the best idea to have it recursive)
+* A .nu file (module) is auto-generated from the lock file and contains export statements like `export module nupm.home/cache/packages/spam-v16.4.0-124ptnpbf/spam`. Calling `overlay use` on the file will activate your virtual environment, now you have a per-project environment
+* This file can be installed into a global location that's in your `NU_LIB_DIRS` (e.g., `nupm.home/overlays`) -- now you have a global Python-like virtual environment
+  * Each overlay under `nupm.home/overlays` will mimic the main nupm.home structure, e.g., for an overlay `spam` there will be `nupm.home/overlays/spam/bin`, `nupm.home/overlays/spam/modules` (`nupm.home/overlays/spam/overlays`? It might not be the best idea to have it recursive)
 
 Each package would basically have its own overlay. This overlay file (it's just a module) could be used to also handle dependencies. If your project depends on `foo` and `bar` which both depend on `spam` but different versions, they could both import the different verions privately in their own overlay files and in your project's overlay file would be just `export use path/to/foo` and `export use path/to/bar`. This should prevent name clashing of `spam`. The only problem that needs to be figured out is how to tell `foo` to be aware of its overlay.
 
 ## Installation, bootstraping [[toc](#table-of-content)]
 
 Requires these actions from the user (this should be kept as minimal as possible):
-* Add `NUPM_HOME/bin` to PATH (install location for binary projects)
-* Add `NUPM_HOME/modules` to NU_LIB_DIRS
-* Add `NUPM_HOME/overlays` to NU_LIB_DIRS
+* Add `nupm.home/bin` to PATH (install location for binary projects)
+* Add `nupm.home/modules` to NU_LIB_DIRS
+* Add `nupm.home/overlays` to NU_LIB_DIRS
 * Make the `nupm` command available somehow (e.g., `use` inside `config.nu`)
 
 > :warning: **WIP**  

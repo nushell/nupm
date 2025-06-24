@@ -13,19 +13,19 @@ export module test.nu
 export const BASE_NUPM_CONFIG = {
   default-home: ($nu.default-config-dir | path join "nupm")
   default-cache: ($nu.default-config-dir | path join nupm cache)
-  default-temp: ($nu.temp-path | path join "nupm")
+  # default-temp: ($nu.temp-path | path join "nupm")
   default-registry: {
     nupm: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
   }
 }
 
 export-env {
-    # Ensure that $env.nupm is always set when running nupm. Any missing variaables
+    # Ensure that $env.nupm is always set when running nupm. Any missing variaables are set by `$BASE_NUPM_CONFIG`
     $env.nupm = {
-      home: ($env.nupm.home? | default $BASE_NUPM_CONFIG.default-home)
-      cache: ($env.nupm.cache? | default $BASE_NUPM_CONFIG.default-cache)
-      temp: ($env.nupm.temp? | default $BASE_NUPM_CONFIG.default-temp)
-      registries: ($env.nupm.registires? |  default $BASE_NUPM_CONFIG.default-registry)
+      home: ($env.nupm?.home? | default $BASE_NUPM_CONFIG.default-home)
+      cache: ($env.nupm?.cache? | default $BASE_NUPM_CONFIG.default-cache)
+      temp: ($env.nupm?.temp? | default ($nu.temp-path | path join "nupm"))
+      registries: ($env.nupm?.registires? |  default $BASE_NUPM_CONFIG.default-registry)
     } | merge $BASE_NUPM_CONFIG
     # Should this filename be hardcoded for simplicity?
     $env.nupm.index-path = ($env.nupm.home | path join "registry_index.nuon")
@@ -46,7 +46,7 @@ export-env {
 # Nushell packages including modules, scripts, and custom packages.
 #
 # Configuration:
-#   Set `NUPM_HOME` environment variable to change installation directory
+#   Set `nupm.home` environment variable to change installation directory
 #   Set `NUPM_REGISTRIES` to configure package registries
 @example "Install a package from a local directory" { nupm install my-package --path }
 @example "Publish a package" { nupm publish my-registry.nuon --local --save }
@@ -60,4 +60,5 @@ export def main [subcommand?]: nothing -> nothing {
     print $"(ansi green)Usage(ansi reset): nupm \(($subcommands | str join '|'))"
 
     print 'enjoy nupm!'
+    echo $env.nupm
 }

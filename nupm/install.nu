@@ -235,7 +235,7 @@ def fetch-package [
 export def main [
     package  # Name, path, or link to the package
     --registry: string@complete-registries  # Which registry to use (either a name
-                                            # in $env.NUPM_REGISTRIES or a path)
+                                            # in $env.nupm.registries or a path)
     --pkg-version(-v): string  # Package version to install
     --path  # Install package from a directory with nupm.nuon given by 'name'
     --force(-f)  # Overwrite already installed package

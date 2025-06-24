@@ -21,7 +21,7 @@ use utils/version.nu filter-by-version
 export def main [
     package  # Name, path, or link to the package
     --registry: string@complete-registries  # Which registry to use (either a name
-                                            # in $env.NUPM_REGISTRIES or a path)
+                                            # in $env.nupm.registries or a path)
     --pkg-version(-v): string  # Package version to install
     --exact-match(-e)  # Match package name exactly
 ]: nothing -> table {

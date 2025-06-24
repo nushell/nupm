@@ -12,20 +12,33 @@ export def main []: nothing -> table {
 # List all configured registries
 @example "List all registries with details" { nupm registry list }
 export def list []: nothing -> table {
-    let registry_idx_path = $env.NUPM_HOME | path join "registry_idx.nuon"
+    $env.nupm.registries | select name url | sort-by name
+}
+
+
+# Show detailed information about a specific registry
+@example "Show registry information" { nupm registry info nupm }
+export def describe [
+    name: string        # Name of the registry
+]: nothing -> table {
+    let registry_idx_path = $env.nupm.home | path join "registry_idx.nuon"
 
     if not ($registry_idx_path | path exists) {
-        init
+        throw-error "No registry list found. Run 'nupm registry init' first."
     }
 
     let registries = open $registry_idx_path
+    let registry = $registries | where name == $name
 
-    $registries | select name url enabled | sort-by name
+    if ($registry | length) == 0 {
+        throw-error $"Registry '($name)' not found."
+    }
+
+    $registry | first
 }
 
 # Add a new registry
 @example "Add a new registry" { nupm registry add my-registry https://example.com/registry.nuon }
-@example "Add a disabled registry" { nupm registry add test-registry ./local-registry.nuon --enabled=false }
 export def --env add [
     name: string,       # Name of the registry
     url: string,        # URL or path to the registry
@@ -36,7 +49,7 @@ export def --env add [
     }
     $env.nupm.registries = $env.nupm.registries | insert $name $url
 
-    if ($save) {
+    if $save {
       $env.nupm.registries | save --force $env.nupm.index-path
     }
 
@@ -51,7 +64,7 @@ export def --env remove [
 ] {
     $env.nupm.registires = $env.nupm.registires | reject $name
 
-    if ($save) {
+    if $save {
       $env.nupm.registries | save --force $env.nupm.index-path
     }
 
@@ -68,7 +81,7 @@ export def --env set-url [
 ]: nothing -> nothing {
     $env.nupm.registires = $env.nupm.registires | update $name $url
 
-    if ($save) {
+    if $save {
       $env.nupm.registries | save --force $env.nupm.index-path
     }
 
@@ -81,14 +94,14 @@ export def --env rename [
     name: string,   # Name of the registry to update
     new_name: string,
     --save,         # Whether to commit the change to the registry index
-]: nothing -> nothing {
+] {
     $env.nupm.registires = $env.nupm.registires | ^rename --column { $name: $new_name }
 
-    if ($save) {
+    if $save {
       $env.nupm.registries | save --force $env.nupm.index-path
     }
 
-    print $"Registry '($name)' URL updated successfully."
+    print $"Registry '($name)' renamed successfully."
 }
 
 
@@ -97,12 +110,12 @@ export def --env rename [
 export def init-index [
 
     registry?: record<name: string, url: string, enabled: bool>
-]: nothing -> nothing {
+] {
     if not (nupm-home-prompt) {
-        throw-error "Cannot create NUPM_HOME directory."
+        throw-error "Cannot create nupm.home directory."
     }
 
-    let registry_idx_path = $env.NUPM_HOME | path join "registry_idx.nuon"
+    let registry_idx_path = $env.nupm.home | path join "registry_idx.nuon"
 
     if ($registry_idx_path | path exists) {
         print $"Registry list already exists at ($registry_idx_path)"
@@ -121,25 +134,4 @@ export def init-index [
     $default_registries | save $registry_idx_path
 
     print $"Registry list initialized at ($registry_idx_path)"
-}
-
-# Show detailed information about a specific registry
-@example "Show registry information" { nupm registry info nupm }
-export def info [
-    name: string        # Name of the registry
-]: nothing -> table {
-    let registry_idx_path = $env.NUPM_HOME | path join "registry_idx.nuon"
-
-    if not ($registry_idx_path | path exists) {
-        throw-error "No registry list found. Run 'nupm registry init' first."
-    }
-
-    let registries = open $registry_idx_path
-    let registry = $registries | where name == $name
-
-    if ($registry | length) == 0 {
-        throw-error $"Registry '($name)' not found."
-    }
-
-    $registry | first
 }

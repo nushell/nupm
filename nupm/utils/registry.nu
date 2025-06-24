@@ -16,16 +16,16 @@ export def search-package [
     --registry: string  # Which registry to use (name or path)
     --exact-match  # Searched package name must match exactly
 ]: nothing -> table {
-    let registries = if (not ($registry | is-empty)) and ($registry in $env.NUPM_REGISTRIES) {
-        # If $registry is a valid column in $env.NUPM_REGISTRIES, use that
-        { $registry : ($env.NUPM_REGISTRIES | get $registry) }
+    let registries = if (not ($registry | is-empty)) and ($registry in $env.nupm.registries) {
+        # If $registry is a valid column in $env.nupm.registries, use that
+        { $registry : ($env.nupm.registries | get $registry) }
     } else if (not ($registry | is-empty)) and ($registry | path exists) {
         # If $registry is a path, use that
         let reg_name = $registry | path parse | get stem
         { $reg_name: $registry }
     } else {
-        # Otherwise use $env.NUPM_REGISTRIES as-is
-        $env.NUPM_REGISTRIES
+        # Otherwise use $env.nupm.registries as-is
+        $env.nupm.registries
     }
 
     let name_matcher: closure = if $exact_match {
