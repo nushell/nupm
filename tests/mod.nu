@@ -13,10 +13,12 @@ def with-test-env [closure: closure]: nothing -> nothing {
     let reg = { test: $TEST_REGISTRY_PATH }
 
     with-env {
-        nupm.home: $home
-        NUPM_CACHE: $cache
-        NUPM_TEMP: $temp
-        NUPM_REGISTRIES: $reg
+      nupm {
+        home: $home
+        cache: $cache
+        temp: $temp
+        registires: $reg
+      }
     } $closure
 
     rm --recursive $temp
@@ -176,10 +178,10 @@ export def registry-list [] {
     with-test-env {
         # Initialize registry list
         nupm registry init
-        
+
         # Get list of registries
         let registries = nupm registry list
-        
+
         # Should have default nupm registry
         assert equal ($registries | length) 1
         assert equal $registries.0.name "nupm"
@@ -192,19 +194,19 @@ export def registry-add [] {
     with-test-env {
         # Initialize registry list
         nupm registry init
-        
+
         # Add a new registry
         nupm registry add test-registry https://example.com/test.nuon --enabled=false
-        
+
         # Verify registry was added
         let registries = nupm registry list
         assert equal ($registries | length) 2
-        
+
         let test_reg = $registries | where name == "test-registry" | first
         assert equal $test_reg.name "test-registry"
         assert equal $test_reg.url "https://example.com/test.nuon"
         assert equal $test_reg.enabled false
-        
+
         # Try to add duplicate registry (should fail)
         let add_result = try {
             nupm registry add test-registry https://duplicate.com/test.nuon
@@ -212,15 +214,15 @@ export def registry-add [] {
         } catch {|err|
             $err.msg
         }
-        
+
         assert ("Registry 'test-registry' already exists" in $add_result)
-        
+
         # Add another registry with default enabled=true
         nupm registry add another-registry ./local-registry.nuon
-        
+
         let registries_final = nupm registry list
         assert equal ($registries_final | length) 3
-        
+
         let another_reg = $registries_final | where name == "another-registry" | first
         assert equal $another_reg.enabled true
     }
