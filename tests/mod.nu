@@ -17,7 +17,7 @@ def with-test-env [closure: closure]: nothing -> nothing {
         home: $home
         cache: $cache
         temp: $temp
-        registires: $reg
+        registries: $reg
       }
     } $closure
 

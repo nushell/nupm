@@ -62,7 +62,7 @@ export def --env remove [
     name: string        # Name of the registry to remove
     --save,             # Whether to commit the change to the registry index
 ] {
-    $env.nupm.registires = $env.nupm.registires | reject $name
+    $env.nupm.registries = $env.nupm.registries | reject $name
 
     if $save {
       $env.nupm.registries | save --force $env.nupm.index-path
@@ -79,7 +79,7 @@ export def --env set-url [
     url: string,
     --save,         # Whether to commit the change to the registry index
 ]: nothing -> nothing {
-    $env.nupm.registires = $env.nupm.registires | update $name $url
+    $env.nupm.registries = $env.nupm.registries | update $name $url
 
     if $save {
       $env.nupm.registries | save --force $env.nupm.index-path
@@ -95,7 +95,7 @@ export def --env rename [
     new_name: string,
     --save,         # Whether to commit the change to the registry index
 ] {
-    $env.nupm.registires = $env.nupm.registires | ^rename --column { $name: $new_name }
+    $env.nupm.registries = $env.nupm.registries | ^rename --column { $name: $new_name }
 
     if $save {
       $env.nupm.registries | save --force $env.nupm.index-path

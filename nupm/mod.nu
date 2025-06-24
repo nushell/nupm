@@ -25,7 +25,7 @@ export-env {
       home: ($env.nupm?.home? | default $BASE_NUPM_CONFIG.default-home)
       cache: ($env.nupm?.cache? | default $BASE_NUPM_CONFIG.default-cache)
       temp: ($env.nupm?.temp? | default ($nu.temp-path | path join "nupm"))
-      registries: ($env.nupm?.registires? |  default $BASE_NUPM_CONFIG.default-registry)
+      registries: ($env.nupm?.registries? |  default $BASE_NUPM_CONFIG.default-registry)
     } | merge $BASE_NUPM_CONFIG
     # Should this filename be hardcoded for simplicity?
     $env.nupm.index-path = ($env.nupm.home | path join "registry_index.nuon")
