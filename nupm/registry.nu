@@ -22,6 +22,38 @@ export def list []: nothing -> table {
 export def describe [
     registry: string        # Name of the registry
 ]: nothing -> table {
+    if not ($registry in $env.nupm.registries) {
+        throw-error $"Registry '($registry)' not found"
+    }
+
+    let registry_url = $env.nupm.registries | get $registry
+    
+    try {
+        let registry_data = if ($registry_url | path exists) {
+            open $registry_url
+        } else {
+            http get $registry_url
+        }
+        
+        $registry_data | each {|entry|
+            let package_data = if ($registry_url | path exists) {
+                let package_path = $registry_url | path dirname | path join $entry.path
+                open $package_path
+            } else {
+                let package_url = $registry_url | url parse | update path ($entry.path) | url join
+                http get $package_url
+            }
+            
+            {
+                name: $entry.name,
+                type: $package_data.type,
+                version: $package_data.version,
+                description: ($package_data.description? | default "")
+            }
+        }
+    } catch {|err|
+        throw-error $"Failed to fetch registry data from '($registry_url)': ($err.msg)"
+    }
 }
 
 # Add a new registry

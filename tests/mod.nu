@@ -294,3 +294,29 @@ export def registry-rename [] {
         assert equal ($registries_final | where name == "renamed-registry" | length) 0
     }
 }
+
+export def registry-describe [] {
+    with-test-env {
+        # Describe the test registry that's already configured
+        let description = nupm registry describe test
+
+        # Verify we get package information
+        assert ($description | length > 0)
+        
+        # Check for expected packages from the test registry
+        let spam_script = $description | where name == "spam_script" | first
+        assert equal $spam_script.name "spam_script"
+        assert equal $spam_script.type "script"
+        assert equal $spam_script.version "0.2.0"
+        
+        # Test error case with non-existent registry
+        let describe_result = try {
+            nupm registry describe non-existent-registry
+            "should not reach here"
+        } catch {|err|
+            $err.msg
+        }
+        
+        assert ("Registry 'non-existent-registry' not found" in $describe_result)
+    }
+}
