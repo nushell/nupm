@@ -1,6 +1,6 @@
 use std/log
 
-use utils/dirs.nu [ nupm-home-prompt ]
+use utils/dirs.nu [ nupm-home-prompt BASE_NUPM_CONFIG ]
 
 export module install.nu
 export module publish.nu
@@ -9,15 +9,6 @@ export module search.nu
 export module status.nu
 export module test.nu
 
-# Base values for nupm that are used as defaults if not present in `$env.nupm`
-export const BASE_NUPM_CONFIG = {
-  default-home: ($nu.default-config-dir | path join "nupm")
-  default-cache: ($nu.default-config-dir | path join nupm cache)
-  default-temp: ($nu.temp-path | path join "nupm")
-  default-registries: {
-    nupm: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
-  }
-}
 
 export-env {
     # Ensure that $env.nupm is always set when running nupm. Any missing variaables are set by `$BASE_NUPM_CONFIG`

@@ -1,3 +1,12 @@
+# Base values for nupm that are used as defaults if not present in `$env.nupm`
+export const BASE_NUPM_CONFIG = {
+  default-home: ($nu.default-config-dir | path join "nupm")
+  default-cache: ($nu.default-config-dir | path join nupm cache)
+  default-temp: ($nu.temp-path | path join "nupm")
+  default-registries: {
+    nupm: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
+  }
+}
 # Directories and related utilities used in nupm
 
 # Prompt to create $env.nupm.home if it does not exist and some sanity checks.
@@ -75,7 +84,7 @@ export def cache-dir [--ensure]: nothing -> path {
 }
 
 export def tmp-dir [subdir: string, --ensure]: nothing -> path {
-    let d = $env.nupm.temp
+    let d = $BASE_NUPM_CONFIG.default-temp
         | path join $subdir
         | path join (random chars -l 8)
 

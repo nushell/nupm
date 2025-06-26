@@ -1,13 +1,12 @@
 use std assert
 
-use ../nupm/utils/dirs.nu tmp-dir
+use ../nupm/utils/dirs.nu [ tmp-dir BASE_NUPM_CONFIG ]
 use ../nupm
 
 const TEST_REGISTRY_PATH = ([tests packages registry registry.nuon] | path join)
 
 
 def with-test-env [closure: closure]: nothing -> nothing {
-    echo $nupm
     let home = tmp-dir nupm_test --ensure
     let cache = tmp-dir 'nupm_test/cache' --ensure
     let temp = tmp-dir 'nupm_test/temp' --ensure
@@ -32,12 +31,6 @@ def with-test-env [closure: closure]: nothing -> nothing {
 #     > assert installed [scripts script.nu]
 def "assert installed" [path_tokens: list<string>] {
     assert ($path_tokens | prepend $env.nupm.home | path join | path exists)
-}
-
-export def test-env-is-set [] {
-    with-test-env {
-      $env.nupm.home | is-empty
-    }
 }
 
 def check-file-content [content: string] {
@@ -150,10 +143,10 @@ export def env-vars-are-set [] {
 
     use ../nupm
 
-    assert equal $env.nupm.home $nupm.BASE_NUPM_CONFIG.default-home
-    assert equal $env.nupm.temp $nupm.BASE_NUPM_CONFIG.default-temp
-    assert equal $env.nupm.cache $nupm.BASE_NUPM_CONFIG.default-cache
-    assert equal $env.nupm.registries $nupm.BASE_NUPM_CONFIG.default-registries
+    assert equal $env.nupm.home $BASE_NUPM_CONFIG.default-home
+    assert equal $env.nupm.temp $BASE_NUPM_CONFIG.default-temp
+    assert equal $env.nupm.cache $BASE_NUPM_CONFIG.default-cache
+    assert equal $env.nupm.registries $BASE_NUPM_CONFIG.default-registries
 }
 
 export def generate-local-registry [] {
