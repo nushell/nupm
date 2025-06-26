@@ -101,23 +101,25 @@ export def init-index [
         throw-error "Cannot create nupm.home directory."
     }
 
-    let registry_idx_path = $env.nupm.home | path join "registry_idx.nuon"
 
-    if ($registry_idx_path | path exists) {
-        print $"Registry list already exists at ($registry_idx_path)"
+    if ($env.nupm.registries | path exists) {
+        print $"Registry list already exists at ($env.nupm.index-path)"
         return
     }
 
-    # Initialize with the default nupm registry
-    let default_registries = [
-        {
-            name: "nupm",
-            url: "https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon",
-            enabled: true
-        }
-    ]
+    $env.nupm.registries | save $env.nupm.index-path
 
-    $default_registries | save $registry_idx_path
+    print $"Registry list initialized at ($env.nupm.index-path)"
+}
 
-    print $"Registry list initialized at ($registry_idx_path)"
+# Initialize nupm.registries value
+export def open-index []: nothing -> record {
+    if ($env.nupm.index-path | path exists) {
+      if not (($env.nupm.index-path | path type) == "file") {
+          throw-error $"($env.nupm.index-path) is not a filepath"
+      }
+      open $env.nupm.index-path | return
+    }
+
+    {}
 }

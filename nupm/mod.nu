@@ -1,6 +1,7 @@
 use std/log
 
 use utils/dirs.nu [ nupm-home-prompt BASE_NUPM_CONFIG ]
+use registry.nu open-index
 
 export module install.nu
 export module publish.nu
@@ -10,25 +11,24 @@ export module status.nu
 export module test.nu
 
 
+
+
 export-env {
     # Ensure that $env.nupm is always set when running nupm. Any missing variaables are set by `$BASE_NUPM_CONFIG`
     $env.nupm = {
       home: ($env.nupm?.home? | default $BASE_NUPM_CONFIG.default-home)
       cache: ($env.nupm?.cache? | default $BASE_NUPM_CONFIG.default-cache)
-      temp: ($env.nupm?.temp? | default ($nu.temp-path | path join "nupm"))
+      temp: ($env.nupm?.temp? | default $BASE_NUPM_CONFIG.default-temp)
       registries: ($env.nupm?.registries? |  default $BASE_NUPM_CONFIG.default-registries)
     } | merge $BASE_NUPM_CONFIG
-    # Should this filename be hardcoded for simplicity?
+    # for now, filename hardcoded for simplicity
     $env.nupm.index-path = ($env.nupm.home | path join "registry_index.nuon")
-    if ($env.nupm.index-path | path exists) {
-      if not (($env.nupm.index-path | path type) == "file") {
-          throw-error $"($env.nupm.index-path) is not a filepath"
-      }
-      # overwrite filevalues with those found in config
-      $env.nupm.registries = open $env.nupm.index-path | merge $env.nupm.registries
+    # overwrite filevalues with those found in config
+    $env.nupm.registries = open-index | merge $env.nupm.registries
+    $env.ENV_CONVERSIONS.nupm = {
+        from_string: { |s| $s | from nuon }
+        to_string: { |v| $v | to nuon }
     }
-
-    use std/log []
 }
 
 # Nushell Package Manager
@@ -51,5 +51,4 @@ export def main [subcommand?]: nothing -> nothing {
     print $"(ansi green)Usage(ansi reset): nupm \(($subcommands | str join '|'))"
 
     print 'enjoy nupm!'
-    echo $env.nupm
 }

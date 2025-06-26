@@ -1,7 +1,7 @@
 use utils/completions.nu complete-registries
 use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir ]
 use utils/log.nu throw-error
-use utils/misc.nu [check-cols hash-fn url]
+use utils/misc.nu [check-cols hash-fn url flatten-nupm-env]
 use utils/package.nu open-package-file
 use utils/registry.nu search-package
 use utils/version.nu filter-by-version
@@ -105,15 +105,8 @@ def install-path [
             let tmp_dir = tmp-dir build --ensure
 
             do {
-                cd $tmp_dir
-                # let package_file = ($pkg_dir | path join 'nupm.nuon')
+                flatten-nupm-env
                 ^$nu.current-exe $build_file ($pkg_dir | path join 'nupm.nuon')
-
-                # ^$nu.current-exe --no-config-file --commands $"
-                #     $env.nupm = ($env.nupm | to nuon);
-                #     source ($build_file | to nuon);
-                #     main ($package_file | to nuon)
-                # "
             }
 
             rm -rf $tmp_dir
