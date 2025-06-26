@@ -3,7 +3,7 @@
 use utils/dirs.nu [nupm-home-prompt]
 use utils/log.nu throw-error
 
-# Show information about configured registries
+# Manage nupm registires
 @example "List all configured registries" { nupm registry }
 export def main []: nothing -> table {
     list
@@ -15,10 +15,8 @@ export def list []: nothing -> table {
     $env.nupm.registries | transpose name url | sort-by name
 }
 
-def describe-comp [] {
-    list | get name
-}
 
+def describe-comp [] { list | get name }
 # Show detailed information about a specific registry
 # returning a list of package names, type, and version
 @example "Show registry information" { nupm registry describe nupm }
