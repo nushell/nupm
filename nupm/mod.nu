@@ -1,7 +1,6 @@
 use std/log
 
 use utils/dirs.nu [ nupm-home-prompt BASE_NUPM_CONFIG ]
-use registry.nu open-index
 
 export module install.nu
 export module publish.nu
@@ -10,6 +9,17 @@ export module search.nu
 export module status.nu
 export module test.nu
 
+def open-index []: nothing -> record {
+    mut index = {}
+    if ($env.nupm.index-path | path exists) {
+      if not (($env.nupm.index-path | path type) == "file") {
+          throw-error $"($env.nupm.index-path) is not a filepath"
+      }
+      $index = open $env.nupm.index-path
+    }
+
+    $index
+}
 
 
 

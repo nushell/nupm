@@ -74,7 +74,7 @@ export def describe [
                 {
                     name: $pkg.name,
                     # TODO rename package metadata type field to source
-                    # to avoid confustion with custom|script|module type enumberable
+                    # to avoid confusion with custom|script|module type enumberable
                     source: $pkg.type,
                     version: $pkg.version,
                     # description: ($pkg.description? | default "")
@@ -158,11 +158,9 @@ export def --env rename [
 @example "Fetch a specific registry" { nupm registry fetch nupm }
 @example "Fetch all registries" { nupm registry fetch --all }
 export def fetch [
-    name?: string,  # Name of the registry to fetch (optional if --all is used)
+    registry?: string,  # Name of the registry to fetch (optional if --all is used)
     --all,          # Fetch all configured registries
 ] {
-    use utils/dirs.nu cache-dir
-
     if $all {
         # Fetch all registries
         let registries = $env.nupm.registries | transpose name url
@@ -173,17 +171,17 @@ export def fetch [
         }
 
         print "All registries fetched successfully."
-    } else if ($name | is-empty) {
+    } else if ($registry | is-empty) {
         throw-error "Please specify a registry name or use --all flag"
     } else {
-        if not ($name in $env.nupm.registries) {
-            throw-error $"Registry '($name)' not found"
+        if not ($registry in $env.nupm.registries) {
+            throw-error $"Registry '($registry)' not found"
         }
 
-        let registry_url = $env.nupm.registries | get $name
-        fetch-registry $name $registry_url
+        let registry_url = $env.nupm.registries | get $registry
+        fetch-registry $registry $registry_url
 
-        print $"Registry '($name)' fetched successfully."
+        print $"Registry '($registry)' fetched successfully."
     }
 }
 
@@ -227,33 +225,19 @@ def fetch-registry [name: string, url: string] {
 
 # Initialize registry_idx.nuon with default registries
 @example "Initialize registry list" { nupm registry init-index }
-export def init-index [
-
-    registry?: record<name: string, url: string, enabled: bool>
-] {
+export def init-index [] {
     if not (nupm-home-prompt) {
         throw-error "Cannot create nupm.home directory."
     }
 
 
-    if ($env.nupm.registries | path exists) {
+    if ($env.nupm.index-path | path exists) {
         print $"Registry list already exists at ($env.nupm.index-path)"
         return
     }
 
     $env.nupm.registries | save $env.nupm.index-path
 
-    print $"Registry list initialized at ($env.nupm.index-path)"
+    print $"Registry index initialized at ($env.nupm.index-path)"
 }
 
-# Initialize nupm.registries value
-export def open-index []: nothing -> record {
-    if ($env.nupm.index-path | path exists) {
-      if not (($env.nupm.index-path | path type) == "file") {
-          throw-error $"($env.nupm.index-path) is not a filepath"
-      }
-      open $env.nupm.index-path | return
-    }
-
-    {}
-}
