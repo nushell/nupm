@@ -1,4 +1,4 @@
-use std [ assert log ]
+use std [ assert ]
 
 use ../nupm/utils/dirs.nu [ tmp-dir BASE_NUPM_CONFIG ]
 use ../nupm
@@ -60,8 +60,6 @@ export def install-module [] {
 
 export def install-custom [] {
     with-test-env {
-        log info CUSTOM
-        log info $env.nupm.home
         nupm install --path tests/packages/spam_custom
 
         assert installed [plugins nu_plugin_test]
