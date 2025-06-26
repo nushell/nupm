@@ -16,13 +16,13 @@ export def list []: nothing -> table {
 }
 
 
-# TODO
 # Show detailed information about a specific registry
-# @example "Show registry information" { nupm registry describe nupm }
-# export def describe [
-#     name: string        # Name of the registry
-# ]: nothing -> table {
-# }
+# returning a list of package names, type, and version
+@example "Show registry information" { nupm registry describe nupm }
+export def describe [
+    registry: string        # Name of the registry
+]: nothing -> table {
+}
 
 # Add a new registry
 @example "Add a new registry" { nupm registry add my-registry https://example.com/registry.nuon }
@@ -74,6 +74,8 @@ export def --env set-url [
     print $"Registry '($name)' URL updated successfully."
 }
 
+# https://www.nushell.sh/book/configuration.html#macos-keeping-usr-bin-open-as-open
+alias nu-rename = rename
 # Rename a registry
 @example "Rename a registry" { nupm registry rename my-registry our-registry }
 export def --env rename [
@@ -81,7 +83,7 @@ export def --env rename [
     new_name: string,
     --save,         # Whether to commit the change to the registry index
 ] {
-    $env.nupm.registries = $env.nupm.registries | ^rename --column { $name: $new_name }
+    $env.nupm.registries = $env.nupm.registries | nu-rename --column { $name: $new_name }
 
     if $save {
       $env.nupm.registries | save --force $env.nupm.index-path

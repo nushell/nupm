@@ -1,8 +1,8 @@
-# Design of `nupm` :warning: Work In Progress :warning: 
+# Design of `nupm` :warning: Work In Progress :warning:
 
 This file collects design ideas and directions. The intention is iterate on this document by PRs with discussion.
 
-> **Note**  
+> **Note**
 > in the following, until we settle down on precise names, we use the following placeholders:
 > - `METADATA_FILE`: the file containing the metadata of a package,
 > e.g. `project.nuon`, `metadata.json` or `nupm.nuon`
@@ -24,7 +24,7 @@ This file collects design ideas and directions. The intention is iterate on this
 
 A `nupm` project is defined by `METADATA_FILE`.
 This is where you define name of the project, version, dependencies, etc., and the type of the project.
-> **Note**  
+> **Note**
 > see [`METADATA.md`](references/METADATA.md) for a more in-depth description of
 > the `METADATA_FILE`
 
@@ -83,7 +83,7 @@ Requires these actions from the user (this should be kept as minimal as possible
 * Add `nupm.home/overlays` to NU_LIB_DIRS
 * Make the `nupm` command available somehow (e.g., `use` inside `config.nu`)
 
-> :warning: **WIP**  
+> :warning: **WIP**
 > The disadvantage of this is that the default install location is not an overlay. We could make `nupm` itself an overlay that adds itself as a command, so that you can activate/deactivate it. We might need a few attempts to get to the right solution.
 
 There are several approaches:
@@ -98,7 +98,7 @@ There are several approaches:
 In compiled programming languages, there are two kinds of dependencies: static and dynamic. Static are included statically and compiled when compiling the project,
 dynamic are pre-compiled libraries linked to the project.
 
-> **Note**  
+> **Note**
 > Nushell is [similar to compiled languages][Nushell compiled] rather than typical dynamic languages like Python, so these concepts are relevant for Nushell.
 
 Static dependencies:
@@ -120,7 +120,7 @@ as long as it has `METADATA_FILE` telling `nupm` what to do.
 
 Nushell's module design conflates CLI interface with API -- they are the same. Not all of the below are of the same priority.
 
-> **Note**  
+> **Note**
 > commands like `list`, `install`, `search`, `uninstall`, `update`, ..., i.e. should
 > - print short descriptions by default
 > - print long descriptions with `--long-description (-l)`
@@ -161,7 +161,7 @@ Nushell's module design conflates CLI interface with API -- they are the same. N
     - publish package to a repository
     - **NOT SUPPORTED FOR NOW**: the repository will be a *GitHub* repo with packages submitted by PRs to start with
 
-The following are for Python-style global overlays, we might need to re-think this for local package overlays: 
+The following are for Python-style global overlays, we might need to re-think this for local package overlays:
 - `nupm overlay new`
     - create a new global overlay (Python's virtual environment style)
     - `--local` flag could generate an overlay locally from the currently opened project

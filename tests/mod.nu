@@ -219,3 +219,78 @@ export def registry-add [] {
         assert equal $another_reg.url "./local-registry.nuon"
     }
 }
+
+export def registry-set-url [] {
+    with-test-env {
+        # Add a registry first
+        nupm registry add test-registry https://example.com/test.nuon
+
+        # Update the registry URL
+        nupm registry set-url test-registry https://updated-example.com/registry.nuon
+
+        # Verify URL was updated
+        let registries = nupm registry list
+        let test_reg = $registries | where name == "test-registry" | first
+        assert equal $test_reg.url "https://updated-example.com/registry.nuon"
+
+        # Update again to different URL
+        nupm registry set-url test-registry ./local-path.nuon
+
+        let registries_updated = nupm registry list
+        let test_reg_updated = $registries_updated | where name == "test-registry" | first
+        assert equal $test_reg_updated.url "./local-path.nuon"
+    }
+}
+
+export def registry-remove [] {
+    with-test-env {
+        # Add registries first
+        nupm registry add test-registry https://example.com/test.nuon
+        nupm registry add another-registry https://another.com/registry.nuon
+
+        # Verify both were added
+        let registries_before = nupm registry list
+        assert equal ($registries_before | length) 3  # 1 default + 2 added
+
+        # Remove one registry
+        nupm registry remove test-registry
+
+        # Verify registry was removed
+        let registries_after = nupm registry list
+        assert equal ($registries_after | length) 2
+        assert equal ($registries_after | where name == "test-registry" | length) 0
+        assert equal ($registries_after | where name == "another-registry" | length) 1
+
+        # Remove the other registry
+        nupm registry remove another-registry
+
+        let registries_final = nupm registry list
+        assert equal ($registries_final | length) 1  # Only default registry left
+    }
+}
+
+export def registry-rename [] {
+    with-test-env {
+        # Add a registry first
+        nupm registry add test-registry https://example.com/test.nuon
+
+        # Rename the registry
+        nupm registry rename test-registry renamed-registry
+
+        # Verify registry was renamed
+        let registries = nupm registry list
+        assert equal ($registries | where name == "test-registry" | length) 0
+        assert equal ($registries | where name == "renamed-registry" | length) 1
+
+        let renamed_reg = $registries | where name == "renamed-registry" | first
+        assert equal $renamed_reg.url "https://example.com/test.nuon"
+
+        # Rename again
+        nupm registry rename renamed-registry final-name
+
+        let registries_final = nupm registry list
+        let final_reg = $registries_final | where name == "final-name" | first
+        assert equal $final_reg.url "https://example.com/test.nuon"
+        assert equal ($registries_final | where name == "renamed-registry" | length) 0
+    }
+}
