@@ -221,9 +221,7 @@ def fetch-registry [name: string, url: string] {
 }
 
 
-# Initialize registry_idx.nuon with default registries
-@example "Initialize registry list" { nupm registry init-index }
-export def init-index [] {
+def init-index [] {
     if not (nupm-home-prompt) {
         throw-error "Cannot create nupm.home directory."
     }
@@ -237,5 +235,18 @@ export def init-index [] {
     $env.nupm.registries | save $env.nupm.index-path
 
     print $"Registry index initialized at ($env.nupm.index-path)"
+}
+
+
+# Initialize a new nupm registry or a registry index if the `--index` flag is
+# passed in
+@example "Initialize registry index" { nupm registry init --index }
+@example "Initialize registry list" { nupm registry init-index }
+export def init [--index] {
+    if $index {
+        init-index
+        return
+    }
+    # TODO initialize registry index here
 }
 
