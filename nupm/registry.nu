@@ -15,42 +15,72 @@ export def list []: nothing -> table {
     $env.nupm.registries | transpose name url | sort-by name
 }
 
+def describe-comp [] {
+    list | get name
+}
 
 # Show detailed information about a specific registry
 # returning a list of package names, type, and version
 @example "Show registry information" { nupm registry describe nupm }
 export def describe [
-    registry: string        # Name of the registry
+    registry: string@describe-comp # Name of the registry
 ]: nothing -> table {
+    use utils/dirs.nu cache-dir
+
     if not ($registry in $env.nupm.registries) {
         throw-error $"Registry '($registry)' not found"
     }
 
     let registry_url = $env.nupm.registries | get $registry
-    
+    let registry_cache_dir = cache-dir --ensure | path join $registry
+    let cached_registry = $registry_cache_dir | path join "registry.nuon"
+
     try {
-        let registry_data = if ($registry_url | path exists) {
+        # Always check cache first, only fall back to URL if cache doesn't exist
+        let registry_data = if ($cached_registry | path exists) {
+            open $cached_registry
+        } else if ($registry_url | path exists) {
+            # Local registry file
             open $registry_url
         } else {
-            http get $registry_url
+            # Remote registry - fetch and cache
+            let data = http get $registry_url
+            mkdir $registry_cache_dir
+            $data | save $cached_registry
+            $data
         }
-        
+
         $registry_data | each {|entry|
-            let package_data = if ($registry_url | path exists) {
+            let package_cache_path = $registry_cache_dir | path join $"($entry.name).nuon"
+
+            # Always check cache first for package data too
+            let package_file_data = if ($package_cache_path | path exists) {
+                open $package_cache_path
+            } else if ($registry_url | path exists) {
+                # Local package file
                 let package_path = $registry_url | path dirname | path join $entry.path
                 open $package_path
             } else {
-                let package_url = $registry_url | url parse | update path ($entry.path) | url join
-                http get $package_url
+                # Remote package - fetch and cache
+                let base_url = $registry_url | url parse
+                let package_url = $base_url | update path ($base_url.path | path dirname | path join $entry.path) | url join
+                let data = http get $package_url
+                $data | save $package_cache_path
+                $data
             }
-            
-            {
-                name: $entry.name,
-                type: $package_data.type,
-                version: $package_data.version,
-                description: ($package_data.description? | default "")
+
+            # Package data is a table of versions for this package
+            $package_file_data | each {|pkg|
+                {
+                    name: $pkg.name,
+                    # TODO rename package metadata type field to source
+                    # to avoid confustion with custom|script|module type enumberable
+                    source: $pkg.type,
+                    version: $pkg.version,
+                    # description: ($pkg.description? | default "")
+                }
             }
-        }
+        } | flatten
     } catch {|err|
         throw-error $"Failed to fetch registry data from '($registry_url)': ($err.msg)"
     }
@@ -122,6 +152,76 @@ export def --env rename [
     }
 
     print $"Registry '($name)' renamed successfully."
+}
+
+# Fetch and cache registry data locally
+@example "Fetch a specific registry" { nupm registry fetch nupm }
+@example "Fetch all registries" { nupm registry fetch --all }
+export def fetch [
+    name?: string,  # Name of the registry to fetch (optional if --all is used)
+    --all,          # Fetch all configured registries
+] {
+    use utils/dirs.nu cache-dir
+
+    if $all {
+        # Fetch all registries
+        let registries = $env.nupm.registries | transpose name url
+        print $"Fetching ($registries | length) registries..."
+
+        $registries | each {|reg|
+            fetch-registry $reg.name $reg.url
+        }
+
+        print "All registries fetched successfully."
+    } else if ($name | is-empty) {
+        throw-error "Please specify a registry name or use --all flag"
+    } else {
+        if not ($name in $env.nupm.registries) {
+            throw-error $"Registry '($name)' not found"
+        }
+
+        let registry_url = $env.nupm.registries | get $name
+        fetch-registry $name $registry_url
+
+        print $"Registry '($name)' fetched successfully."
+    }
+}
+
+# Helper function to fetch a single registry
+def fetch-registry [name: string, url: string] {
+    use utils/dirs.nu cache-dir
+
+    let registry_cache_dir = cache-dir --ensure | path join $name
+    mkdir $registry_cache_dir
+
+    if ($url | path exists) {
+        print $"Registry '($name)' is local, copying to cache..."
+        cp $url ($registry_cache_dir | path join "registry.nuon")
+
+        # Copy package files if they exist locally
+        let registry_data = open $url
+        $registry_data | each {|entry|
+            let package_path = $url | path dirname | path join $entry.path
+            if ($package_path | path exists) {
+                cp $package_path ($registry_cache_dir | path join $"($entry.name).nuon")
+            }
+        }
+    } else {
+        print $"Fetching registry '($name)' from ($url)..."
+
+        # Fetch registry index
+        let registry_data = http get $url
+        $registry_data | save --force ($registry_cache_dir | path join "registry.nuon")
+
+        # Fetch all package metadata files
+        $registry_data | each {|entry|
+            print $"  Fetching package ($entry.name)..."
+            let base_url = $url | url parse
+            let package_url = $base_url | update path ($base_url.path | path dirname | path join $entry.path) | url join
+            let package_data = http get $package_url
+            $package_data | save --force ($registry_cache_dir | path join $"($entry.name).nuon")
+        }
+    }
 }
 
 

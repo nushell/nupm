@@ -47,19 +47,23 @@ export def search-package [
 
             } else {
                 try {
-                    let reg = http get $url_or_path
-
-                    # why didn't this line create the cache?
-                    let reg_file = cache-dir --ensure
-                        | path join registry $'($name).nuon'
-
-                    mkdir ($reg_file | path dirname)
-                    $reg | save --force $reg_file
+                    let registry_cache_dir = cache-dir --ensure | path join $name
+                    let reg_file = $registry_cache_dir | path join "registry.nuon"
+                    
+                    let reg = if ($reg_file | path exists) {
+                        open $reg_file
+                    } else {
+                        let data = http get $url_or_path
+                        mkdir $registry_cache_dir
+                        $data | save --force $reg_file
+                        $data
+                    }
 
                     {
                         reg: $reg
                         path: $reg_file
                         is_url: true
+                        cache_dir: $registry_cache_dir
                     }
                 } catch {
                     throw-error $"Cannot open '($url_or_path)' as a file or URL."
@@ -72,15 +76,17 @@ export def search-package [
             let pkg_files = $registry.reg | where $name_matcher
 
             let pkgs = $pkg_files | each {|row|
-                let pkg_file_path = $registry.path
-                    | path dirname
-                    | path join $row.path
+                let pkg_file_path = if $registry.is_url {
+                    $registry.cache_dir | path join $"($row.name).nuon"
+                } else {
+                    $registry.path | path dirname | path join $row.path
+                }
 
-                let hash = if ($pkg_file_path | path type) == file {
+                let hash = if ($pkg_file_path | path exists) {
                     $pkg_file_path | hash-file
                 }
 
-                if $registry.is_url and $hash != $row.hash {
+                if $registry.is_url and (not ($pkg_file_path | path exists) or $hash != $row.hash) {
                     let url = $url_or_path | url update-name $row.path
                     http get $url | save --force $pkg_file_path
                 }

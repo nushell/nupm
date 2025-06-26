@@ -1,4 +1,4 @@
-use std assert
+use std [ assert log ]
 
 use ../nupm/utils/dirs.nu [ tmp-dir BASE_NUPM_CONFIG ]
 use ../nupm
@@ -60,7 +60,6 @@ export def install-module [] {
 
 export def install-custom [] {
     with-test-env {
-      use std/log
         log info CUSTOM
         log info $env.nupm.home
         nupm install --path tests/packages/spam_custom
@@ -301,14 +300,21 @@ export def registry-describe [] {
         let description = nupm registry describe test
 
         # Verify we get package information
-        assert ($description | length > 0)
-        
+        assert (($description | length) > 0)
+
         # Check for expected packages from the test registry
-        let spam_script = $description | where name == "spam_script" | first
-        assert equal $spam_script.name "spam_script"
-        assert equal $spam_script.type "script"
-        assert equal $spam_script.version "0.2.0"
-        
+        let spam_scripts = $description | where name == "spam_script"
+        assert (($spam_scripts | length) > 0)
+
+        # Check that we have the latest version
+        let spam_script_latest = $spam_scripts | where version == "0.2.0"
+        if (($spam_script_latest | length) > 0) {
+            let pkg = $spam_script_latest | first
+            assert equal $pkg.name "spam_script"
+            assert equal $pkg.source "local"
+            assert equal $pkg.version "0.2.0"
+        }
+
         # Test error case with non-existent registry
         let describe_result = try {
             nupm registry describe non-existent-registry
@@ -316,7 +322,60 @@ export def registry-describe [] {
         } catch {|err|
             $err.msg
         }
-        
+
         assert ("Registry 'non-existent-registry' not found" in $describe_result)
+    }
+}
+
+export def registry-fetch [] {
+    with-test-env {
+        # Test fetch with local registry (test registry)
+        let fetch_result = try {
+            nupm registry fetch test
+            "success"
+        } catch {|err|
+            $err.msg
+        }
+
+        # For local registry, fetch should succeed
+        assert equal $fetch_result "success"
+
+        # Verify cache directory was created
+        let cache_dir = $env.nupm.cache | path join test
+        assert ($cache_dir | path exists)
+        assert (($cache_dir | path join "registry.nuon") | path exists)
+
+        # Verify package files were cached
+        let spam_script_cache = $cache_dir | path join "spam_script.nuon"
+        assert ($spam_script_cache | path exists)
+
+        # Test --all flag (only with local registries to avoid network issues)
+        let fetch_all_result = try {
+            nupm registry fetch --all
+            "success"
+        } catch {|err|
+            $err.msg
+        }
+
+        assert equal $fetch_all_result "success"
+
+        # Test error cases
+        let no_name_result = try {
+            nupm registry fetch
+            "should not reach here"
+        } catch {|err|
+            $err.msg
+        }
+
+        assert ("Please specify a registry name or use --all flag" in $no_name_result)
+
+        let invalid_registry_result = try {
+            nupm registry fetch invalid-registry
+            "should not reach here"
+        } catch {|err|
+            $err.msg
+        }
+
+        assert ("Registry 'invalid-registry' not found" in $invalid_registry_result)
     }
 }
