@@ -49,7 +49,7 @@ export def search-package [
                 try {
                     let registry_cache_dir = cache-dir --ensure | path join $name
                     let reg_file = $registry_cache_dir | path join "registry.nuon"
-                    
+
                     let reg = if ($reg_file | path exists) {
                         open $reg_file
                     } else {
@@ -82,7 +82,7 @@ export def search-package [
                     $registry.path | path dirname | path join $row.path
                 }
 
-                let hash = if ($pkg_file_path | path exists) {
+                let hash = if ($pkg_file_path | path type) == file {
                     $pkg_file_path | hash-file
                 }
 

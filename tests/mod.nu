@@ -1,4 +1,4 @@
-use std [ assert ]
+use std assert
 
 use ../nupm/utils/dirs.nu [ tmp-dir BASE_NUPM_CONFIG ]
 use ../nupm
