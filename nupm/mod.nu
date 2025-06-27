@@ -1,3 +1,4 @@
+use std/log
 
 use utils/dirs.nu [ nupm-home-prompt BASE_NUPM_CONFIG ]
 
