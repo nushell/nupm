@@ -1,4 +1,3 @@
-use std/log
 
 use utils/dirs.nu [ nupm-home-prompt BASE_NUPM_CONFIG ]
 
@@ -39,6 +38,7 @@ export-env {
         from_string: { |s| $s | from nuon }
         to_string: { |v| $v | to nuon }
     }
+    use std/log []
 }
 
 # Nushell Package Manager

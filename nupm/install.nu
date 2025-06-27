@@ -106,6 +106,7 @@ def install-path [
 
             do {
                 flatten-nupm-env
+                cd $tmp_dir
                 ^$nu.current-exe $build_file ($pkg_dir | path join 'nupm.nuon')
             }
 
@@ -241,7 +242,6 @@ export def main [
     --force(-f)  # Overwrite already installed package
     --no-confirm  # Allows to bypass the interactive confirmation, useful for scripting
 ]: nothing -> nothing {
-    echo $env.nupm
     if not (nupm-home-prompt --no-confirm=$no_confirm) {
         return
     }
