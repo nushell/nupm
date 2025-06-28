@@ -140,10 +140,10 @@ export def env-vars-are-set [] {
 
     use ../nupm
 
-    assert equal $env.nupm.home $BASE_NUPM_CONFIG.default.home
-    assert equal $env.nupm.temp $BASE_NUPM_CONFIG.default.temp
-    assert equal $env.nupm.cache $BASE_NUPM_CONFIG.default.cache
-    assert equal $env.nupm.registries $BASE_NUPM_CONFIG.default.registries
+    assert equal $env.nupm.home $BASE_NUPM_CONFIG.home
+    assert equal $env.nupm.temp $BASE_NUPM_CONFIG.temp
+    assert equal $env.nupm.cache $BASE_NUPM_CONFIG.cache
+    assert equal $env.nupm.registries $BASE_NUPM_CONFIG.registries
 }
 
 export def generate-local-registry [] {
@@ -375,5 +375,33 @@ export def registry-fetch [] {
         }
 
         assert ("Registry 'invalid-registry' not found" in $invalid_registry_result)
+    }
+}
+
+export def config-nu-search-path [] {
+    with-test-env {
+        use ../nupm
+        # By default, nu_search_path should be false
+        assert equal $env.nupm.config.nu_search_path false
+
+        # Verify nupm directories are NOT added to NU_LIB_DIRS when disabled
+        let modules_dir = $env.nupm.home | path join modules
+        let scripts_dir = $env.nupm.home | path join scripts
+        let plugins_dir = $env.nupm.home | path join plugins
+
+        # Check that nupm dirs are not in the search paths
+        assert (not ($modules_dir in $env.NU_LIB_DIRS))
+        assert (not ($scripts_dir in $env.NU_LIB_DIRS))
+        assert (not ($plugins_dir in $env.NU_PLUGIN_DIRS))
+
+        # Manually set the config to true to test the functionality
+        $env.nupm.config.nu_search_path = true
+
+        use ../nupm
+        assert equal $env.nupm.config.nu_search_path true
+
+        assert ($modules_dir in $env.NU_LIB_DIRS)
+        assert ($scripts_dir in $env.NU_LIB_DIRS)
+        assert ($plugins_dir in $env.NU_PLUGIN_DIRS)
     }
 }

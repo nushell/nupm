@@ -13,7 +13,7 @@ export module test.nu
 
 export-env {
     # Ensure that $env.nupm is always set when running nupm. Any missing variaables are set by `$BASE_NUPM_CONFIG`
-    $env.nupm = $env.nupm? | default {} | merge $BASE_NUPM_CONFIG
+    $env.nupm = $BASE_NUPM_CONFIG | merge deep ($env.nupm? | default {})
     # set missing values to default while
     # retaining defaults in $env.nupm.default
     $env.nupm.default = $BASE_NUPM_CONFIG

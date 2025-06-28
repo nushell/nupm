@@ -46,7 +46,7 @@ paths](https://www.nushell.sh/book/configuration.html#launch-stages), set the
 # env.nu
 $env.nupm = {
   home: "path/to/my_home"
-  config: { add_to_nu_dirs: true }
+  config: { nu_search_path: true }
 }
 # ...
 use path/to/nupm

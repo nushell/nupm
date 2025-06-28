@@ -97,7 +97,7 @@ export def cache-dir [--ensure]: nothing -> path {
 }
 
 export def tmp-dir [subdir: string, --ensure]: nothing -> path {
-    let d = $BASE_NUPM_CONFIG.default.temp
+    let d = $BASE_NUPM_CONFIG.temp
         | path join $subdir
         | path join (random chars -l 8)
 
