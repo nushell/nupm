@@ -108,3 +108,16 @@ export def search-package [
 
     $regs | where not ($it.pkgs | is-empty)
 }
+
+
+export def open-index []: path -> record {
+    let index_file = $in
+    if ($index_file | path exists) {
+      if not (($index_file | path type) == "file") {
+          throw-error $"($index_file) is not a filepath"
+      }
+      return (open $index_file)
+    }
+
+    {}
+}

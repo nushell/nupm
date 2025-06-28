@@ -136,14 +136,14 @@ export def nupm-status-module [] {
 }
 
 export def env-vars-are-set [] {
-    $env.nupm = null
+    hide-env nupm --ignore-errors
 
     use ../nupm
 
-    assert equal $env.nupm.home $BASE_NUPM_CONFIG.default-home
-    assert equal $env.nupm.temp $BASE_NUPM_CONFIG.default-temp
-    assert equal $env.nupm.cache $BASE_NUPM_CONFIG.default-cache
-    assert equal $env.nupm.registries $BASE_NUPM_CONFIG.default-registries
+    assert equal $env.nupm.home $BASE_NUPM_CONFIG.default.home
+    assert equal $env.nupm.temp $BASE_NUPM_CONFIG.default.temp
+    assert equal $env.nupm.cache $BASE_NUPM_CONFIG.default.cache
+    assert equal $env.nupm.registries $BASE_NUPM_CONFIG.default.registries
 }
 
 export def generate-local-registry [] {

@@ -1,12 +1,21 @@
 # Base values for nupm that are used as defaults if not present in `$env.nupm`
+export const REGISTRY_IDX_FILENAME = "registry_index.nuon"
 export const BASE_NUPM_CONFIG = {
-  default-home: ($nu.default-config-dir | path join "nupm")
-  default-cache: ($nu.default-config-dir | path join nupm cache)
-  default-temp: ($nu.temp-path | path join "nupm")
-  default-registries: {
-    nupm: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
-  }
+    default: {
+        home: ($nu.default-config-dir | path join nupm)
+        cache: ($nu.default-config-dir | path join nupm cache)
+        index-path: ($nu.default-config-dir | path join nupm $REGISTRY_IDX_FILENAME)
+        temp: ($nu.temp-path | path join nupm)
+        registries: {
+            nupm: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
+        }
+    }
 }
+
+def env-colour [env_name: string]: nothing -> string {
+ $"(ansi purple)($env_name)(ansi reset)"
+}
+
 # Directories and related utilities used in nupm
 
 # Prompt to create $env.nupm.home if it does not exist and some sanity checks.
@@ -15,7 +24,7 @@ export const BASE_NUPM_CONFIG = {
 export def nupm-home-prompt [--no-confirm]: nothing -> bool {
     if 'home' not-in $env.nupm {
         error make --unspanned {
-            msg: "Internal error: nupm.home environment variable is not set"
+            msg: $"Internal error: (env-colour "$env.nupm.home") is not set"
         }
     }
 
@@ -23,7 +32,7 @@ export def nupm-home-prompt [--no-confirm]: nothing -> bool {
         if ($env.nupm.home | path type) != 'dir' {
             error make --unspanned {
                 msg: ($"Root directory ($env.nupm.home) exists, but is not a"
-                    + " directory. Make sure $env.nupm.home points at a valid"
+                    + $" directory. Make sure (env-colour "$env.nupm.home") points at a valid"
                     + " directory and try again.")
             }
         }
@@ -84,7 +93,7 @@ export def cache-dir [--ensure]: nothing -> path {
 }
 
 export def tmp-dir [subdir: string, --ensure]: nothing -> path {
-    let d = $BASE_NUPM_CONFIG.default-temp
+    let d = $BASE_NUPM_CONFIG.default.temp
         | path join $subdir
         | path join (random chars -l 8)
 
