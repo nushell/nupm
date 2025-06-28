@@ -39,22 +39,17 @@ One can change the location of the Nupm directory with `$env.nupm.home`, e.g.
 $env.nupm.home = ($env.XDG_DATA_HOME | path join "nupm")
 ```
 
-Because Nupm will install modules and scripts in `{{nupm-home}}/modules/` and `{{nupm-home}}/scripts/` respectively, it is a good idea to add these paths to `$env.NU_LIB_DIRS` and `$env.PATH` respectively, e.g. if you have `$env.nupm.home` defined:
+If you would like installed modules, scripts, and plugins to show up in [nushell search
+paths](https://www.nushell.sh/book/configuration.html#launch-stages), set the
+`nu_search_path` to `true` before calling `use nupm`:
 ```nushell
 # env.nu
-
-$env.NU_LIB_DIRS = [
-    ...
-    ($env.nupm.home | path join "modules")
-]
-
-$env.PATH = (
-    $env.PATH
-        | split row (char esep)
-        | ....
-        | prepend ($env.nupm.home | path join "scripts")
-        | uniq
-)
+$env.nupm = {
+  home: "path/to/my_home"
+  config: { add_to_nu_dirs: true }
+}
+# ...
+use path/to/nupm
 ```
 
 ## :rocket: usage [[toc](#table-of-content)]

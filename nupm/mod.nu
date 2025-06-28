@@ -13,17 +13,22 @@ export module test.nu
 
 export-env {
     # Ensure that $env.nupm is always set when running nupm. Any missing variaables are set by `$BASE_NUPM_CONFIG`
-    $env.nupm = ($env.nupm? | default {}
-        | merge $BASE_NUPM_CONFIG
-        # set missing values to default while retaining
-        # $env.nupm.default
-        | merge $BASE_NUPM_CONFIG.default
-    )
+    $env.nupm = $env.nupm? | default {} | merge $BASE_NUPM_CONFIG
+    # set missing values to default while
+    # retaining defaults in $env.nupm.default
+    $env.nupm.default = $BASE_NUPM_CONFIG
     # read from registry index but don't overwrite registires already present in $env.nupm.registries
     $env.nupm.registries = $env.nupm.index-path | open-index | merge $env.nupm.registries
     $env.ENV_CONVERSIONS.nupm = {
         from_string: { |s| $s | from nuon }
         to_string: { |v| $v | to nuon }
+    }
+    if $env.nupm.config.nu_search_path {
+        let nupm_lib_dirs = [modules, scripts] | each {|s| $env.nupm.home | path join $s }
+        $env.NU_LIB_DIRS = $env.NU_LIB_DIRS | prepend $nupm_lib_dirs | uniq
+
+        let nupm_plugin_dir = $env.nupm.home| path join "plugins"
+        $env.NU_PLUGIN_DIRS = $env.NU_PLUGIN_DIRS | prepend $nupm_plugin_dir | uniq
     }
     use std/log []
 }

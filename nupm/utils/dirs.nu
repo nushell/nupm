@@ -1,14 +1,18 @@
-# Base values for nupm that are used as defaults if not present in `$env.nupm`
 export const REGISTRY_IDX_FILENAME = "registry_index.nuon"
+# Base values for nupm that are used as defaults if not present in `$env.nupm`
 export const BASE_NUPM_CONFIG = {
-    default: {
-        home: ($nu.default-config-dir | path join nupm)
-        cache: ($nu.default-config-dir | path join nupm cache)
-        index-path: ($nu.default-config-dir | path join nupm $REGISTRY_IDX_FILENAME)
-        temp: ($nu.temp-path | path join nupm)
-        registries: {
-            nupm: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
-        }
+    home: ($nu.default-config-dir | path join nupm)
+    cache: ($nu.default-config-dir | path join nupm cache)
+    index-path: ($nu.default-config-dir | path join nupm $REGISTRY_IDX_FILENAME)
+    temp: ($nu.temp-path | path join nupm)
+    registries: {
+        nupm: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
+    }
+    config: {
+        # TODO
+        # sync_list: { ... }
+        # sync_on_launch: false
+        nu_search_path: false
     }
 }
 
