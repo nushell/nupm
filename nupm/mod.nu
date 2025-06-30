@@ -1,34 +1,34 @@
 use std/log
 
-use utils/dirs.nu [
-    DEFAULT_NUPM_HOME DEFAULT_NUPM_TEMP DEFAULT_NUPM_CACHE
-    DEFAULT_NUPM_REGISTRIES nupm-home-prompt
-]
+use utils/dirs.nu [ nupm-home-prompt BASE_NUPM_CONFIG ]
+use utils/registry.nu open-index
 
 export module install.nu
 export module publish.nu
+export module registry.nu
 export module search.nu
 export module status.nu
 export module test.nu
 
 export-env {
-    # Ensure that $env.NUPM_HOME is always set when running nupm. Any missing
-    # $env.NUPM_HOME during nupm execution is a bug.
-    $env.NUPM_HOME = ($env.NUPM_HOME? | default $DEFAULT_NUPM_HOME)
+    # Ensure that $env.nupm is always set when running nupm. Any missing variaables are set by `$BASE_NUPM_CONFIG`
+    $env.nupm = $BASE_NUPM_CONFIG | merge deep ($env.nupm? | default {})
+    # set missing values to default while
+    # retaining defaults in $env.nupm.default
+    $env.nupm.default = $BASE_NUPM_CONFIG
+    # read from registry index but don't overwrite registires already present in $env.nupm.registries
+    $env.nupm.registries = $env.nupm.index-path | open-index | merge $env.nupm.registries
+    $env.ENV_CONVERSIONS.nupm = {
+        from_string: { |s| $s | from nuon }
+        to_string: { |v| $v | to nuon }
+    }
+    if $env.nupm.config.nu_search_path {
+        let nupm_lib_dirs = [modules, scripts] | each {|s| $env.nupm.home | path join $s }
+        $env.NU_LIB_DIRS = $env.NU_LIB_DIRS | prepend $nupm_lib_dirs | uniq
 
-    # Ensure temporary path is set.
-    $env.NUPM_TEMP = ($env.NUPM_TEMP? | default $DEFAULT_NUPM_TEMP)
-
-    # Ensure install cache is set
-    $env.NUPM_CACHE = ($env.NUPM_CACHE? | default $DEFAULT_NUPM_CACHE)
-
-    # TODO: Maybe this is not the best way to set registries, but should be
-    #       good enough for now.
-    # TODO: Add `nupm registry` for showing info about registries
-    # TODO: Add `nupm registry add/remove` to add/remove registry from the env?
-    $env.NUPM_REGISTRIES = ($env.NUPM_REGISTRIES?
-        | default $DEFAULT_NUPM_REGISTRIES)
-
+        let nupm_plugin_dir = $env.nupm.home| path join "plugins"
+        $env.NU_PLUGIN_DIRS = $env.NU_PLUGIN_DIRS | prepend $nupm_plugin_dir | uniq
+    }
     use std/log []
 }
 
@@ -38,8 +38,8 @@ export-env {
 # Nushell packages including modules, scripts, and custom packages.
 #
 # Configuration:
-#   Set `NUPM_HOME` environment variable to change installation directory
-#   Set `NUPM_REGISTRIES` to configure package registries
+#   Set `nupm.home` environment variable to change installation directory
+#   Set `nupm.registries` to configure package registries
 @example "Install a package from a local directory" { nupm install my-package --path }
 @example "Publish a package" { nupm publish my-registry.nuon --local --save }
 @example "Search for specific version" { nupm search my-package --pkg-version 1.2.0 }

@@ -1,7 +1,7 @@
 use utils/completions.nu complete-registries
-use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir ]
+use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir PACKAGE_FILENAME ]
 use utils/log.nu throw-error
-use utils/misc.nu [check-cols hash-fn url]
+use utils/misc.nu [check-cols hash-fn url flatten-nupm-env]
 use utils/package.nu open-package-file
 use utils/registry.nu search-package
 use utils/version.nu filter-by-version
@@ -105,8 +105,9 @@ def install-path [
             let tmp_dir = tmp-dir build --ensure
 
             do {
+                flatten-nupm-env
                 cd $tmp_dir
-                ^$nu.current-exe $build_file ($pkg_dir | path join 'nupm.nuon')
+                ^$nu.current-exe $build_file ($pkg_dir | path join $PACKAGE_FILENAME)
             }
 
             rm -rf $tmp_dir
@@ -235,7 +236,7 @@ def fetch-package [
 export def main [
     package  # Name, path, or link to the package
     --registry: string@complete-registries  # Which registry to use (either a name
-                                            # in $env.NUPM_REGISTRIES or a path)
+                                            # in $env.nupm.registries or a path)
     --pkg-version(-v): string  # Package version to install
     --path  # Install package from a directory with nupm.nuon given by 'name'
     --force(-f)  # Overwrite already installed package

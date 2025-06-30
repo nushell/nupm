@@ -1,3 +1,4 @@
+use dirs.nu PACKAGE_FILENAME
 # Open nupm.nuon
 export def open-package-file [dir: path] {
     if not ($dir | path exists) {
@@ -6,11 +7,11 @@ export def open-package-file [dir: path] {
         )
     }
 
-    let package_file = $dir | path join "nupm.nuon"
+    let package_file = $dir | path join $PACKAGE_FILENAME
 
     if not ($package_file | path exists) {
         throw-error "package_file_not_found" (
-            $'Could not find "nupm.nuon" in ($dir) or any parent directory.'
+            $'Could not find "($PACKAGE_FILENAME)" in ($dir) or any parent directory.'
         )
     }
 

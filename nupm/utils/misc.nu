@@ -58,10 +58,18 @@ export module url {
     export def update-name [new_name: string]: string -> string {
         url parse
         | update path {|url|
-            # skip the first '/' and replace last elemnt with the new name
+            # skip the first '/' and replace last element with the new name
             let parts = $url.path | path split | skip 1 | drop 1
             $parts | append $new_name | str join '/'
         }
         | url join
     }
+}
+
+# workaround for https://github.com/nushell/nushell/issues/16036
+export def --env flatten-nupm-env [] {
+    $env.NUPM_HOME = $env.nupm.home
+    $env.NUPM_CACHE = $env.nupm.cache
+    $env.NUPM_TEMP = $env.nupm.temp
+    $env.NUPM_REGISTRIES = $env.nupm.registries | to nuon
 }

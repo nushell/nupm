@@ -92,7 +92,7 @@ _See the new `registry/` directory, the following example slightly differs from 
 
 It is possible to only publish to a registry stored on your file system because we don't have a web service or anything like that.
 
-The intented workflow for publishing a package is:
+The intended workflow for publishing a package is:
 1. Check out the git repository with the registry
 2. `cd` into the package you want to publish
 3. Run `nupm publish chosen_registry` to preview the changes
