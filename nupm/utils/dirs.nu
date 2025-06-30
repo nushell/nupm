@@ -1,5 +1,8 @@
-export const REGISTRY_IDX_FILENAME = "registry_index.nuon"
 # Base values for nupm that are used as defaults if not present in `$env.nupm`
+export const REGISTRY_IDX_FILENAME = "registry_index.nuon"
+export const REGISTRY_FILENAME = "registry.nuon"
+export const PACKAGE_FILENAME = "nupm.nuon"
+
 export const BASE_NUPM_CONFIG = {
     home: ($nu.default-config-dir | path join nupm)
     cache: ($nu.default-config-dir | path join nupm cache)
@@ -113,7 +116,7 @@ export def tmp-dir [subdir: string, --ensure]: nothing -> path {
 export def find-root [dir: path]: [ nothing -> path, nothing -> nothing] {
     let root_candidate = 1..($dir | path split | length)
         | reduce -f $dir {|_, acc|
-            if ($acc | path join nupm.nuon | path exists) {
+            if ($acc | path join $PACKAGE_FILENAME | path exists) {
                 $acc
             } else {
                 $acc | path dirname
@@ -122,7 +125,7 @@ export def find-root [dir: path]: [ nothing -> path, nothing -> nothing] {
 
     # We need to do the last check in case the reduce loop ran to the end
     # without finding nupm.nuon
-    if ($root_candidate | path join nupm.nuon | path type) == 'file' {
+    if ($root_candidate | path join $PACKAGE_FILENAME | path type) == 'file' {
         $root_candidate
     } else {
         null

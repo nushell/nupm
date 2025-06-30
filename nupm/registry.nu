@@ -1,6 +1,6 @@
 # Registry management for nupm
 
-use utils/dirs.nu [nupm-home-prompt]
+use utils/dirs.nu [nupm-home-prompt REGISTRY_FILENAME]
 use utils/log.nu throw-error
 
 # Manage nupm registires
@@ -31,7 +31,7 @@ export def describe [
 
     let registry_url = $env.nupm.registries | get $registry
     let registry_cache_dir = cache-dir --ensure | path join $registry
-    let cached_registry = $registry_cache_dir | path join "registry.nuon"
+    let cached_registry = $registry_cache_dir | path join $REGISTRY_FILENAME
 
     try {
         # Always check cache first, only fall back to URL if cache doesn't exist
@@ -192,7 +192,7 @@ def fetch-registry [name: string, url: string] {
 
     if ($url | path exists) {
         print $"Registry '($name)' is local, copying to cache..."
-        cp $url ($registry_cache_dir | path join "registry.nuon")
+        cp $url ($registry_cache_dir | path join $REGISTRY_FILENAME)
 
         # Copy package files if they exist locally
         let registry_data = open $url
@@ -207,7 +207,7 @@ def fetch-registry [name: string, url: string] {
 
         # Fetch registry index
         let registry_data = http get $url
-        $registry_data | save --force ($registry_cache_dir | path join "registry.nuon")
+        $registry_data | save --force ($registry_cache_dir | path join $REGISTRY_FILENAME)
 
         # Fetch all package metadata files
         $registry_data | each {|entry|

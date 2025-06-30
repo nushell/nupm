@@ -1,9 +1,9 @@
 use std assert
 
-use ../nupm/utils/dirs.nu [ tmp-dir BASE_NUPM_CONFIG ]
+use ../nupm/utils/dirs.nu [ tmp-dir BASE_NUPM_CONFIG REGISTRY_FILENAME ]
 use ../nupm
 
-const TEST_REGISTRY_PATH = ([tests packages registry registry.nuon] | path join)
+const TEST_REGISTRY_PATH = ([tests packages registry $REGISTRY_FILENAME] | path join)
 
 
 def with-test-env [closure: closure]: nothing -> nothing {
