@@ -241,7 +241,6 @@ def init-index [] {
 # Initialize a new nupm registry or a registry index if the `--index` flag is
 # passed in
 @example "Initialize registry index" { nupm registry init --index }
-@example "Initialize registry list" { nupm registry init-index }
 export def init [--index] {
     if $index {
         init-index
