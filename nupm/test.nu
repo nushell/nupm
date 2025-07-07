@@ -1,4 +1,4 @@
-use utils/dirs.nu [ tmp-dir find-root ]
+use utils/dirs.nu [ tmp-dir find-root PACKAGE_FILENAME ]
 use utils/log.nu throw-error
 
 # Run tests for a nupm package
@@ -28,7 +28,7 @@ export def main [
 
     if $pkg_root == null {
         throw-error "package_file_not_found" (
-            $'Could not find "nupm.nuon" in ($dir) or any parent directory.'
+            $'Could not find "($PACKAGE_FILENAME)" in ($dir) or any parent directory.'
         )
     }
 

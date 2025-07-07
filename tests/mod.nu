@@ -1,10 +1,10 @@
 use std assert
 
 use ../nupm/utils/dirs.nu
-use ../nupm/utils/dirs.nu tmp-dir
+use ../nupm/utils/dirs.nu [ tmp-dir REGISTRY_FILENAME ]
 use ../nupm
 
-const TEST_REGISTRY_PATH = ([tests packages registry registry.nuon] | path join)
+const TEST_REGISTRY_PATH = ([tests packages registry $REGISTRY_FILENAME] | path join)
 
 
 def with-test-env [closure: closure]: nothing -> nothing {
@@ -153,7 +153,7 @@ export def generate-local-registry [] {
     with-test-env {
         mkdir ($env.NUPM_TEMP | path join packages registry)
 
-        let reg_file = [tests packages registry registry.nuon] | path join
+        let reg_file = $TEST_REGISTRY_PATH
         let tmp_reg_file = [
             $env.NUPM_TEMP packages registry test_registry.nuon
         ]
@@ -344,7 +344,7 @@ export def registry-fetch [] {
         # Verify cache directory was created
         let cache_dir = $env.NUPM_CACHE | path join test
         assert ($cache_dir | path exists)
-        assert (($cache_dir | path join "registry.nuon") | path exists)
+        assert (($cache_dir | path join $REGISTRY_FILENAME) | path exists)
 
         # Verify package files were cached
         let spam_script_cache = $cache_dir | path join "spam_script.nuon"

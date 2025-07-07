@@ -1,6 +1,6 @@
 # Utilities related to nupm registries
 
-use dirs.nu cache-dir
+use dirs.nu [ cache-dir REGISTRY_FILENAME ]
 use log.nu throw-error
 use misc.nu [check-cols url hash-file hash-fn]
 
@@ -48,7 +48,7 @@ export def search-package [
             } else {
                 try {
                     let registry_cache_dir = cache-dir --ensure | path join $name
-                    let reg_file = $registry_cache_dir | path join "registry.nuon"
+                    let reg_file = $registry_cache_dir | path join $REGISTRY_FILENAME
 
                     let reg = if ($reg_file | path exists) {
                         open $reg_file
