@@ -29,7 +29,7 @@ export def print-nupm-env [] {
     print $'NUPM_TEMP:  ($env.NUPM_TEMP?)'
     print $"PATH: ($env.PATH? | default $env.Path? | default [])"
     print $'NU_LIB_DIRS: ($env.NU_LIB_DIRS?)'
-    print $'nupm.registires: ($env.NUPM_REGISTRIES?)'
+    print $'NUPM_REGISTRIES: ($env.NUPM_REGISTRIES?)'
 }
 
 # turn on pretty diffs for NUON data files
