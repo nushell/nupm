@@ -12,7 +12,7 @@ export def main []: nothing -> table {
 # List all configured registries
 @example "List all registries with details" { nupm registry list }
 export def list []: nothing -> table {
-    $env.nupm.registries | transpose name url | sort-by name
+    $env.NUPM_REGISTRIES | transpose name url | sort-by name
 }
 
 
@@ -25,11 +25,11 @@ export def describe [
 ]: nothing -> table {
     use utils/dirs.nu cache-dir
 
-    if not ($registry in $env.nupm.registries) {
+    if not ($registry in $env.NUPM_REGISTRIES) {
         throw-error $"Registry '($registry)' not found"
     }
 
-    let registry_url = $env.nupm.registries | get $registry
+    let registry_url = $env.NUPM_REGISTRIES | get $registry
     let registry_cache_dir = cache-dir --ensure | path join $registry
     let cached_registry = $registry_cache_dir | path join "registry.nuon"
 
@@ -91,13 +91,13 @@ export def --env add [
     url: string,        # URL or path to the registry
     --save,             # Whether to commit the change to the registry index
 ] {
-    if ($name in $env.nupm.registries) {
+    if ($name in $env.NUPM_REGISTRIES) {
         throw-error $"Registry '($name)' already exists. Use 'nupm registry update' to modify it."
     }
-    $env.nupm.registries = $env.nupm.registries | insert $name $url
+    $env.NUPM_REGISTRIES = $env.NUPM_REGISTRIES | insert $name $url
 
     if $save {
-      $env.nupm.registries | save --force $env.nupm.index-path
+      $env.NUPM_REGISTRIES | save --force $env.NUPM_INDEX_PATH
     }
 
     print $"Registry '($name)' added successfully."
@@ -109,10 +109,10 @@ export def --env remove [
     name: string        # Name of the registry to remove
     --save,             # Whether to commit the change to the registry index
 ] {
-    $env.nupm.registries = $env.nupm.registries | reject $name
+    $env.NUPM_REGISTRIES = $env.NUPM_REGISTRIES | reject $name
 
     if $save {
-      $env.nupm.registries | save --force $env.nupm.index-path
+      $env.NUPM_REGISTRIES | save --force $env.NUPM_INDEX_PATH
     }
 
     print $"Registry '($name)' removed successfully."
@@ -125,10 +125,10 @@ export def --env set-url [
     url: string,
     --save,         # Whether to commit the change to the registry index
 ]: nothing -> nothing {
-    $env.nupm.registries = $env.nupm.registries | update $name $url
+    $env.NUPM_REGISTRIES = $env.NUPM_REGISTRIES | update $name $url
 
     if $save {
-      $env.nupm.registries | save --force $env.nupm.index-path
+      $env.NUPM_REGISTRIES | save --force $env.NUPM_INDEX_PATH
     }
 
     print $"Registry '($name)' URL updated successfully."
@@ -143,10 +143,10 @@ export def --env rename [
     new_name: string,
     --save,         # Whether to commit the change to the registry index
 ] {
-    $env.nupm.registries = $env.nupm.registries | nu-rename --column { $name: $new_name }
+    $env.NUPM_REGISTRIES = $env.NUPM_REGISTRIES | nu-rename --column { $name: $new_name }
 
     if $save {
-      $env.nupm.registries | save --force $env.nupm.index-path
+      $env.NUPM_REGISTRIES | save --force $env.NUPM_INDEX_PATH
     }
 
     print $"Registry '($name)' renamed successfully."
@@ -161,7 +161,7 @@ export def fetch [
 ] {
     if $all {
         # Fetch all registries
-        let registries = $env.nupm.registries | transpose name url
+        let registries = $env.NUPM_REGISTRIES | transpose name url
         print $"Fetching ($registries | length) registries..."
 
         $registries | each {|reg|
@@ -172,11 +172,11 @@ export def fetch [
     } else if ($registry | is-empty) {
         throw-error "Please specify a registry name or use --all flag"
     } else {
-        if not ($registry in $env.nupm.registries) {
+        if not ($registry in $env.NUPM_REGISTRIES) {
             throw-error $"Registry '($registry)' not found"
         }
 
-        let registry_url = $env.nupm.registries | get $registry
+        let registry_url = $env.NUPM_REGISTRIES | get $registry
         fetch-registry $registry $registry_url
 
         print $"Registry '($registry)' fetched successfully."
@@ -223,18 +223,18 @@ def fetch-registry [name: string, url: string] {
 
 def init-index [] {
     if not (nupm-home-prompt) {
-        throw-error "Cannot create nupm.home directory."
+        throw-error "Cannot create NUPM_HOME directory."
     }
 
 
-    if ($env.nupm.index-path | path exists) {
-        print $"Registry list already exists at ($env.nupm.index-path)"
+    if ($env.NUPM_INDEX_PATH | path exists) {
+        print $"Registry list already exists at ($env.NUPM_INDEX_PATH)"
         return
     }
 
-    $env.nupm.registries | save $env.nupm.index-path
+    $env.NUPM_REGISTRIES | save $env.NUPM_INDEX_PATH
 
-    print $"Registry index initialized at ($env.nupm.index-path)"
+    print $"Registry index initialized at ($env.NUPM_INDEX_PATH)"
 }
 
 

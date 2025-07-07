@@ -32,27 +32,27 @@ Both of the above commands will make `nupm` and all its subcommands available in
 > ```
 
 ## :gear: configuration [[toc](#table-of-content)]
-One can change the location of the Nupm directory with `$env.nupm.home`, e.g.
+One can change the location of the Nupm directory with `$env.NUPM_HOME`, e.g.
 ```nushell
 # env.nu
 
-$env.nupm.home = ($env.XDG_DATA_HOME | path join "nupm")
+$env.NUPM_HOME = ($env.XDG_DATA_HOME | path join "nupm")
 ```
 
-Because Nupm will install modules and scripts in `{{nupm-home}}/modules/` and `{{nupm-home}}/scripts/` respectively, it is a good idea to add these paths to `$env.NU_LIB_DIRS` and `$env.PATH` respectively, e.g. if you have `$env.nupm.home` defined:
+Because Nupm will install modules and scripts in `{{nupm-home}}/modules/` and `{{nupm-home}}/scripts/` respectively, it is a good idea to add these paths to `$env.NU_LIB_DIRS` and `$env.PATH` respectively, e.g. if you have `$env.NUPM_HOME` defined:
 ```nushell
 # env.nu
 
 $env.NU_LIB_DIRS = [
     ...
-    ($env.nupm.home | path join "modules")
+    ($env.NUPM_HOME | path join "modules")
 ]
 
 $env.PATH = (
     $env.PATH
         | split row (char esep)
         | ....
-        | prepend ($env.nupm.home | path join "scripts")
+        | prepend ($env.NUPM_HOME | path join "scripts")
         | uniq
 )
 ```

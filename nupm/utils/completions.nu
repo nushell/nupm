@@ -1,3 +1,3 @@
 export def complete-registries [] {
-    $env.nupm?.registries? | default {} | columns
+    $env.NUPM_REGISTRIES? | default {} | columns
 }

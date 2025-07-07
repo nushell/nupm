@@ -1,16 +1,26 @@
-# Base values for nupm that are used as defaults if not present in `$env.nupm`
+# Directories and related utilities used in nupm
+
+# Default installation path for nupm packages
+export const DEFAULT_NUPM_HOME = ($nu.default-config-dir | path join "nupm")
+
+# Default path for installation cache
+export const DEFAULT_NUPM_CACHE = ($nu.default-config-dir
+    | path join nupm cache)
+
+# Default temporary path for various nupm purposes
+export const DEFAULT_NUPM_TEMP = ($nu.temp-path | path join "nupm")
+
+# Default registry index filename
 export const REGISTRY_IDX_FILENAME = "registry_index.nuon"
-export const BASE_NUPM_CONFIG = {
-    default: {
-        home: ($nu.default-config-dir | path join nupm)
-        cache: ($nu.default-config-dir | path join nupm cache)
-        index-path: ($nu.default-config-dir | path join nupm $REGISTRY_IDX_FILENAME)
-        temp: ($nu.temp-path | path join nupm)
-        registries: {
-            nupm: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
-        }
-    }
+
+# Default registry
+export const DEFAULT_NUPM_REGISTRIES = {
+    nupm: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
 }
+
+# default path for the nupm registry index
+export const DEFAULT_NUPM_INDEX_PATH = ($nu.default-config-dir | path join nupm $REGISTRY_IDX_FILENAME)
+
 
 def env-colour [env_name: string]: nothing -> string {
  $"(ansi purple)($env_name)(ansi reset)"
@@ -18,21 +28,21 @@ def env-colour [env_name: string]: nothing -> string {
 
 # Directories and related utilities used in nupm
 
-# Prompt to create $env.nupm.home if it does not exist and some sanity checks.
+# Prompt to create $env.NUPM_HOME if it does not exist and some sanity checks.
 #
 # returns true if the root directory exists or has been created, false otherwise
 export def nupm-home-prompt [--no-confirm]: nothing -> bool {
-    if 'home' not-in $env.nupm {
+    if 'NUPM_HOME' not-in $env {
         error make --unspanned {
-            msg: $"Internal error: (env-colour "$env.nupm.home") is not set"
+            msg: $"Internal error: (env-colour "$env.NUPM_HOME") is not set"
         }
     }
 
-    if ($env.nupm.home | path exists) {
-        if ($env.nupm.home | path type) != 'dir' {
+    if ($env.NUPM_HOME | path exists) {
+        if ($env.NUPM_HOME | path type) != 'dir' {
             error make --unspanned {
-                msg: ($"Root directory ($env.nupm.home) exists, but is not a"
-                    + $" directory. Make sure (env-colour "$env.nupm.home") points at a valid"
+                msg: ($"Root directory ($env.NUPM_HOME) exists, but is not a"
+                    + $" directory. Make sure (env-colour "$env.NUPM_HOME") points at a valid"
                     + " directory and try again.")
             }
         }
@@ -41,7 +51,7 @@ export def nupm-home-prompt [--no-confirm]: nothing -> bool {
     }
 
     if $no_confirm {
-        mkdir $env.nupm.home
+        mkdir $env.NUPM_HOME
         return true
     }
 
@@ -49,7 +59,7 @@ export def nupm-home-prompt [--no-confirm]: nothing -> bool {
 
     while ($answer | str downcase) not-in [ y n ] {
         $answer = (input (
-            $'Root directory "($env.nupm.home)" does not exist.'
+            $'Root directory "($env.NUPM_HOME)" does not exist.'
             + ' Do you want to create it? [y/n] '))
     }
 
@@ -57,13 +67,13 @@ export def nupm-home-prompt [--no-confirm]: nothing -> bool {
         return false
     }
 
-    mkdir $env.nupm.home
+    mkdir $env.NUPM_HOME
 
     true
 }
 
 export def script-dir [--ensure]: nothing -> path {
-    let d = $env.nupm.home | path join scripts
+    let d = $env.NUPM_HOME | path join scripts
 
     if $ensure {
         mkdir $d
@@ -73,7 +83,7 @@ export def script-dir [--ensure]: nothing -> path {
 }
 
 export def module-dir [--ensure]: nothing -> path {
-    let d = $env.nupm.home | path join modules
+    let d = $env.NUPM_HOME | path join modules
 
     if $ensure {
         mkdir $d
@@ -83,7 +93,7 @@ export def module-dir [--ensure]: nothing -> path {
 }
 
 export def cache-dir [--ensure]: nothing -> path {
-    let d = $env.nupm.cache
+    let d = $env.NUPM_CACHE
 
     if $ensure {
         mkdir $d
@@ -93,7 +103,7 @@ export def cache-dir [--ensure]: nothing -> path {
 }
 
 export def tmp-dir [subdir: string, --ensure]: nothing -> path {
-    let d = $BASE_NUPM_CONFIG.default.temp
+    let d = $DEFAULT_NUPM_TEMP
         | path join $subdir
         | path join (random chars -l 8)
 

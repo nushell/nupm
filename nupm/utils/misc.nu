@@ -68,8 +68,8 @@ export module url {
 
 # workaround for https://github.com/nushell/nushell/issues/16036
 export def --env flatten-nupm-env [] {
-    $env.NUPM_HOME = $env.nupm.home
-    $env.NUPM_CACHE = $env.nupm.cache
-    $env.NUPM_TEMP = $env.nupm.temp
-    $env.NUPM_REGISTRIES = $env.nupm.registries | to nuon
+    $env.NUPM_HOME = $env.NUPM_HOME
+    $env.NUPM_CACHE = $env.NUPM_CACHE
+    $env.NUPM_TEMP = $env.NUPM_TEMP
+    $env.NUPM_REGISTRIES = $env.NUPM_REGISTRIES | to nuon
 }
