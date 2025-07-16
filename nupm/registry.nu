@@ -1,7 +1,8 @@
 # Registry management for nupm
 
 use utils/dirs.nu [nupm-home-prompt REGISTRY_FILENAME]
-use utils/log.nu throw-error
+use utils/log.nu [throw-error UNIMPLEMENTED]
+use utils/registry.nu registry-cache
 
 # Manage nupm registires
 @example "List all configured registries" { nupm registry }
@@ -30,25 +31,25 @@ export def describe [
     }
 
     let registry_url = $env.NUPM_REGISTRIES | get $registry
-    let registry_cache_dir = cache-dir --ensure | path join $registry
-    let cached_registry = $registry_cache_dir | path join $REGISTRY_FILENAME
+    let cache = registry-cache $registry
+    let cached_registry = $cache.dir | path join $REGISTRY_FILENAME
 
     # Always check cache first, only fall back to URL if cache doesn't exist
-    let registry_data = if ($cached_registry | path exists) {
-        open $cached_registry
+    let registry_data = if ($cache.file | path exists) {
+        open $cache.file
     } else if ($registry_url | path exists) {
         # Local registry file
         open $registry_url
     } else {
         # Remote registry - fetch and cache
         let data = http get $registry_url
-        mkdir $registry_cache_dir
-        $data | save $cached_registry
+        mkdir $cache.dir
+        $data | save $cache.file
         $data
     }
 
     $registry_data | each {|entry|
-        let package_cache_path = $registry_cache_dir | path join $"($entry.name).nuon"
+        let package_cache_path = $cache.dir | path join $"($entry.name).nuon"
 
         # Always check cache first for package data too
         let package_file_data = if ($package_cache_path | path exists) {
@@ -91,12 +92,17 @@ export def --env add [
         throw-error $"Registry '($name)' already exists. Use 'nupm registry update' to modify it."
     }
     $env.NUPM_REGISTRIES = $env.NUPM_REGISTRIES | insert $name $url
+    mut add_success_msg =  $"Registry '($name)' added successfully"
 
     if $save {
       $env.NUPM_REGISTRIES | save --force $env.NUPM_INDEX_PATH
+      $add_success_msg = $add_success_msg | append $" and written to ($env.NUPM_INDEX_PATH)." | str join " "
+
+    } else {
+      $add_success_msg = $add_success_msg | append $". To commit the change to disk, use the `--save` flag." | str join " "
     }
 
-    print $"Registry '($name)' added successfully."
+    print $add_success_msg
 }
 
 # Remove a registry
@@ -174,5 +180,6 @@ export def init [--index] {
         return
     }
     # TODO initialize registry index here
+    throw-error UNIMPLEMENTED "`nupm registry --index` is not implemented."
 }
 

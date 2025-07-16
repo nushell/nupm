@@ -10,6 +10,13 @@ export const REG_COLS = [ name path hash ]
 # Columns of a registry package file
 export const REG_PKG_COLS = [ name version path type info ]
 
+
+# return the respective registry cache directory and package index
+export def registry-cache [name: string]: nothing -> record<dir: path, file: path> {
+    let dir = cache-dir --ensure | path join "registry" $name
+    { dir: $dir, file: ($dir | path join $REGISTRY_FILENAME) }
+}
+
 # Search for a package in a registry
 export def search-package [
     package: string  # Name of the package
@@ -47,23 +54,22 @@ export def search-package [
 
             } else {
                 try {
-                    let registry_cache_dir = cache-dir --ensure | path join $name
-                    let reg_file = $registry_cache_dir | path join $REGISTRY_FILENAME
+                    let cache = registry-cache $name
 
-                    let reg = if ($reg_file | path exists) {
-                        open $reg_file
+                    let reg = if ($cache.file | path exists) {
+                        open $cache.file
                     } else {
                         let data = http get $url_or_path
-                        mkdir $registry_cache_dir
-                        $data | save --force $reg_file
+                        mkdir $cache.dir
+                        $data | save --force $cache.file
                         $data
                     }
 
                     {
                         reg: $reg
-                        path: $reg_file
+                        path: $cache.file
                         is_url: true
-                        cache_dir: $registry_cache_dir
+                        cache_dir: $cache.dir
                     }
                 } catch {
                     throw-error $"Cannot open '($url_or_path)' as a file or URL."

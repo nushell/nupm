@@ -1,3 +1,6 @@
+# denotes an error msg that a section of code is yet to be implemented
+export const UNIMPLEMENTED = "unimplemented"
+
 export def throw-error [
     error: string
     text?: string
