@@ -1,7 +1,7 @@
 # Registry management for nupm
 
 use utils/dirs.nu [nupm-home-prompt REGISTRY_FILENAME]
-use utils/log.nu [throw-error UNIMPLEMENTED]
+use utils/log.nu [throw-error append-help UNIMPLEMENTED]
 use utils/registry.nu registry-cache
 
 # Manage nupm registires
@@ -14,6 +14,16 @@ export def main []: nothing -> table {
 @example "List all registries with details" { nupm registry list }
 export def list []: nothing -> table {
     $env.NUPM_REGISTRIES | transpose name url | sort-by name
+}
+
+# Formatting convenience function that is passed in the presence of the `--save` flag, informing the user on
+# how to make their changes permanent
+export def success-msg [success_msg: string, write_path: path, saved_to_disk: bool]: nothing -> string {
+  if $saved_to_disk {
+    return $"($success_msg) and written to ($write_path)"
+  }
+
+  $success_msg | append-help "To commit the change to disk, use the `--save` flag."
 }
 
 
@@ -92,17 +102,13 @@ export def --env add [
         throw-error $"Registry '($name)' already exists. Use 'nupm registry update' to modify it."
     }
     $env.NUPM_REGISTRIES = $env.NUPM_REGISTRIES | insert $name $url
-    mut add_success_msg =  $"Registry '($name)' added successfully"
 
     if $save {
       $env.NUPM_REGISTRIES | save --force $env.NUPM_INDEX_PATH
-      $add_success_msg = $add_success_msg | append $" and written to ($env.NUPM_INDEX_PATH)." | str join " "
-
-    } else {
-      $add_success_msg = $add_success_msg | append $". To commit the change to disk, use the `--save` flag." | str join " "
     }
 
-    print $add_success_msg
+    print (success-msg $"Registry '($name)' added successfully" $env.NUPM_INDEX_PATH $save)
+
 }
 
 # Remove a registry
@@ -117,15 +123,15 @@ export def --env remove [
       $env.NUPM_REGISTRIES | save --force $env.NUPM_INDEX_PATH
     }
 
-    print $"Registry '($name)' removed successfully."
+    print (success-msg $"Registry '($name)' removed successfully" $env.NUPM_INDEX_PATH $save)
 }
 
 # Update a given registry url
 @example "Update registry URL" { nupm registry set-url my-registry https://new-url.com/registry.nuon }
 export def --env set-url [
-    name: string,   # Name of the registry to update
-    url: string,
-    --save,         # Whether to commit the change to the registry index
+    name: string, # Name of the registry to update
+    url: string,  # Registry target URL
+    --save,       # Whether to commit the change to the registry index
 ]: nothing -> nothing {
     $env.NUPM_REGISTRIES = $env.NUPM_REGISTRIES | update $name $url
 
@@ -133,7 +139,7 @@ export def --env set-url [
       $env.NUPM_REGISTRIES | save --force $env.NUPM_INDEX_PATH
     }
 
-    print $"Registry '($name)' URL updated successfully."
+    print (success-msg $"Registry '($name)' URL updated successfully" $env.NUPM_INDEX_PATH $save)
 }
 
 # https://www.nushell.sh/book/configuration.html#macos-keeping-usr-bin-open-as-open
@@ -141,9 +147,9 @@ alias nu-rename = rename
 # Rename a registry
 @example "Rename a registry" { nupm registry rename my-registry our-registry }
 export def --env rename [
-    name: string,   # Name of the registry to update
-    new_name: string,
-    --save,         # Whether to commit the change to the registry index
+    name: string,     # Name of the registry to update
+    new_name: string, # New registry name
+    --save,           # Whether to commit the change to the registry index
 ] {
     $env.NUPM_REGISTRIES = $env.NUPM_REGISTRIES | nu-rename --column { $name: $new_name }
 
@@ -151,7 +157,7 @@ export def --env rename [
       $env.NUPM_REGISTRIES | save --force $env.NUPM_INDEX_PATH
     }
 
-    print $"Registry '($name)' renamed successfully."
+    print (success-msg $"Registry '($name)' renamed successfully" $env.NUPM_INDEX_PATH $save)
 }
 
 def init-index [] {

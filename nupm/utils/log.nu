@@ -25,3 +25,8 @@ export def throw-error [
         }
     }
 }
+
+# Append a formatted help line to mimic `error make` in core
+export def append-help [help_msg: string]: string -> string {
+  $in + $"\n  (ansi cyan)help:(ansi reset) " + $help_msg
+}
