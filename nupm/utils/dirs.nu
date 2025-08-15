@@ -10,10 +10,28 @@ export const DEFAULT_NUPM_CACHE = ($nu.default-config-dir
 # Default temporary path for various nupm purposes
 export const DEFAULT_NUPM_TEMP = ($nu.temp-path | path join "nupm")
 
+# registry index filename
+export const REGISTRY_IDX_FILENAME = "registry_index.nuon"
+# registry filename
+export const REGISTRY_FILENAME = "registry.nuon"
+# package manifest filename
+export const PACKAGE_FILENAME = "nupm.nuon"
+
 # Default registry
 export const DEFAULT_NUPM_REGISTRIES = {
-    nupm_test: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
+    nupm: 'https://raw.githubusercontent.com/nushell/nupm/main/registry/registry.nuon'
 }
+
+# default path for the nupm registry index
+export const DEFAULT_NUPM_INDEX_PATH = ($nu.default-config-dir | path join nupm $REGISTRY_IDX_FILENAME)
+
+
+# pretty prints an environmental variable name
+def env-colour [env_name: string]: nothing -> string {
+ $"(ansi purple)$env.($env_name)(ansi reset)"
+}
+
+# Directories and related utilities used in nupm
 
 # Prompt to create $env.NUPM_HOME if it does not exist and some sanity checks.
 #
@@ -21,7 +39,7 @@ export const DEFAULT_NUPM_REGISTRIES = {
 export def nupm-home-prompt [--no-confirm]: nothing -> bool {
     if 'NUPM_HOME' not-in $env {
         error make --unspanned {
-            msg: "Internal error: NUPM_HOME environment variable is not set"
+            msg: $"Internal error: (env-colour "NUPM_HOME") is not set"
         }
     }
 
@@ -29,7 +47,7 @@ export def nupm-home-prompt [--no-confirm]: nothing -> bool {
         if ($env.NUPM_HOME | path type) != 'dir' {
             error make --unspanned {
                 msg: ($"Root directory ($env.NUPM_HOME) exists, but is not a"
-                    + " directory. Make sure $env.NUPM_HOME points at a valid"
+                    + $" directory. Make sure (env-colour "NUPM_HOME") points at a valid"
                     + " directory and try again.")
             }
         }
@@ -50,7 +68,7 @@ export def nupm-home-prompt [--no-confirm]: nothing -> bool {
             + ' Do you want to create it? [y/n] '))
     }
 
-    if ($answer | str downcase) != 'y' {
+    if ($answer | str downcase) not-in [ y Y ] {
         return false
     }
 
@@ -90,7 +108,7 @@ export def cache-dir [--ensure]: nothing -> path {
 }
 
 export def tmp-dir [subdir: string, --ensure]: nothing -> path {
-    let d = $env.NUPM_TEMP
+    let d = $DEFAULT_NUPM_TEMP
         | path join $subdir
         | path join (random chars -l 8)
 
@@ -106,7 +124,7 @@ export def tmp-dir [subdir: string, --ensure]: nothing -> path {
 export def find-root [dir: path]: [ nothing -> path, nothing -> nothing] {
     let root_candidate = 1..($dir | path split | length)
         | reduce -f $dir {|_, acc|
-            if ($acc | path join nupm.nuon | path exists) {
+            if ($acc | path join $PACKAGE_FILENAME | path exists) {
                 $acc
             } else {
                 $acc | path dirname
@@ -115,7 +133,7 @@ export def find-root [dir: path]: [ nothing -> path, nothing -> nothing] {
 
     # We need to do the last check in case the reduce loop ran to the end
     # without finding nupm.nuon
-    if ($root_candidate | path join nupm.nuon | path type) == 'file' {
+    if ($root_candidate | path join $PACKAGE_FILENAME | path type) == 'file' {
         $root_candidate
     } else {
         null

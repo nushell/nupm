@@ -1,6 +1,6 @@
 # Utilities related to nupm registries
 
-use dirs.nu cache-dir
+use dirs.nu [ cache-dir REGISTRY_FILENAME ]
 use log.nu throw-error
 use misc.nu [check-cols url hash-file hash-fn]
 
@@ -9,6 +9,13 @@ export const REG_COLS = [ name path hash ]
 
 # Columns of a registry package file
 export const REG_PKG_COLS = [ name version path type info ]
+
+
+# return the respective registry cache directory and package index
+export def registry-cache [name: string]: nothing -> record<dir: path, file: path> {
+    let dir = cache-dir --ensure | path join "registry" $name
+    { dir: $dir, file: ($dir | path join $REGISTRY_FILENAME) }
+}
 
 # Search for a package in a registry
 export def search-package [
@@ -47,19 +54,22 @@ export def search-package [
 
             } else {
                 try {
-                    let reg = http get $url_or_path
+                    let cache = registry-cache $name
 
-                    # why didn't this line create the cache?
-                    let reg_file = cache-dir --ensure
-                        | path join registry $'($name).nuon'
-
-                    mkdir ($reg_file | path dirname)
-                    $reg | save --force $reg_file
+                    let reg = if ($cache.file | path exists) {
+                        open $cache.file
+                    } else {
+                        let data = http get $url_or_path
+                        mkdir $cache.dir
+                        $data | save --force $cache.file
+                        $data
+                    }
 
                     {
                         reg: $reg
-                        path: $reg_file
+                        path: $cache.file
                         is_url: true
+                        cache_dir: $cache.dir
                     }
                 } catch {
                     throw-error $"Cannot open '($url_or_path)' as a file or URL."
@@ -72,15 +82,17 @@ export def search-package [
             let pkg_files = $registry.reg | where $name_matcher
 
             let pkgs = $pkg_files | each {|row|
-                let pkg_file_path = $registry.path
-                    | path dirname
-                    | path join $row.path
+                let pkg_file_path = if $registry.is_url {
+                    $registry.cache_dir | path join $"($row.name).nuon"
+                } else {
+                    $registry.path | path dirname | path join $row.path
+                }
 
                 let hash = if ($pkg_file_path | path type) == file {
                     $pkg_file_path | hash-file
                 }
 
-                if $registry.is_url and $hash != $row.hash {
+                if $registry.is_url and (not ($pkg_file_path | path exists) or $hash != $row.hash) {
                     let url = $url_or_path | url update-name $row.path
                     http get $url | save --force $pkg_file_path
                 }
@@ -101,4 +113,17 @@ export def search-package [
         | compact
 
     $regs | where not ($it.pkgs | is-empty)
+}
+
+
+export def open-index []: path -> record {
+    let index_file = $in
+    if ($index_file | path exists) {
+      if not (($index_file | path type) == "file") {
+          throw-error $"($index_file) is not a filepath"
+      }
+      return (open $index_file)
+    }
+
+    {}
 }

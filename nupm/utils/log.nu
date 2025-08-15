@@ -1,3 +1,6 @@
+# denotes an error msg that a section of code is yet to be implemented
+export const UNIMPLEMENTED = "unimplemented"
+
 export def throw-error [
     error: string
     text?: string
@@ -21,4 +24,9 @@ export def throw-error [
             end: $span.end
         }
     }
+}
+
+# Append a formatted help line to mimic `error make` in core
+export def append-help [help_msg: string]: string -> string {
+  $in + $"\n  (ansi cyan)help:(ansi reset) " + $help_msg
 }
