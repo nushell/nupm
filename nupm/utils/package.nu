@@ -20,7 +20,7 @@ export def open-package-file [dir: path] {
     log debug "checking package file for missing required keys"
     let required_keys = [$. $.name $.version $.type]
     let missing_keys = $required_keys
-        | where {|key| ($package | get -i $key) == null}
+        | where {|key| ($package | get -o $key) == null}
     if not ($missing_keys | is-empty) {
         throw-error "invalid_package_file" (
             $"($package_file) is missing the following required keys:"
