@@ -146,7 +146,9 @@ export def env-vars-are-set [] {
     assert equal $env.NUPM_HOME $dirs.DEFAULT_NUPM_HOME
     assert equal $env.NUPM_TEMP $dirs.DEFAULT_NUPM_TEMP
     assert equal $env.NUPM_CACHE $dirs.DEFAULT_NUPM_CACHE
-    assert equal $env.NUPM_REGISTRIES $dirs.DEFAULT_NUPM_REGISTRIES
+    (assert equal
+        $env.NUPM_REGISTRIES
+        ($env.NUPM_REGISTRIES | merge $dirs.DEFAULT_NUPM_REGISTRIES))
 }
 
 export def generate-local-registry [] {
