@@ -236,7 +236,7 @@ def fetch-package-git [
     let target_dir = (mktemp --directory)
     mut clone_args = ["clone", $package, "--depth", $depth]
 
-    if $branch {
+    if ($branch | is-not-empty) {
         $clone_args = ($clone_args | append ["--branch", $branch])
     }
     
@@ -263,7 +263,7 @@ export def main [
     --force(-f)  # Overwrite already installed package
     --no-confirm  # Allows to bypass the interactive confirmation, useful for scripting
     --git # Install package from remote git repository, (shorthand for git clone + install)
-    --branch # Branch or tag name to pull
+    --branch: string # Branch or tag name to pull
 ]: nothing -> nothing {
     if not (nupm-home-prompt --no-confirm=$no_confirm) {
         return
