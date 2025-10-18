@@ -70,6 +70,12 @@ git clone https://github.com/nushell/foo.git
 nupm install foo --path
 ```
 
+or
+
+```nushell
+nupm install https://github.com/nushell/foo.git --git
+```
+
 ### update a package [[toc](#table-of-content)]
 
 Assuming the repository is already cloned, you can update the module package with the following:
