@@ -227,6 +227,28 @@ def fetch-package [
     }
 }
 
+# Fetch a package from a git repository (clone into a temp-directory)
+def fetch-package-git [
+    package: string               # Git URL
+    --branch: string              # Branch or tag name
+    --depth: int = 5              # Shallow clone depth
+]: nothing -> path {
+    let target_dir = (mktemp --directory)
+    mut clone_args = ["clone", $package, "--depth", $depth]
+
+    if $branch {
+        $clone_args = ($clone_args | append ["--branch", $branch])
+    }
+    
+    if ($env.NUPM_GIT_CLONE_ARGS? | length) > 0 {
+        $clone_args = ($clone_args | append $env.NUPM_GIT_CLONE_ARGS?)
+    }
+
+    $clone_args = ($clone_args | append [$target_dir])
+    git ...$clone_args
+    return $target_dir
+}
+
 # Install a nupm package
 #
 # Installation consists of two parts:
@@ -240,19 +262,22 @@ export def main [
     --path  # Install package from a directory with nupm.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
     --no-confirm  # Allows to bypass the interactive confirmation, useful for scripting
+    --git # Install package from remote git repository, (shorthand for git clone + install)
+    --branch # Branch or tag name to pull
 ]: nothing -> nothing {
     if not (nupm-home-prompt --no-confirm=$no_confirm) {
         return
     }
-
-    let pkg: path = if not $path {
-        fetch-package $package --registry $registry --version $pkg_version
-    } else {
-        if $pkg_version != null {
+    
+    let pkg: path = if $path {
+         if $pkg_version != null {
             throw-error "Use only --path or --pkg-version, not both"
         }
-
         $package
+    } else if $git {
+        fetch-package-git $package --branch $branch
+    } else {
+        fetch-package $package --registry $registry --version $pkg_version
     }
 
     install-path $pkg --force=$force
