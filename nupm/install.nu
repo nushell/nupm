@@ -162,17 +162,9 @@ def download-pkg [
     }
 
     try {
-        git clone $pkg.info.url $clone_dir
+        git-clone $pkg.info.url --revision=$pkg.info.revision --directory=$clone_dir
     } catch {
         throw-error $'Error cloning repository ($pkg.info.url)'
-    }
-
-    cd $clone_dir
-
-    try {
-        git checkout $pkg.info.revision
-    } catch {
-        throw-error $'Error checking out revision ($pkg.info.revision)'
     }
 
     if not ($pkg_dir | path exists) {
@@ -228,7 +220,7 @@ def fetch-package [
 }
 
 # Fetch a package from a git repository (clone into a temp-directory)
-def fetch-package-git [
+def git-clone [
     package: string               # Git URL
     --branch: string              # Branch or tag name
     --directory: path             # Target directory to clone into
@@ -295,7 +287,7 @@ export def main [
         }
         $package
     } else if $git {
-        fetch-package-git $package --branch $branch
+        git-clone $package --branch=$branch --directory=(tmp-dir git-clone --ensure)
     } else {
         fetch-package $package --registry $registry --version $pkg_version
     }
