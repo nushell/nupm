@@ -231,23 +231,42 @@ def fetch-package [
 def fetch-package-git [
     package: string               # Git URL
     --branch: string              # Branch or tag name
+    --directory: path             # Target directory to clone into
+    --revision: string            # Revision to checkout to
 ]: nothing -> path {
-    let target_dir = (mktemp --directory --suffix "nupm-module")
     let depth = ($env.NUPM_GIT_CLONE_DEPTH? | default 1)
-    
-    mut clone_args = ["clone", $package, "--depth", $depth]
+    mut clone_args = ["clone", $package]
+
+    if ($revision | is-empty) {
+        $clone_args = ($clone_args | append [$"--depth=($depth)"])
+    }
 
     if ($branch | is-not-empty) {
-        $clone_args = ($clone_args | append ["--branch", $branch])
+        $clone_args = ($clone_args | append [$"--branch=($branch)"])
     }
     
     if ($env.NUPM_GIT_CLONE_ARGS? | length) > 0 {
         $clone_args = ($clone_args | append $env.NUPM_GIT_CLONE_ARGS?)
     }
 
-    $clone_args = ($clone_args | append [$target_dir])
-    git ...$clone_args
-    return $target_dir
+    $clone_args = ($clone_args | append [$directory])
+    try {
+        git ...$clone_args
+    } catch {
+        throw-error $'Error cloning repository ($package)'
+    }
+
+    if ($revision | is-not-empty) {
+        {
+            cd $directory
+            try {
+                git checkout $revision
+            } catch {
+                throw-error $'Error checking out revision ($revision)'
+            }
+        }
+    }
+    return $directory
 }
 
 # Install a nupm package
