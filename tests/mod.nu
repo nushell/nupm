@@ -65,6 +65,15 @@ export def install-custom [] {
     }
 }
 
+
+export def install-custom-git [] {
+    with-test-env {
+        nupm install --git https://github.com/nushell/nupm.git
+
+        assert installed [modules nupm]
+    }
+}
+
 export def install-from-local-registry [] {
     with-test-env {
         $env.NUPM_REGISTRIES = {}
