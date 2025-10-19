@@ -231,9 +231,10 @@ def fetch-package [
 def fetch-package-git [
     package: string               # Git URL
     --branch: string              # Branch or tag name
-    --depth: int = 5              # Shallow clone depth
 ]: nothing -> path {
-    let target_dir = (mktemp --directory)
+    let target_dir = (mktemp --directory --suffix "nupm-module")
+    let depth = ($env.NUPM_GIT_CLONE_DEPTH? | default 1)
+    
     mut clone_args = ["clone", $package, "--depth", $depth]
 
     if ($branch | is-not-empty) {
@@ -270,7 +271,7 @@ export def main [
     }
     
     let pkg: path = if $path {
-         if $pkg_version != null {
+        if $pkg_version != null {
             throw-error "Use only --path or --pkg-version, not both"
         }
         $package
