@@ -1,6 +1,6 @@
 use utils/completions.nu complete-registries
 use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir PACKAGE_FILENAME ]
-use utils/log.nu throw-error
+use utils/log.nu [throw-error assert]
 use utils/misc.nu [check-cols hash-fn url]
 use utils/package.nu open-package-file
 use utils/registry.nu search-package
@@ -17,20 +17,19 @@ def install-scripts [
     each {|script|
         let src_path = $pkg_dir | path join $script
 
-        if ($src_path | path type) != file {
-            throw-error "script_not_found" $"Script ($src_path) does not exist"
-        }
-
-        if (($scripts_dir
-                | path join ($script | path basename)
-                | path type) == file
-            and (not $force)
-        ) {
-            throw-error "package_already_installed" (
-                $"Script ($src_path) is already installed in"
-                + $" ($scripts_dir). Use `--force` to override the package."
-            )
-        }
+        assert (($src_path | path type) == file) "script_not_found" $"Script ($src_path) does not exist"
+   
+        (
+            assert ($force 
+                    or (
+                        $scripts_dir
+                        | path join ($script | path basename)
+                        | path type
+                    ) != file
+                )
+            "package_already_installed" 
+            $"Script ($src_path) is already installed in ($scripts_dir). Use `--force` to override the package."
+        )
 
         log debug $"installing script `($src_path)` to `($scripts_dir)`"
         cp $src_path $scripts_dir
@@ -134,10 +133,11 @@ def download-pkg [
     >
 ]: nothing -> path {
     # TODO: Add some kind of hashing to check that files really match
-
-    if ($pkg.type != 'git') {
-        throw-error 'Downloading non-git packages is not supported yet'
-    }
+    (
+        assert ($pkg.type != 'git') 
+        "package_type_not_supported"
+        "Downloading non-git packages is not supported yet"
+    )
 
     let cache_dir = cache-dir --ensure
     cd $cache_dir
@@ -167,9 +167,11 @@ def download-pkg [
         throw-error $'Error cloning repository ($pkg.info.url)'
     }
 
-    if not ($pkg_dir | path exists) {
-        throw-error $'Path ($pkg_dir) does not exist'
-    }
+    (
+        assert (not ($pkg_dir | path exists))
+        "invalid_package_path"
+        $'Package path ($pkg.path) does not exist in cloned repository'
+    )
 
     $pkg_dir
 }
@@ -182,12 +184,16 @@ def fetch-package [
 ]: nothing -> path {
     let regs = search-package $package --registry $registry --exact-match
 
-    if ($regs | is-empty) {
-        throw-error $'Package ($package) not found in any registry'
-    } else if ($regs | length) > 1 {
-        # TODO: Here could be interactive prompt
-        throw-error $'Multiple registries contain package ($package)'
-    }
+    (
+        assert (not ($regs | is-empty))
+        "package_not_found"
+        $'Package ($package) not found in any registry'
+    )
+    (
+        assert (($regs | length) == 1)
+        "multiple_registries_found"
+        $'Multiple registries contain package ($package)'
+    )
 
     # Now, only one registry contains the package
     let reg = $regs | first
@@ -198,11 +204,11 @@ def fetch-package [
     } catch {
         throw-error $'No package matching version `($version)`'
     }
-
-    if $pkg.hash_mismatch == true {
-      throw-error ($'Content of package file ($pkg.path)'
-                        + $' does not match expected hash')
-    }
+    (
+        assert ($pkg.hash_mismatch == false)
+        "package_hash_mismatch"
+        ($'Content of package file ($pkg.path) does not match expected hash')
+    )
 
     print $pkg
 
@@ -226,6 +232,17 @@ def git-clone [
     --directory: path             # Target directory to clone into
     --revision: string            # Revision to checkout to
 ]: nothing -> path {
+    (
+        assert (($directory | path type | default 'dir') == 'dir') 
+        "invalid_directory" 
+        $"Target directory ($directory) is not a directory"
+    )
+    (
+        assert (not ([$revision,$branch] | all {|| $in | is-not-empty})) 
+        "invalid_arguments" 
+        "You must specify at least one of --branch or --revision"
+    )
+
     let depth = ($env.NUPM_GIT_CLONE_DEPTH? | default 1)
     mut clone_args = ["clone", $package]
 
@@ -282,9 +299,7 @@ export def main [
     }
     
     let pkg: path = if $path {
-        if $pkg_version != null {
-            throw-error "Use only --path or --pkg-version, not both"
-        }
+        assert ($pkg_version == null) "invalid_arguments" "Use only --path or --pkg-version, not both"
         $package
     } else if $git {
         git-clone $package --branch=$branch --directory=(tmp-dir git-clone --ensure)
