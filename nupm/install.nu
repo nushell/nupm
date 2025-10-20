@@ -127,11 +127,16 @@ def download-pkg [
     pkg: record<
         name: string,
         version: string,
-        path: string,
+        path: any,
         type: string,
         info: any,
     >
 ]: nothing -> path {
+    (
+        assert ([string,nothing] | any {|| $in == ($pkg.path | describe)}) 
+        "package_path_type_invalid"
+        "Package path must be a string or null"
+    )
     # TODO: Add some kind of hashing to check that files really match
     (
         assert ($pkg.type != 'git') 
