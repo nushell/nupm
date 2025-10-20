@@ -26,17 +26,6 @@ export def throw-error [
     }
 }
 
-export def assert [
-    condition: bool
-    error: string
-    text?: string
-    --span: record<start: int, end: int>
-] {
-    if not $condition {
-        throw-error $error $text --span=$span
-    }
-}
-
 # Append a formatted help line to mimic `error make` in core
 export def append-help [help_msg: string]: string -> string {
   $in + $"\n  (ansi cyan)help:(ansi reset) " + $help_msg
