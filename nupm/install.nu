@@ -1,11 +1,11 @@
 use utils/completions.nu complete-registries
 use utils/dirs.nu [ nupm-home-prompt cache-dir module-dir script-dir tmp-dir PACKAGE_FILENAME ]
-use utils/log.nu throw-error
+use utils/log.nu [throw-error]
 use utils/misc.nu [check-cols hash-fn url]
 use utils/package.nu open-package-file
 use utils/registry.nu search-package
 use utils/version.nu filter-by-version
-
+use std/assert
 # Install list of scripts into a directory
 #
 # Input: Scripts taken from 'nupm.nuon'
@@ -17,20 +17,22 @@ def install-scripts [
     each {|script|
         let src_path = $pkg_dir | path join $script
 
-        if ($src_path | path type) != file {
-            throw-error "script_not_found" $"Script ($src_path) does not exist"
-        }
-
-        if (($scripts_dir
-                | path join ($script | path basename)
-                | path type) == file
-            and (not $force)
-        ) {
-            throw-error "package_already_installed" (
-                $"Script ($src_path) is already installed in"
-                + $" ($scripts_dir). Use `--force` to override the package."
-            )
-        }
+        (
+            assert (($src_path | path type) == file) 
+            $"Script ($src_path) does not exist" 
+            --error-label={text: "script_missing", span:(metadata $src_path | get span)}
+        )
+        (
+            assert ($force 
+                    or (
+                        $scripts_dir
+                        | path join ($script | path basename)
+                        | path type
+                    ) != file
+                )
+            $"Script ($src_path) is already installed in ($scripts_dir). Use `--force` to override the package."
+            --error-label={text: "already_installed", span:(metadata $src_path | get span)}
+        )
 
         log debug $"installing script `($src_path)` to `($scripts_dir)`"
         cp $src_path $scripts_dir
@@ -128,17 +130,22 @@ def download-pkg [
     pkg: record<
         name: string,
         version: string,
-        path: string,
+        path: any,
         type: string,
         info: any,
     >
 ]: nothing -> path {
     # TODO: Add some kind of hashing to check that files really match
-
-    if ($pkg.type != 'git') {
-        throw-error 'Downloading non-git packages is not supported yet'
-    }
-
+    (
+        assert ([string,nothing] | any {|| $in == ($pkg.path | describe)})
+        "Package path must be a string or null"
+        --error-label={text: "invalid_arguments", span:(metadata $pkg.path | get span)}
+    )
+    (
+        assert ($pkg.type == 'git')
+        "Downloading non-git packages is not supported yet"
+        --error-label={text: "invalid_arguments", span:(metadata $pkg.type | get span)}
+    )
     let cache_dir = cache-dir --ensure
     cd $cache_dir
 
@@ -162,22 +169,15 @@ def download-pkg [
     }
 
     try {
-        git clone $pkg.info.url $clone_dir
+        git-clone $pkg.info.url --revision=$pkg.info.revision --directory=$clone_dir
     } catch {
         throw-error $'Error cloning repository ($pkg.info.url)'
     }
-
-    cd $clone_dir
-
-    try {
-        git checkout $pkg.info.revision
-    } catch {
-        throw-error $'Error checking out revision ($pkg.info.revision)'
-    }
-
-    if not ($pkg_dir | path exists) {
-        throw-error $'Path ($pkg_dir) does not exist'
-    }
+    (
+        assert (not ($pkg_dir | path exists))
+        $'Package path ($pkg.path) does not exist in cloned repository'
+        --error-label={text: "path_missing", span:(metadata $pkg_dir | get span)}
+    )
 
     $pkg_dir
 }
@@ -190,13 +190,16 @@ def fetch-package [
 ]: nothing -> path {
     let regs = search-package $package --registry $registry --exact-match
 
-    if ($regs | is-empty) {
-        throw-error $'Package ($package) not found in any registry'
-    } else if ($regs | length) > 1 {
-        # TODO: Here could be interactive prompt
-        throw-error $'Multiple registries contain package ($package)'
-    }
-
+    (
+        assert ($regs | is-not-empty)
+        $'Package ($package) not found in any registry'
+        --error-label={text: "registry_not_found", span:(metadata $regs| get span)}
+    )
+    (
+        assert (($regs | length) == 1)
+        $'Multiple registries contain package ($package)'
+        --error-label={text: "multiple_registries_found", span:(metadata $regs| get span)}
+    )
     # Now, only one registry contains the package
     let reg = $regs | first
     let pkgs = $reg.pkgs | filter-by-version $version
@@ -206,11 +209,12 @@ def fetch-package [
     } catch {
         throw-error $'No package matching version `($version)`'
     }
-
-    if $pkg.hash_mismatch == true {
-      throw-error ($'Content of package file ($pkg.path)'
-                        + $' does not match expected hash')
-    }
+    
+    (
+        assert (not $pkg.hash_mismatch)
+        $'Content of package file ($pkg.path) does not match expected hash'
+        --error-label={text: "hash_mismatch", span:(metadata $pkg.hash_mismatch| get span)}
+    )
 
     print $pkg
 
@@ -227,6 +231,61 @@ def fetch-package [
     }
 }
 
+# Fetch a package from a git repository (clone into a temp-directory)
+def git-clone [
+    package: string               # Git URL
+    --branch: string              # Branch or tag name
+    --directory: path             # Target directory to clone into
+    --revision: string            # Revision to checkout to
+]: nothing -> path {
+    (
+        assert (($directory | path type | default 'dir') == 'dir')
+        $"Target directory ($directory) is not a directory"
+        --error-label={text: "invalid_arguments", span:(metadata $directory| get span)}
+    )
+    (
+        assert (not (
+            [$revision,$branch] 
+            | all {|| $in | is-not-empty}))
+        "You must specify only one of --branch or --revision"
+        --error-label={text: "invalid_arguments", span:(metadata $branch| get span)}
+    )
+
+    let depth = ($env.NUPM_GIT_CLONE_DEPTH? | default 1)
+    mut clone_args = ["clone", $package]
+
+    if ($revision | is-empty) {
+        $clone_args = ($clone_args | append [$"--depth=($depth)"])
+    }
+
+    if ($branch | is-not-empty) {
+        $clone_args = ($clone_args | append [$"--branch=($branch)"])
+    }
+    
+    if ($env.NUPM_GIT_CLONE_ARGS? | length) > 0 {
+        $clone_args = ($clone_args | append $env.NUPM_GIT_CLONE_ARGS?)
+    }
+
+    $clone_args = ($clone_args | append [$directory])
+    try {
+        git ...$clone_args
+    } catch {
+        throw-error $'Error cloning repository ($package)'
+    }
+
+    if ($revision | is-not-empty) {
+        {
+            cd $directory
+            try {
+                git checkout $revision
+            } catch {
+                throw-error $'Error checking out revision ($revision)'
+            }
+        }
+    }
+    return $directory
+}
+
 # Install a nupm package
 #
 # Installation consists of two parts:
@@ -240,19 +299,20 @@ export def main [
     --path  # Install package from a directory with nupm.nuon given by 'name'
     --force(-f)  # Overwrite already installed package
     --no-confirm  # Allows to bypass the interactive confirmation, useful for scripting
+    --git # Install package from remote git repository, (shorthand for git clone + install)
+    --branch: string # Branch or tag name to pull
 ]: nothing -> nothing {
     if not (nupm-home-prompt --no-confirm=$no_confirm) {
         return
     }
-
-    let pkg: path = if not $path {
-        fetch-package $package --registry $registry --version $pkg_version
-    } else {
-        if $pkg_version != null {
-            throw-error "Use only --path or --pkg-version, not both"
-        }
-
+    
+    let pkg: path = if $path {
+        assert ($pkg_version == null) "Use only --path or --pkg-version, not both" --error-label={text: "invalid_arguments", span:(metadata $path | get span)}
         $package
+    } else if $git {
+        git-clone $package --branch=$branch --directory=(tmp-dir git-clone --ensure)
+    } else {
+        fetch-package $package --registry $registry --version $pkg_version
     }
 
     install-path $pkg --force=$force
