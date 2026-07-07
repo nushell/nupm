@@ -7,12 +7,12 @@ use utils/dirs.nu [
 
 use utils/registry.nu open-index
 
-export module install.nu
-export module publish.nu
-export module registry.nu
-export module search.nu
-export module status.nu
-export module test.nu
+export use install.nu
+export use publish.nu
+export use registry.nu
+export use search.nu
+export use status.nu
+export use test.nu
 
 
 export-env {
