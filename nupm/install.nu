@@ -174,7 +174,7 @@ def download-pkg [
         throw-error $'Error cloning repository ($pkg.info.url)'
     }
     (
-        assert (not ($pkg_dir | path exists))
+        assert ($pkg_dir | path exists)
         $'Package path ($pkg.path) does not exist in cloned repository'
         --error-label={text: "path_missing", span:(metadata $pkg_dir | get span)}
     )
