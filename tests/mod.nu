@@ -94,7 +94,7 @@ export def install-from-local-registry [] {
 
     with-test-env {
         $env.NUPM_GIT_CLONE_ARGS = [
-            "--reference"
+            "--reference-if-able"
             ($DIRNAME | path join ".." | path expand)
             "--revision"
             (git rev-parse HEAD)
