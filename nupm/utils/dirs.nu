@@ -62,13 +62,13 @@ export def nupm-home-prompt [--no-confirm]: nothing -> bool {
 
     mut answer = ''
 
-    while ($answer | str downcase) not-in [ y n ] {
+    while ($answer | str lowercase) not-in [ y n ] {
         $answer = (input (
             $'Root directory "($env.NUPM_HOME)" does not exist.'
             + ' Do you want to create it? [y/n] '))
     }
 
-    if ($answer | str downcase) not-in [ y Y ] {
+    if ($answer | str lowercase) not-in [ y Y ] {
         return false
     }
 
