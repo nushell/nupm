@@ -4,6 +4,7 @@ use ../nupm/utils/dirs.nu
 use ../nupm/utils/dirs.nu [ tmp-dir REGISTRY_FILENAME ]
 use ../nupm
 
+const DIRNAME = path self .
 const TEST_REGISTRY_PATH = ([tests packages registry $REGISTRY_FILENAME] | path join)
 
 
@@ -90,6 +91,17 @@ export def install-from-local-registry [] {
         nupm install spam_script
         check-file-content 0.2.0
     }
+
+    with-test-env {
+        $env.NUPM_GIT_CLONE_ARGS = [
+            "--reference-if-able"
+            ($DIRNAME | path join ".." | path expand)
+            "--revision"
+            (git rev-parse HEAD)
+        ]
+
+        nupm install spam_git
+    }
 }
 
 export def install-with-version [] {
@@ -129,7 +141,7 @@ export def install-package-not-found [] {
 
 export def search-registry [] {
     with-test-env {
-        assert ((nupm search spam | length) == 4)
+        assert ((nupm search spam | length) == 5)
     }
 }
 
@@ -175,6 +187,12 @@ export def generate-local-registry [] {
         [spam_script spam_script_old spam_custom spam_module] | each {|pkg|
             cd ([tests packages $pkg] | path join)
             nupm publish $tmp_reg_file --local --save --path (".." | path join $pkg)
+        }
+
+        do {
+            let pkg = "spam_git"
+            cd ([tests packages $pkg] | path join)
+            nupm publish $tmp_reg_file --git --save --info {url: "https://github.com/nushell/nupm.git" revision: "main"} --path $"tests/packages/($pkg)"
         }
 
         let actual = open $tmp_reg_file | to nuon

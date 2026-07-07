@@ -2,6 +2,7 @@
     [name, path, hash];
 
     [spam_custom, spam_custom.nuon, "md5-7b3a5119d1af5a025dae32bcfc7cab96"],
+    [spam_git, spam_git.nuon, "md5-6d79981218772b4b130cb5d48b15a70f"],
     [spam_module, spam_module.nuon, "md5-618c7c8ed97b423f111790d97bcd8486"],
     [spam_script, spam_script.nuon, "md5-ce1b060a68ebb42291e364b5daa6d47a"],
 ]

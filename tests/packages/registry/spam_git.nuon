@@ -1,0 +1,1 @@
+[[name, version, path, type, info]; [spam_git, "0.1.0", tests/packages/spam_git, git, {url: "https://github.com/nushell/nupm.git", revision: main}]]
