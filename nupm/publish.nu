@@ -81,7 +81,7 @@ export def main [
         []
     }
 
-    mut existing_entry = null
+    mut existing_entry: oneof<nothing, record> = null
 
     if ($name_matches | length) == 1 {
         $existing_entry = ($name_matches | first)
@@ -225,7 +225,7 @@ def get-registry-path []: string -> path {
     $env.NUPM_REGISTRIES | get -o $registry | default ($registry | path expand)
 }
 
-def open-registry-file []: path -> table<name: string, path: string, url: string> {
+def open-registry-file []: path -> table<name: string, path: string, hash: string> {
     let reg_path = $in
 
     let reg_content = try { open $reg_path }
@@ -245,7 +245,7 @@ def open-reg-pkg-file []: [ path -> table<
         version: string
         path: string
         type: string
-        info: record<url: string, revision: string>> ] {
+        info: oneof<nothing, record<url: string, revision: string>>> ] {
     let pkg_path = $in
 
     let pkg_content = try { open $pkg_path }
