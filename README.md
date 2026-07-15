@@ -1,5 +1,5 @@
 ---
-title: "nupm - Nushell package manager"
+title: "nupm+ - Nushell package manager"
 forked-by: "Zayn Ramdass (zaynram)"
 ---
 
@@ -21,17 +21,17 @@ forked-by: "Zayn Ramdass (zaynram)"
 > `nupm` might use the latest Nushell language features that have not been released in the latest version yet.
 > If that is the case, consider building Nushell from the `main` branch, or installing the [nightly build](https://github.com/nushell/nightly).
 
-`nupm` is a module. Download the repository and treat the [`nupm`](https://github.com/nushell/nupm/tree/main/nupm`) directory as a module. For example:
-* `use nupm/`
-* `overlay use nupm/ --prefix`
+`nupm+` is a module. Download the repository and treat the [`nupm+`](https://github.com/zaynram/nupm-plus/tree/main/nupm+) directory as a module. For example:
+* `use nupm+/`
+* `overlay use nupm+/ --prefix`
 
-Both of the above commands will make `nupm` and all its subcommands available in your current scope. `overlay use` will allow you to `overlay hide` the `nupm` overlay when you don't need it.
+Both of the above commands will make `nupm+` and all its subcommands available in your current scope. `overlay use` will allow you to `overlay hide` the `nupm+` overlay when you don't need it.
 
 > **Note**
-> `nupm` is able to install itself: from outside the root of your local copy of `nupm`, run
+> `nupm+` is able to install itself: from outside the root of your local copy of `nupm+`, run
 > ```nushell
-> use nupm/nupm
-> nupm install nupm --force --path
+> use nupm-plus/nupm+
+> nupm+ install nupm-plus --force --path
 > ```
 
 ## :gear: configuration [[toc](#table-of-content)]
@@ -70,13 +70,13 @@ As an illustrative example, the following demonstrates use of a fictional `foo` 
 
 ```nushell
 git clone https://github.com/nushell/foo.git
-nupm install foo --path
+nupm+ install foo --path
 ```
 
 or
 
 ```nushell
-nupm install https://github.com/nushell/foo.git --git
+nupm+ install https://github.com/nushell/foo.git --git
 ```
 
 ### update a package [[toc](#table-of-content)]
@@ -85,9 +85,9 @@ Assuming the repository is already cloned, you can update the module package wit
 
 ```nushell
 do { cd foo; git pull }
-nupm install foo --force --path
+nupm+ install foo --force --path
 ```
-This usage will likely change once a dedicated `nupm update` command is added.
+This usage will likely change once a dedicated `nupm+ update` command is added.
 
 ### define a package [[toc](#table-of-content)]
 
@@ -121,12 +121,12 @@ as it is done in Nupm, one can define tests in a project and run them with the `
 use ../package/foo/bar.nu [baz, brr]
 ```
 - all the commands defined in the `tests/` module and `export`ed will run as tests
-- from the root of the repo, run `nupm test`
+- from the root of the repo, run `nupm+ test`
 
 ### run the tests of Nupm [[toc](#table-of-content)]
 from the root of Nupm, run
 ```nushell
-nupm test
+nupm+ test
 ```
 you should see something like
 ```

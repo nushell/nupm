@@ -99,7 +99,7 @@ export def --env add [
     --save,             # Whether to commit the change to the registry index
 ] {
     if ($name in $env.NUPM_REGISTRIES) {
-        throw-error $"Registry '($name)' already exists. Use 'nupm registry update' to modify it."
+        throw-error $"Registry '($name)' already exists. Use 'nupm+ registry update' to modify it."
     }
     $env.NUPM_REGISTRIES = $env.NUPM_REGISTRIES | insert $name $url
 
@@ -160,6 +160,28 @@ export def --env rename [
     print (success-msg $"Registry '($name)' renamed successfully" $env.NUPM_INDEX_PATH $save)
 }
 
+# Drop cached registry indexes and git clones so the next lookup re-fetches.
+#
+# nupm caches a remote registry's index and package files, and git clones per
+# revision, without any expiry — a pushed registry or package update is
+# invisible until the cache is cleared.
+@example "Refresh one registry's cache" { nupm registry refresh ramda }
+@example "Refresh every registry cache" { nupm registry refresh }
+export def refresh [
+    name?: string@registry-names  # Registry to refresh (all registries when omitted)
+] {
+    use utils/dirs.nu cache-dir
+
+    let cache = cache-dir
+    let registries = match $name {
+        null => ($cache | path join registry)
+        $n => ($cache | path join registry $n)
+    }
+    rm --recursive --force $registries ($cache | path join git)
+
+    print $"Refreshed the nupm cache for ($name | default 'all registries')"
+}
+
 def init-index [] {
     if not (nupm-home-prompt) {
         throw-error "Cannot create NUPM_HOME directory."
@@ -186,6 +208,6 @@ export def init [--index] {
         return
     }
     # TODO initialize registry index here
-    throw-error UNIMPLEMENTED "`nupm registry --index` is not implemented."
+    throw-error UNIMPLEMENTED "`nupm+ registry --index` is not implemented."
 }
 

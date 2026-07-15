@@ -48,11 +48,9 @@ export def list-package-files [pkg_dir: path, pkg: record]: nothing -> list<oneo
 
     let src = $"
         ($activation)
-        let pkg_dir = echo ($pkg_dir) | path split
         view files
-        | where \($it.filename | path split | take \($pkg_dir | length\)\) == $pkg_dir
+        | where \($it.filename | str starts-with ($pkg_dir)\)
         | get filename
-        | path expand
         | to nuon"
 
     mut files = []
