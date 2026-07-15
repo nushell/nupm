@@ -1,4 +1,7 @@
-# nupm - Nushell package manager
+---
+title: "nupm - Nushell package manager"
+forked-by: "Zayn Ramdass (zaynram)"
+---
 
 ## Table of content
 - [*installation*](#recycle-installation-toc)
