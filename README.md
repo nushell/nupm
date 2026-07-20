@@ -19,8 +19,11 @@
 > If that is the case, consider building Nushell from the `main` branch, or installing the [nightly build](https://github.com/nushell/nightly).
 
 `nupm` is a module. Download the repository and treat the [`nupm`](https://github.com/nushell/nupm/tree/main/nupm`) directory as a module. For example:
-* `use nupm/`
-* `overlay use nupm/ --prefix`
+
+```nushell
+use nupm/
+overlay use nupm/ --prefix
+```
 
 Both of the above commands will make `nupm` and all its subcommands available in your current scope. `overlay use` will allow you to `overlay hide` the `nupm` overlay when you don't need it.
 
@@ -32,11 +35,12 @@ Both of the above commands will make `nupm` and all its subcommands available in
 > ```
 
 ## :gear: configuration [[toc](#table-of-content)]
-One can change the location of the Nupm directory with `$env.NUPM_HOME`, e.g.
+One can change the location of the Nupm directory with `$env.NUPM_HOME`, e.g. for systemd Linux
 ```nushell
 # env.nu
 
-$env.NUPM_HOME = ($env.XDG_DATA_HOME | path join "nupm")
+$env.NUPM_HOME  = (systemd-path user-shared      | path join "nupm") # ~/.local/share/nupm (systemd Linux default)
+$env.NUPM_CACHE = (systemd-path user-state-cache | path join "nupm") # ~/.cache/nupm       (systemd Linux default)
 ```
 
 Because Nupm will install modules and scripts in `{{nupm-home}}/modules/` and `{{nupm-home}}/scripts/` respectively, it is a good idea to add these paths to `$env.NU_LIB_DIRS` and `$env.PATH` respectively, e.g. if you have `$env.NUPM_HOME` defined:
